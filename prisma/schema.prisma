@@ -11,8 +11,8 @@ model User {
   id          String   @id @default(cuid())
   clerkId     String   @unique // Clerk user ID
   email       String   @unique
-  firstsName   String?
-  lastName   String?
+  firstName   String?  
+  lastName    String?
   role        Role     @default(STUDENT) // Default to 'STUDENT'
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
