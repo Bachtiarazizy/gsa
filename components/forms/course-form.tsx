@@ -8,9 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createCourse } from "@/lib/actions/course";
 import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
+import { createCourse } from "@/lib/actions/course";
 
 interface CreateCourseResponse {
   success: boolean;

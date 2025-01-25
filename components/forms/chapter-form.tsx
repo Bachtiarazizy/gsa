@@ -8,9 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, Video } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createChapter } from "@/lib/actions/chapter";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
+import { createChapter } from "@/lib/actions/chapter";
 
 interface CreateChapterFormProps {
   courseId: string;
