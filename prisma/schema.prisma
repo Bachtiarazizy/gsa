@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  clerkId     String   @unique // Clerk user ID
+  email       String   @unique
+  name        String?
+  role        Role     @default(STUDENT) // Default to 'STUDENT'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  enrollments CourseEnrollment[]
+  progress    ChapterProgress[]
+  results     AssessmentResult[]
+}
+
+model Course {
+  id          String    @id @default(cuid())
+  userId      String    // Clerk user ID
+  title       String
+  description String?   @db.Text
+  duration    String?
+  enrollmentCount Int       @default(0)
+  imageUrl    String?
+  price       Float     @default(0)
+  isPublished Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  chapters    Chapter[]
+  enrollments CourseEnrollment[]
+
+  @@index([userId])
+}
+
+model Chapter {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  videoUrl    String
+  position    Int
+  isPublished Boolean   @default(false)
+  courseId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress    ChapterProgress[]
+  assessment  Assessment?
+
+  @@index([courseId])
+}
+
+model Assessment {
+  id          String    @id @default(cuid())
+  chapterId   String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  chapter     Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  results     AssessmentResult[]
+
+  @@index([chapterId])
+}
+
+model Question {
+  id            String    @id @default(cuid())
+  question      String
+  options       String[]
+  correctAnswer String
+  assessmentId  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model ChapterProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  chapterId   String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@index([chapterId])
+}
+
+model AssessmentResult {
+  id            String   @id @default(cuid())
+  userId        String
+  assessmentId  String
+  score         Int
+  isPassed      Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, assessmentId])
+  @@index([userId])
+  @@index([assessmentId])
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}

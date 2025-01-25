@@ -1,0 +1,144 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createCourse } from "@/lib/actions/course";
+import Image from "next/image";
+import { UploadDropzone } from "@/lib/uploadthing";
+
+interface CreateCourseResponse {
+  success: boolean;
+  data?: {
+    id: string;
+    [key: string]: any;
+  };
+  error?: string;
+}
+
+export default function CreateCourseForm() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  async function onSubmit(formData: FormData) {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      if (!imageUrl) {
+        setError("Course image is required");
+        return;
+      }
+
+      const price = formData.get("price");
+      if (price === null || price === "") {
+        setError("Price is required");
+        return;
+      }
+
+      // Ensure price is a valid number
+      const numericPrice = Number(price);
+      if (isNaN(numericPrice) || numericPrice < 0) {
+        setError("Please enter a valid price");
+        return;
+      }
+
+      // Add the uploaded image URL to the form data
+      formData.set("imageUrl", imageUrl);
+      formData.set("price", numericPrice.toString());
+
+      const result = (await createCourse(formData)) as CreateCourseResponse;
+
+      if (!result.success) {
+        setError(result.error || "Failed to create course");
+        return;
+      }
+
+      if (result.data) {
+        router.push(`/courses/${result.data.id}`);
+        router.refresh();
+      }
+    } catch (err) {
+      setError("Something went wrong");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto p-6">
+      <form action={onSubmit} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="title">Course Title</Label>
+          <Input id="title" name="title" required placeholder="Enter course title" disabled={isLoading} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea id="description" name="description" placeholder="Enter course description" disabled={isLoading} />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Course Image</Label>
+          <div className="flex flex-col gap-4">
+            {imageUrl ? (
+              <>
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <Image src={imageUrl} alt="Course thumbnail" fill className="object-cover" />
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl(null)} disabled={isLoading}>
+                  Change Image
+                </Button>
+              </>
+            ) : (
+              <UploadDropzone
+                endpoint="courseImage"
+                onClientUploadComplete={(res) => {
+                  setImageUrl(res?.[0]?.url);
+                }}
+                onUploadError={(error: Error) => {
+                  setError(error.message);
+                }}
+                appearance={{
+                  container: "border-dashed",
+                  label: "Drag and drop an image or click to browse",
+                }}
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="price">Price</Label>
+          <Input id="price" name="price" type="number" min="0" step="0.01" placeholder="Enter course price" disabled={isLoading} required className="appearance-none" />
+        </div>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button type="submit" className="w-full" disabled={isLoading || !imageUrl}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            "Create Course"
+          )}
+        </Button>
+      </form>
+    </div>
+  );
+}
