@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   // Handle the 'user.created' event
   if (evt.type === "user.created") {
     const userPayload = payload.data;
-    const primaryEmail = userPayload.email_addresses[0]?.email_address;
+    const primaryEmail = userPayload.email_addresses[0]?.email_address; // Access the first email address
 
     // Ensure the email exists before saving
     if (!primaryEmail) {
