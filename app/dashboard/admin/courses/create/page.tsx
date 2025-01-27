@@ -4,18 +4,27 @@ import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import CreateCourseForm from "@/components/forms/course-form";
+import prisma from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Create a New Course",
   description: "Create a new course for your students",
 };
 
+async function getCategoriesData() {
+  // Fetch categories from your API/database
+  const categories = await prisma.category.findMany();
+  return categories;
+}
+
+const categories = await getCategoriesData();
+
 export default function CreateCoursePage() {
   return (
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-2">
-          <Link href="/courses">
+          <Link href="/dashboard/admin/courses">
             <Button variant="ghost" size="sm" className="flex items-center">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to courses
@@ -35,7 +44,7 @@ export default function CreateCoursePage() {
               <h2 className="text-xl font-semibold">Course Details</h2>
               <p className="text-sm text-muted-foreground">Fill in the information below to create your new course</p>
             </div>
-            <CreateCourseForm />
+            <CreateCourseForm categories={categories} />
           </div>
         </div>
       </div>

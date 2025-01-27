@@ -53,7 +53,7 @@ export default async function ChapterDetailsPage({ params }: PageProps) {
           <BookOpen className="h-6 w-6" />
           <h1 className="text-2xl font-bold">{chapter.title}</h1>
         </div>
-        <Link href={`/courses/${params.courseId}/chapters/${params.chapterId}/edit`}>
+        <Link href={`/dashboard/admin/courses/${params.courseId}/chapters/${params.chapterId}/edit`}>
           <Button className="flex items-center gap-2">
             <FileEdit className="h-4 w-4" />
             Edit Chapter
@@ -115,7 +115,7 @@ export default async function ChapterDetailsPage({ params }: PageProps) {
             {chapter.assessment ? (
               <div>
                 <p className="text-sm">Questions: {chapter.assessment.questions.length}</p>
-                <Link href={`/courses/${params.courseId}/chapters/${params.chapterId}/assessments/${chapter.assessment.id}/edit`}>
+                <Link href={`/dashboard/admin/courses/${params.courseId}/chapters/${params.chapterId}/assessments/${chapter.assessment.id}/edit`}>
                   <Button variant="outline" className="mt-2 flex items-center gap-2">
                     <ClipboardList className="h-4 w-4" />
                     Edit Assessment
@@ -123,7 +123,7 @@ export default async function ChapterDetailsPage({ params }: PageProps) {
                 </Link>
               </div>
             ) : (
-              <Link href={`/courses/${params.courseId}/chapters/${params.chapterId}/assessments/create`}>
+              <Link href={`/dashboard/admin/courses/${params.courseId}/chapters/${params.chapterId}/assessments/create`}>
                 <Button className="flex items-center gap-2">
                   <ClipboardList className="h-4 w-4" />
                   Create Assessment

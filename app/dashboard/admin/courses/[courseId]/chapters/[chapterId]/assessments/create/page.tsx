@@ -8,7 +8,7 @@ export default function ChapterAssessmentPage({ params }: { params: { courseId: 
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-2">
-          <Link href={`/courses/${params.courseId}/chapters/${params.chapterId}`}>
+          <Link href={`/dashboard/admin/courses/${params.courseId}/chapters/${params.chapterId}`}>
             <Button variant="ghost" size="sm" className="flex items-center">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to chapters

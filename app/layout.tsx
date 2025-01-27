@@ -5,7 +5,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
-import Navbar from "@/components/landing-page/navbar";
 import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
@@ -41,7 +40,7 @@ export default function RootLayout({
              */
             routerConfig={extractRouterConfig(ourFileRouter)}
           />
-          <Navbar />
+
           {children}
           <Toaster />
         </body>

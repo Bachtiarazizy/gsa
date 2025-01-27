@@ -8,24 +8,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { createCourse } from "@/lib/actions/course";
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface CreateCourseFormProps {
+  categories: Category[];
+}
 
 interface CreateCourseResponse {
   success: boolean;
   data?: {
     id: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
   error?: string;
 }
 
-export default function CreateCourseForm() {
+export default function CreateCourseForm({ categories }: CreateCourseFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<string>("");
 
   async function onSubmit(formData: FormData) {
     try {
@@ -37,22 +49,26 @@ export default function CreateCourseForm() {
         return;
       }
 
+      if (!categoryId) {
+        setError("Category is required");
+        return;
+      }
+
       const price = formData.get("price");
       if (price === null || price === "") {
         setError("Price is required");
         return;
       }
 
-      // Ensure price is a valid number
       const numericPrice = Number(price);
       if (isNaN(numericPrice) || numericPrice < 0) {
         setError("Please enter a valid price");
         return;
       }
 
-      // Add the uploaded image URL to the form data
       formData.set("imageUrl", imageUrl);
       formData.set("price", numericPrice.toString());
+      formData.set("categoryId", categoryId);
 
       const result = (await createCourse(formData)) as CreateCourseResponse;
 
@@ -62,7 +78,7 @@ export default function CreateCourseForm() {
       }
 
       if (result.data) {
-        router.push(`/courses/${result.data.id}`);
+        router.push(`/dashboard/admin/courses/${result.data.id}`);
         router.refresh();
       }
     } catch (err) {
@@ -79,6 +95,22 @@ export default function CreateCourseForm() {
         <div className="space-y-2">
           <Label htmlFor="title">Course Title</Label>
           <Input id="title" name="title" required placeholder="Enter course title" disabled={isLoading} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Select name="categoryId" value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
@@ -128,7 +160,7 @@ export default function CreateCourseForm() {
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={isLoading || !imageUrl}>
+        <Button type="submit" className="w-full" disabled={isLoading || !imageUrl || !categoryId}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

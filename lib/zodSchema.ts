@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Course Schema
 export const courseSchema = z.object({
   id: z.string().cuid(),
   title: z.string().min(1, "Title is required"),
@@ -8,6 +7,7 @@ export const courseSchema = z.object({
   imageUrl: z.string().min(1, "Image is required"),
   price: z.coerce.number().min(0, "Price must be 0 or greater"),
   userId: z.string().min(1, "User ID is required"),
+  categoryId: z.string().cuid(), // Add this line
   isPublished: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -130,3 +130,83 @@ export const createAssessmentResultSchema = assessmentResultSchema.omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const categorySchema = z.object({
+  id: z.string().cuid(),
+  name: z.string().min(1, "Category name is required"),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+// Discussion Schema
+export const discussionSchema = z.object({
+  id: z.string().cuid(),
+  userId: z.string().min(1, "User ID is required"),
+  content: z.string().min(1, "Content is required"),
+  courseId: z.string().cuid().optional(),
+  chapterId: z.string().cuid().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+// Reply Schema
+export const replySchema = z.object({
+  id: z.string().cuid(),
+  userId: z.string().min(1, "User ID is required"),
+  content: z.string().min(1, "Content is required"),
+  discussionId: z.string().cuid(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+// Discussion Like Schema
+export const discussionLikeSchema = z.object({
+  id: z.string().cuid(),
+  userId: z.string().min(1, "User ID is required"),
+  discussionId: z.string().cuid(),
+  createdAt: z.date(),
+});
+
+// Reply Like Schema
+export const replyLikeSchema = z.object({
+  id: z.string().cuid(),
+  userId: z.string().min(1, "User ID is required"),
+  replyId: z.string().cuid(),
+  createdAt: z.date(),
+});
+
+// Creation schemas
+export const createCategorySchema = categorySchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const createDiscussionSchema = discussionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const createReplySchema = replySchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const createDiscussionLikeSchema = discussionLikeSchema.omit({
+  id: true,
+  createdAt: true,
+});
+
+export const createReplyLikeSchema = replyLikeSchema.omit({
+  id: true,
+  createdAt: true,
+});
+
+// Update schemas
+export const updateCategorySchema = createCategorySchema.partial();
+export const updateDiscussionSchema = createDiscussionSchema.partial();
+export const updateReplySchema = createReplySchema.partial();
+
+// Also update the courseSchema to include categoryId

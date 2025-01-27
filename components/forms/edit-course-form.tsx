@@ -7,10 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
 import Image from "next/image";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface Course {
   id: string;
@@ -19,10 +25,12 @@ interface Course {
   imageUrl: string | null;
   price: number;
   isPublished: boolean;
+  categoryId: string;
 }
 
 interface EditCourseFormProps {
   initialData: Course;
+  categories: Category[];
 }
 
 type ApiResponse = {
@@ -30,10 +38,11 @@ type ApiResponse = {
   errors?: { message: string }[];
 };
 
-export default function EditCourseForm({ initialData }: EditCourseFormProps) {
+export default function EditCourseForm({ initialData, categories }: EditCourseFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(initialData.imageUrl);
+  const [categoryId, setCategoryId] = useState<string>(initialData.categoryId);
   const router = useRouter();
 
   async function updateCourse(formData: FormData, togglePublish?: boolean) {
@@ -45,10 +54,11 @@ export default function EditCourseForm({ initialData }: EditCourseFormProps) {
         formData.append("isPublished", togglePublish.toString());
       }
 
-      // Add image URL to form data if it exists
       if (imageUrl) {
         formData.set("imageUrl", imageUrl);
       }
+
+      formData.set("categoryId", categoryId);
 
       const response = await fetch(`/api/courses/${initialData.id}`, {
         method: "PATCH",
@@ -108,6 +118,22 @@ export default function EditCourseForm({ initialData }: EditCourseFormProps) {
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Select name="categoryId" value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <Textarea id="description" name="description" defaultValue={initialData.description || ""} disabled={isLoading} />
         </div>
@@ -154,7 +180,7 @@ export default function EditCourseForm({ initialData }: EditCourseFormProps) {
           </Alert>
         )}
 
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading || !categoryId}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

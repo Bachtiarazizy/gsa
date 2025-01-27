@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, FileEdit, GraduationCap, Users, Clock, ChevronRight } from "lucide-react";
+import { BookOpen, FileEdit, GraduationCap, Users, Clock, ChevronRight, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface PageProps {
@@ -31,9 +31,25 @@ export default async function CourseDetailsPage({ params }: PageProps) {
           position: "asc",
         },
       },
+      category: true,
+      discussions: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 5,
+        include: {
+          _count: {
+            select: {
+              replies: true,
+              likes: true,
+            },
+          },
+        },
+      },
       _count: {
         select: {
           chapters: true,
+          discussions: true,
         },
       },
     },
@@ -49,11 +65,16 @@ export default async function CourseDetailsPage({ params }: PageProps) {
         <div className="flex items-center gap-x-2">
           <GraduationCap className="h-8 w-8" />
           <div>
-            <h1 className="text-2xl font-bold">{course.title}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">{course.title}</h1>
+              <Badge variant="outline" className="text-xs">
+                {course.category.name}
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">{course.isPublished ? "Published" : "Draft"}</p>
           </div>
         </div>
-        <Link href={`/courses/${params.courseId}/edit`}>
+        <Link href={`/dashboard/admin/courses/${params.courseId}/edit`}>
           <Button className="flex items-center gap-2">
             <FileEdit className="h-4 w-4" />
             Edit Course
@@ -97,14 +118,18 @@ export default async function CourseDetailsPage({ params }: PageProps) {
             <CardDescription>Quick overview of your course</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="bg-slate-100 p-4 rounded-lg">
                 <h3 className="font-medium text-sm text-muted-foreground">Total Chapters</h3>
                 <p className="text-2xl font-bold">{course._count.chapters}</p>
               </div>
               <div className="bg-slate-100 p-4 rounded-lg">
-                <h3 className="font-medium text-sm text-muted-foreground">Published Chapters</h3>
+                <h3 className="font-medium text-sm text-muted-foreground">Published</h3>
                 <p className="text-2xl font-bold">{course.chapters.filter((chapter) => chapter.isPublished).length}</p>
+              </div>
+              <div className="bg-slate-100 p-4 rounded-lg">
+                <h3 className="font-medium text-sm text-muted-foreground">Discussions</h3>
+                <p className="text-2xl font-bold">{course._count.discussions}</p>
               </div>
             </div>
           </CardContent>
@@ -116,7 +141,7 @@ export default async function CourseDetailsPage({ params }: PageProps) {
               <CardTitle>Chapters</CardTitle>
               <CardDescription>Manage your course chapters</CardDescription>
             </div>
-            <Link href={`/courses/${params.courseId}/chapters/create`}>
+            <Link href={`/dashboard/admin/courses/${params.courseId}/chapters/create`}>
               <Button>Add Chapter</Button>
             </Link>
           </CardHeader>
@@ -129,7 +154,7 @@ export default async function CourseDetailsPage({ params }: PageProps) {
             ) : (
               <div className="space-y-2">
                 {course.chapters.map((chapter) => (
-                  <Link key={chapter.id} href={`/courses/${params.courseId}/chapters/${chapter.id}`} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-100 transition-colors">
+                  <Link key={chapter.id} href={`/dashboard/admin/courses/${params.courseId}/chapters/${chapter.id}`} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-100 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200">{chapter.position}</div>
                       <div>
@@ -142,6 +167,43 @@ export default async function CourseDetailsPage({ params }: PageProps) {
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </div>
                   </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Recent Discussions</CardTitle>
+              <CardDescription>Latest conversations in your course</CardDescription>
+            </div>
+            <Link href={`/dashboard/admin/courses/${params.courseId}/discussions`}>
+              <Button variant="outline">View All</Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {course.discussions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+                <MessageCircle className="h-10 w-10 mb-2" />
+                <p>No discussions yet</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {course.discussions.map((discussion) => (
+                  <div key={discussion.id} className="p-4 border rounded-lg">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="font-medium line-clamp-2">{discussion.content}</p>
+                      <Badge variant="outline" className="ml-2">
+                        {new Date(discussion.createdAt).toLocaleDateString()}
+                      </Badge>
+                    </div>
+                    <div className="flex gap-4 text-sm text-muted-foreground">
+                      <span>{discussion._count.replies} replies</span>
+                      <span>{discussion._count.likes} likes</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

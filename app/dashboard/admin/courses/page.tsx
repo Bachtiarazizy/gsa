@@ -1,4 +1,4 @@
-import AdminCoursesPage from "@/components/course";
+import CourseTable from "@/components/course-table";
 import { getAllCourses } from "@/lib/actions/course";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -12,5 +12,5 @@ export default async function CoursesPage() {
 
   const courses = await getAllCourses();
 
-  return <AdminCoursesPage courses={courses} />;
+  return <CourseTable courses={courses} />;
 }

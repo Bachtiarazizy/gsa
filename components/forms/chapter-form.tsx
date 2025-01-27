@@ -20,6 +20,7 @@ interface CreateChapterResponse {
   success: boolean;
   data?: {
     id: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
   error?: string;
@@ -46,7 +47,7 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
         return;
       }
 
-      router.push(`/courses/${courseId}/chapters/${result.data.id}`);
+      router.push(`/dashboard/admin/courses/${courseId}/chapters/${result.data.id}`);
       router.refresh();
     } catch (err) {
       setError("Something went wrong");

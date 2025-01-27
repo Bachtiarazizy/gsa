@@ -7,6 +7,14 @@ import Link from "next/link";
 import EditCourseForm from "@/components/forms/edit-course-form";
 import { auth } from "@clerk/nextjs/server";
 
+async function getCategoriesData() {
+  // Fetch categories from your API/database
+  const categories = await prisma.category.findMany();
+  return categories;
+}
+
+const categories = await getCategoriesData();
+
 export default async function CourseEditPage({ params }: { params: { courseId: string } }) {
   const { userId } = await auth();
 
@@ -29,7 +37,7 @@ export default async function CourseEditPage({ params }: { params: { courseId: s
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-2">
-          <Link href="/courses">
+          <Link href="/dashboard/admin/courses">
             <Button variant="ghost" size="sm" className="flex items-center">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to courses
@@ -44,7 +52,7 @@ export default async function CourseEditPage({ params }: { params: { courseId: s
 
       <div className="rounded-lg border bg-card">
         <div className="p-6">
-          <EditCourseForm initialData={course} />
+          <EditCourseForm initialData={course} categories={categories} />
         </div>
       </div>
     </div>

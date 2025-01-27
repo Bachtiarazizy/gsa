@@ -7,37 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          String   @id @default(cuid())
-  clerkId     String   @unique // Clerk user ID
-  email       String   @unique
-  firstName   String?  // Nullable
-  lastName    String?  // Nullable
-  role        Role     @default(STUDENT) // Default to 'STUDENT'
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  enrollments CourseEnrollment[]
-  progress    ChapterProgress[]
-  results     AssessmentResult[]
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  courses   Course[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
-model Course {
-  id          String    @id @default(cuid())
-  userId      String    // Clerk user ID
-  title       String
-  description String?   @db.Text
-  duration    String?
-  enrollmentCount Int       @default(0)
-  imageUrl    String?
-  price       Float     @default(0)
-  isPublished Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 
+model Course {
+  id              String    @id @default(cuid())
+  userId          String    // Clerk user ID
+  title           String
+  description     String?   @db.Text
+  duration        String?
+  enrollmentCount Int       @default(0)
+  imageUrl        String?
+  price           Float     @default(0)
+  isPublished     Boolean   @default(false)
+  categoryId      String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  category    Category   @relation(fields: [categoryId], references: [id])
   chapters    Chapter[]
   enrollments CourseEnrollment[]
+  discussions Discussion[]  // New relation
 
   @@index([userId])
+  @@index([categoryId])
 }
 
 model Chapter {
@@ -54,9 +52,71 @@ model Chapter {
   course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progress    ChapterProgress[]
   assessment  Assessment?
+  discussions Discussion[]  // New relation
 
   @@index([courseId])
 }
+
+model Discussion {
+  id          String    @id @default(cuid())
+  userId      String    // Clerk user ID
+  content     String    @db.Text
+  courseId    String?
+  chapterId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  course      Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  chapter     Chapter?  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  replies     Reply[]
+  likes       DiscussionLike[]
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([chapterId])
+}
+
+model Reply {
+  id            String    @id @default(cuid())
+  userId        String    // Clerk user ID
+  content       String    @db.Text
+  discussionId  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  discussion    Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  likes        ReplyLike[]
+
+  @@index([userId])
+  @@index([discussionId])
+}
+
+model DiscussionLike {
+  id            String    @id @default(cuid())
+  userId        String    // Clerk user ID
+  discussionId  String
+  createdAt     DateTime  @default(now())
+
+  discussion    Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, discussionId])
+  @@index([userId])
+  @@index([discussionId])
+}
+
+model ReplyLike {
+  id        String    @id @default(cuid())
+  userId    String    // Clerk user ID
+  replyId   String
+  createdAt DateTime  @default(now())
+
+  reply     Reply     @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, replyId])
+  @@index([userId])
+  @@index([replyId])
+}
+
 
 model Assessment {
   id          String    @id @default(cuid())
@@ -91,8 +151,8 @@ model CourseEnrollment {
   courseId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  role        Role      @default(STUDENT)
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
@@ -108,7 +168,6 @@ model ChapterProgress {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   chapter     Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chapterId])
@@ -125,7 +184,6 @@ model AssessmentResult {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, assessmentId])
