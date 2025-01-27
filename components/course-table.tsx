@@ -2,6 +2,8 @@ import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "./ui/button";
 
 interface Course {
   id: string;
@@ -31,7 +33,12 @@ const CourseTable = ({ courses }: CourseTableProps) => {
       </CardHeader>
       <CardContent>
         {courses.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">No courses found</div>
+          <div className="text-center py-8 text-muted-foreground">
+            No courses found
+            <Link href={"/dashboard/admin/courses/create"}>
+              <Button>Create a course</Button>
+            </Link>
+          </div>
         ) : (
           <div className="rounded-md border">
             <Table>
