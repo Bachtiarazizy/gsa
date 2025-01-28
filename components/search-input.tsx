@@ -1,42 +1,30 @@
 "use client";
 
-import { Search } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import qs from "query-string";
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "@/hooks/use-debounce";
+import { Search } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const SearchInput = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const categoryId = searchParams.get("categoryId");
-  const title = searchParams.get("title");
+  const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [value, setValue] = useState(title || "");
-  const debouncedValue = useDebounce(value);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
 
-  useEffect(() => {
-    const query = {
-      title: debouncedValue,
-      categoryId: categoryId,
-    };
-
-    const url = qs.stringifyUrl(
-      {
-        url: window.location.pathname,
-        query,
-      },
-      { skipNull: true, skipEmptyString: true }
-    );
-
-    router.push(url);
-  }, [debouncedValue, router, categoryId]);
+    if (query) {
+      router.push(`${pathname}?title=${query}`);
+    } else {
+      router.push(pathname);
+    }
+  };
 
   return (
     <div className="relative">
       <Search className="h-4 w-4 absolute top-3 left-3 text-slate-600" />
-      <Input onChange={(e) => setValue(e.target.value)} value={value} className="w-full md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible:ring-slate-200" placeholder="Search for a course" />
+      <Input value={searchQuery} onChange={handleSearch} className="w-full md:w-[300px] pl-9 rounded-full bg-slate-100 focus-visible:ring-slate-200" placeholder="Search for a course" />
     </div>
   );
 };

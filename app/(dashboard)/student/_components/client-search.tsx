@@ -1,13 +1,14 @@
 "use client";
 
 import SearchInput from "@/components/search-input";
+import { Suspense } from "react";
 
-const ClientSearchInput = () => {
+export const SearchWrapper = () => {
   return (
     <div className="px-6 pt-6 md:hidden md:mb-0 block">
-      <SearchInput />
+      <Suspense fallback={<div className="h-10" />}>
+        <SearchInput />
+      </Suspense>
     </div>
   );
 };
-
-export default ClientSearchInput;
