@@ -53,6 +53,7 @@ model Chapter {
   progress    ChapterProgress[]
   assessment  Assessment?
   discussions Discussion[]  // New relation
+  attachments Attachment[] 
 
   @@index([courseId])
 }
@@ -194,4 +195,17 @@ model AssessmentResult {
 enum Role {
   STUDENT
   ADMIN
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  chapterId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId])
 }

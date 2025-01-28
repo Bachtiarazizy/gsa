@@ -38,26 +38,84 @@ export async function getAllCourses() {
 }
 
 export async function deleteCourse(courseId: string) {
-  const { userId } = await auth();
+  try {
+    const { userId } = await auth();
 
-  if (!userId) {
-    throw new Error("Unauthorized");
+    if (!userId) {
+      return { error: "Unauthorized" };
+    }
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+    });
+
+    if (!course) {
+      return { error: "Course not found" };
+    }
+
+    await prisma.course.delete({
+      where: {
+        id: courseId,
+      },
+    });
+
+    revalidatePath("/admin/courses");
+    return { success: true };
+  } catch (error) {
+    console.error("[COURSE_DELETE]", error);
+    return { error: "Something went wrong" };
   }
+}
 
-  const course = await prisma.course.findUnique({
-    where: { id: courseId, userId },
-  });
+export async function toggleCoursePublish(courseId: string, isPublished: boolean) {
+  try {
+    const { userId } = await auth();
 
-  if (!course) {
-    throw new Error("Course not found");
+    if (!userId) {
+      return { error: "Unauthorized" };
+    }
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        userId,
+      },
+      include: {
+        chapters: true,
+      },
+    });
+
+    if (!course) {
+      return { error: "Course not found" };
+    }
+
+    if (isPublished) {
+      const requiredFields = [course.title, course.description, course.imageUrl, course.categoryId, course.chapters.some((chapter) => chapter.isPublished)];
+
+      if (!requiredFields.every(Boolean)) {
+        return { error: "Missing required fields" };
+      }
+    }
+
+    await prisma.course.update({
+      where: {
+        id: courseId,
+        userId,
+      },
+      data: {
+        isPublished,
+      },
+    });
+
+    revalidatePath("/admin/courses");
+    return { success: true };
+  } catch (error) {
+    console.error("[COURSE_TOGGLE_PUBLISH]", error);
+    return { error: "Something went wrong" };
   }
-
-  // This will cascade delete all related discussions
-  await prisma.course.delete({
-    where: { id: courseId },
-  });
-
-  revalidatePath("/courses");
 }
 
 export async function createCourse(formData: FormData) {
@@ -242,3 +300,168 @@ export async function getCategories() {
     throw error;
   }
 }
+
+export async function getStudentCourses(userId: string) {
+  const enrolledCourses = await prisma.courseEnrollment.findMany({
+    where: {
+      userId: userId,
+      role: "STUDENT",
+    },
+    include: {
+      course: {
+        include: {
+          chapters: {
+            include: {
+              assessment: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Get progress for each course
+  const coursesWithProgress = await Promise.all(
+    enrolledCourses.map(async (enrollment) => {
+      const completedChapters = await prisma.chapterProgress.count({
+        where: {
+          userId: userId,
+          chapter: {
+            courseId: enrollment.courseId,
+          },
+          isCompleted: true,
+        },
+      });
+
+      const completedAssessments = await prisma.assessmentResult.count({
+        where: {
+          userId: userId,
+          assessment: {
+            chapter: {
+              courseId: enrollment.courseId,
+            },
+          },
+          isPassed: true,
+        },
+      });
+
+      // Get last accessed chapter
+      const lastProgress = await prisma.chapterProgress.findFirst({
+        where: {
+          userId: userId,
+          chapter: {
+            courseId: enrollment.courseId,
+          },
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+
+      const totalChapters = enrollment.course.chapters.length;
+      const totalAssessments = enrollment.course.chapters.reduce((acc, chapter) => acc + (chapter.assessment ? 1 : 0), 0);
+
+      const progress = {
+        completedChapters,
+        totalChapters,
+        completedAssessments,
+        totalAssessments,
+        completionPercentage: totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0,
+        lastAccessed: lastProgress?.updatedAt,
+      };
+
+      return {
+        id: enrollment.id,
+        courseId: enrollment.courseId,
+        userId: enrollment.userId,
+        role: enrollment.role,
+        createdAt: enrollment.createdAt,
+        updatedAt: enrollment.updatedAt,
+        course: enrollment.course,
+        progress,
+      };
+    })
+  );
+
+  return {
+    enrolledCourses: coursesWithProgress,
+  };
+}
+
+interface GetCoursesParams {
+  userId: string;
+  title?: string;
+  categoryId?: string;
+}
+
+export const getCourses = async ({ title, categoryId }: GetCoursesParams) => {
+  try {
+    const courses = await prisma.course.findMany({
+      where: {
+        isPublished: true,
+        ...(title && {
+          title: {
+            contains: title,
+            mode: "insensitive",
+          },
+        }),
+        ...(categoryId && { categoryId }),
+      },
+      include: {
+        category: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return courses.map((course) => ({
+      id: course.id,
+      title: course.title,
+      imageUrl: course.imageUrl,
+      description: course.description,
+      enrollmentCount: course.enrollmentCount,
+      price: course.price,
+      category: course.category.name, // Map category object to category name string
+    }));
+  } catch (error) {
+    console.error("[GET_COURSES]", error);
+    return [];
+  }
+};
+
+interface GetCourseProps {
+  userId: string;
+  courseId: string;
+}
+
+export const getCourse = async ({ userId, courseId }: GetCourseProps) => {
+  try {
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+        isPublished: true,
+      },
+      include: {
+        category: true,
+        chapters: {
+          where: {
+            isPublished: true,
+          },
+          orderBy: {
+            position: "asc",
+          },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new Error("Course not found");
+    }
+
+    return course;
+  } catch (error) {
+    console.log("[GET_COURSE]", error);
+    return null;
+  }
+};

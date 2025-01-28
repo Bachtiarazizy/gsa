@@ -47,7 +47,7 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
         return;
       }
 
-      router.push(`/dashboard/admin/courses/${courseId}/chapters/${result.data.id}`);
+      router.push(`/admin/courses/${courseId}/chapters/${result.data.id}`);
       router.refresh();
     } catch (err) {
       setError("Something went wrong");

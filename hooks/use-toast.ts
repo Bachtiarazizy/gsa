@@ -1,8 +1,7 @@
+// hooks/use-toast.ts
 "use client";
 
-// Inspired by react-hot-toast library
 import * as React from "react";
-
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 1;
@@ -13,8 +12,12 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
+  variant?: "default" | "destructive" | "success";
 };
 
+type Toast = Omit<ToasterToast, "id">;
+
+// Use const assertion to preserve literal types
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -89,8 +92,6 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action;
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
@@ -136,8 +137,6 @@ function dispatch(action: Action) {
   });
 }
 
-type Toast = Omit<ToasterToast, "id">;
-
 function toast({ ...props }: Toast) {
   const id = genId();
 
@@ -166,6 +165,23 @@ function toast({ ...props }: Toast) {
     update,
   };
 }
+
+// Add success and error methods to toast
+toast.success = (message: string) => {
+  toast({
+    variant: "success",
+    title: "Success",
+    description: message,
+  });
+};
+
+toast.error = (message: string) => {
+  toast({
+    variant: "destructive",
+    title: "Error",
+    description: message,
+  });
+};
 
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);

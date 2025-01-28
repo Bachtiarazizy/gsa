@@ -21,7 +21,7 @@ export default function Navbar() {
 
         {/* Komponen untuk user yang sudah login */}
         <SignedIn>
-          <Link href="/dashboard/student">
+          <Link href="/student/dashboard">
             <Button>Dashboard</Button>
           </Link>
           <UserButton

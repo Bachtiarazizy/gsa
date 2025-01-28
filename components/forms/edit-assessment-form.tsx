@@ -76,7 +76,7 @@ export default function EditAssessmentForm({ initialData, chapterId, courseId }:
         throw new Error("Failed to update assessment");
       }
 
-      router.push(`/dashboard/admin/courses/${courseId}/chapters/${chapterId}`);
+      router.push(`/admin/courses/${courseId}/chapters/${chapterId}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

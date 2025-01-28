@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { createCourse } from "@/lib/actions/course";
+import { useToast } from "@/hooks/use-toast";
 
 interface Category {
   id: string;
@@ -33,6 +34,7 @@ interface CreateCourseResponse {
 }
 
 export default function CreateCourseForm({ categories }: CreateCourseFormProps) {
+  const { toast } = useToast();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,23 +48,43 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
 
       if (!imageUrl) {
         setError("Course image is required");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Course image is required",
+        });
         return;
       }
 
       if (!categoryId) {
         setError("Category is required");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Category is required",
+        });
         return;
       }
 
       const price = formData.get("price");
       if (price === null || price === "") {
         setError("Price is required");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Price is required",
+        });
         return;
       }
 
       const numericPrice = Number(price);
       if (isNaN(numericPrice) || numericPrice < 0) {
         setError("Please enter a valid price");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Please enter a valid price",
+        });
         return;
       }
 
@@ -74,15 +96,31 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
 
       if (!result.success) {
         setError(result.error || "Failed to create course");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to create course",
+        });
         return;
       }
 
+      toast({
+        title: "Success",
+        description: "Course created successfully",
+      });
+
       if (result.data) {
-        router.push(`/dashboard/admin/courses/${result.data.id}`);
+        router.push(`/admin/courses/${result.data.id}`);
         router.refresh();
       }
     } catch (err) {
-      setError("Something went wrong");
+      const errorMessage = "Something went wrong";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
       console.error(err);
     } finally {
       setIsLoading(false);

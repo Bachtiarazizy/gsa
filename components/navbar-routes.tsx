@@ -1,50 +1,45 @@
 "use client";
 
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { UserButton, useUser } from "@clerk/nextjs";
-import { Home, Users } from "lucide-react";
+import { useAuth, UserButton } from "@clerk/nextjs";
+import { LogOut } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isAdmin } from "@/lib/admin";
+import SearchInput from "./search-input";
 
-export const NavbarRoutes = ({ onModeToggle }: { onModeToggle: (mode: "admin" | "student") => void }) => {
+export const NavbarRoutes = () => {
+  const { userId } = useAuth();
   const pathname = usePathname();
-  const { user } = useUser();
 
-  const isUserAdmin = isAdmin(user?.id);
-  const isAdminPage = pathname?.startsWith("/dashboard/admin");
-  const isStudentPage = pathname?.startsWith("/dashboard/student");
-
-  const renderDashboardToggle = () => {
-    if (isUserAdmin) {
-      if (isAdminPage) {
-        return (
-          <Button size="sm" variant="ghost" onClick={() => onModeToggle("student")}>
-            <Home className="h-4 w-4 mr-2" />
-            Student Mode
-          </Button>
-        );
-      }
-
-      if (isStudentPage) {
-        return (
-          <Button size="sm" variant="ghost" onClick={() => onModeToggle("admin")}>
-            <Users className="h-4 w-4 mr-2" />
-            Teacher Mode
-          </Button>
-        );
-      }
-    }
-
-    return null;
-  };
+  const isAdminPage = pathname?.startsWith("/admin");
+  const isSearchPage = pathname?.startsWith("/student/search");
+  const isAdminUser = isAdmin(userId);
 
   return (
-    <div className="p-4 border-b h-full flex items-center bg-white">
-      <div className="ml-auto flex items-center gap-x-2">
-        {renderDashboardToggle()}
+    <>
+      {isSearchPage && (
+        <div className="hidden md:block">
+          <SearchInput />
+        </div>
+      )}
+      <div className="flex gap-x-2 ml-auto">
+        {isAdminPage ? (
+          <Link href="/student/dashboard">
+            <Button size="sm" variant="ghost">
+              <LogOut className="h-4 w-4 mr-2" />
+              Exit
+            </Button>
+          </Link>
+        ) : isAdminUser ? (
+          <Link href="/admin/dashboard">
+            <Button size="sm" variant="ghost">
+              Admin mode
+            </Button>
+          </Link>
+        ) : null}
         <UserButton afterSignOutUrl="/" />
       </div>
-    </div>
+    </>
   );
 };

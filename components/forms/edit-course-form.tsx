@@ -12,6 +12,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 
 interface Category {
   id: string;
@@ -39,6 +40,7 @@ type ApiResponse = {
 };
 
 export default function EditCourseForm({ initialData, categories }: EditCourseFormProps) {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(initialData.imageUrl);
@@ -75,9 +77,20 @@ export default function EditCourseForm({ initialData, categories }: EditCourseFo
         throw new Error(data.message || "Failed to update course");
       }
 
+      toast({
+        title: "Success",
+        description: togglePublish !== undefined ? `Course ${togglePublish ? "published" : "unpublished"} successfully` : "Course updated successfully",
+      });
+
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update course");
+      const errorMessage = err instanceof Error ? err.message : "Failed to update course";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
       console.error("Form submission error:", err);
     } finally {
       setIsLoading(false);

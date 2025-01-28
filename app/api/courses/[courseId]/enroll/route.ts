@@ -1,48 +1,24 @@
-// app/api/courses/[courseId]/enroll/route.ts
-import prisma from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { enrollInCourse } from "@/lib/actions/enrollment";
 
 export async function POST(req: Request, { params }: { params: { courseId: string } }) {
   try {
     const { userId } = await auth();
+
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const enrollment = await prisma.courseEnrollment.create({
-      data: {
-        userId,
-        courseId: params.courseId,
-      },
-    });
+    const { success, error } = await enrollInCourse(userId, params.courseId);
 
-    return NextResponse.json(enrollment);
-  } catch (error) {
-    console.error("[ENROLLMENT]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
-}
-
-export async function GET(req: Request, { params }: { params: { courseId: string } }) {
-  try {
-    const { userId } = await auth();
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!success) {
+      return NextResponse.json({ error: error || "Failed to enroll" }, { status: 500 });
     }
 
-    const enrollment = await prisma.courseEnrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId: params.courseId,
-        },
-      },
-    });
-
-    return NextResponse.json(enrollment);
+    return NextResponse.json({ message: "Successfully enrolled" }, { status: 200 });
   } catch (error) {
-    console.error("[ENROLLMENT]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.log("[COURSE_ID_ENROLL]", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
