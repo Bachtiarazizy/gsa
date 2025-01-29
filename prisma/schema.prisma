@@ -31,12 +31,27 @@ model Course {
 
   category    Category   @relation(fields: [categoryId], references: [id])
   chapters    Chapter[]
+  attachments CourseAttachment[] 
   enrollments CourseEnrollment[]
   discussions Discussion[]  // New relation
 
   @@index([userId])
   @@index([categoryId])
 }
+
+model CourseAttachment {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
 
 model Chapter {
   id          String    @id @default(cuid())

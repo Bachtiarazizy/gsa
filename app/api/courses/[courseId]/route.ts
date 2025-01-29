@@ -1,3 +1,4 @@
+// app/api/courses/[courseId]/route.ts
 import prisma from "@/lib/db";
 import { updateCourseSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -7,7 +8,6 @@ import { ZodError } from "zod";
 export async function PATCH(req: Request, { params }: { params: { courseId: string } }) {
   try {
     const { userId } = await auth();
-
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -19,13 +19,13 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       description: formData.get("description"),
       imageUrl: formData.get("imageUrl"),
       price: Number(formData.get("price")),
-      isPublished: formData.get("isPublished") === "true",
-      categoryId: formData.get("categoryId"), // Add categoryId handling
+      categoryId: formData.get("categoryId"),
+      attachments: JSON.parse((formData.get("attachments") as string) || "[]"),
     };
 
     const validatedData = updateCourseSchema.parse(data);
 
-    // Verify category exists if categoryId is provided
+    // Verify category exists
     if (validatedData.categoryId) {
       const category = await prisma.category.findUnique({
         where: {
@@ -34,37 +34,55 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       });
 
       if (!category) {
-        return new NextResponse(
-          JSON.stringify({
-            message: "Category not found",
-          }),
-          {
-            status: 404,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+        return new NextResponse(JSON.stringify({ message: "Category not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
       }
     }
 
-    const course = await prisma.course.update({
-      where: {
-        id: params.courseId,
-        userId,
-      },
-      data: validatedData,
-      include: {
-        category: true, // Include category in response
-        _count: {
-          select: {
-            chapters: true,
-            enrollments: true,
+    // Start a transaction to handle attachments update
+    const course = await prisma.$transaction(async (tx) => {
+      // Delete existing attachments
+      await tx.attachment.deleteMany({
+        where: {
+          courseId: params.courseId,
+        },
+      });
+
+      // Update course with new attachments
+      return tx.course.update({
+        where: {
+          id: params.courseId,
+          userId,
+        },
+        data: {
+          title: validatedData.title,
+          description: validatedData.description,
+          imageUrl: validatedData.imageUrl,
+          price: validatedData.price,
+          categoryId: validatedData.categoryId,
+          attachments: {
+            createMany: {
+              data: validatedData.attachments.map((attachment) => ({
+                name: attachment.name,
+                url: attachment.url,
+              })),
+            },
           },
         },
-      },
+        include: {
+          category: true,
+          attachments: true,
+          _count: {
+            select: {
+              chapters: true,
+              enrollments: true,
+            },
+          },
+        },
+      });
     });
 
     return NextResponse.json(course);
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("[COURSE_UPDATE]", error);
 
     if (error instanceof ZodError) {
@@ -73,57 +91,14 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
           message: "Invalid data",
           errors: error.errors,
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    if (error instanceof Error) {
-      return new NextResponse(
-        JSON.stringify({
-          message: error.message || "Internal Server Error",
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { courseId: string } }) {
-  try {
-    const { userId } = await auth();
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const course = await prisma.course.delete({
-      where: {
-        id: params.courseId,
-        userId,
-      },
-    });
-
-    return NextResponse.json(course);
-  } catch (error) {
-    console.error("[COURSE_ID_DELETE]", error);
-    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-}
-
-// Add a GET endpoint to fetch a single course with category
 export async function GET(req: Request, { params }: { params: { courseId: string } }) {
   try {
     const { userId } = await auth();
@@ -138,8 +113,12 @@ export async function GET(req: Request, { params }: { params: { courseId: string
       },
       include: {
         category: true,
-        chapters: true,
-        enrollments: true,
+        attachments: true,
+        chapters: {
+          orderBy: {
+            position: "asc",
+          },
+        },
         _count: {
           select: {
             chapters: true,
@@ -150,18 +129,34 @@ export async function GET(req: Request, { params }: { params: { courseId: string
     });
 
     if (!course) {
-      return new NextResponse(JSON.stringify({ message: "Course not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new NextResponse(JSON.stringify({ message: "Course not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
 
     return NextResponse.json(course);
   } catch (error) {
     console.error("[COURSE_ID_GET]", error);
-    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
+    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: { courseId: string } }) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // Delete course and all related data
+    const course = await prisma.course.delete({
+      where: {
+        id: params.courseId,
+        userId,
+      },
     });
+
+    return NextResponse.json(course);
+  } catch (error) {
+    console.error("[COURSE_ID_DELETE]", error);
+    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

@@ -1,3 +1,4 @@
+// app/api/courses/route.ts
 import prisma from "@/lib/db";
 import { createCourseSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -10,39 +11,59 @@ export async function POST(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const json = await req.json();
-    const body = createCourseSchema.parse(json);
+    const formData = await req.formData();
 
-    // Verify that the category exists
+    const data = {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      imageUrl: formData.get("imageUrl"),
+      price: Number(formData.get("price")),
+      categoryId: formData.get("categoryId"),
+      attachments: JSON.parse((formData.get("attachments") as string) || "[]"),
+    };
+
+    const validatedData = createCourseSchema.parse(data);
+
+    // Verify category exists
     const category = await prisma.category.findUnique({
       where: {
-        id: body.categoryId,
+        id: validatedData.categoryId,
       },
     });
 
     if (!category) {
-      return new NextResponse("Category not found", { status: 404 });
+      return new NextResponse(JSON.stringify({ message: "Category not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
 
+    // Create course with attachments
     const course = await prisma.course.create({
       data: {
         userId,
-        title: body.title,
-        description: body.description,
-        imageUrl: body.imageUrl,
-        price: body.price,
+        title: validatedData.title,
+        description: validatedData.description,
+        imageUrl: validatedData.imageUrl,
+        price: validatedData.price,
         isPublished: false,
-        categoryId: body.categoryId, // Add category relation
+        categoryId: validatedData.categoryId,
+        attachments: {
+          createMany: {
+            data: validatedData.attachments.map((attachment) => ({
+              name: attachment.name,
+              url: attachment.url,
+            })),
+          },
+        },
       },
       include: {
-        category: true, // Include category in response
+        category: true,
+        attachments: true,
       },
     });
 
     return NextResponse.json(course);
   } catch (error) {
     console.error("[COURSES]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
 
@@ -59,15 +80,18 @@ export async function GET(req: Request) {
     const courses = await prisma.course.findMany({
       where: {
         userId,
-        // Add optional category filter
         ...(categoryId && {
           categoryId: categoryId,
         }),
       },
       include: {
-        category: true, // Include category
-        chapters: true,
-        enrollments: true,
+        category: true,
+        attachments: true,
+        chapters: {
+          orderBy: {
+            position: "asc",
+          },
+        },
         _count: {
           select: {
             chapters: true,
@@ -83,28 +107,6 @@ export async function GET(req: Request) {
     return NextResponse.json(courses);
   } catch (error) {
     console.error("[COURSES]", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
-}
-
-// Optional: Add an endpoint to get categories
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function GET_CATEGORIES(req: Request) {
-  try {
-    const { userId } = await auth();
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const categories = await prisma.category.findMany({
-      orderBy: {
-        name: "asc",
-      },
-    });
-
-    return NextResponse.json(categories);
-  } catch (error) {
-    console.error("[CATEGORIES]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

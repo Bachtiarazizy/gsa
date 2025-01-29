@@ -19,6 +19,7 @@ export default async function ChapterEditPageServer({ params }: { params: { cour
       courseId: params.courseId,
     },
     include: {
+      attachments: true,
       course: {
         select: {
           userId: true,
@@ -32,6 +33,24 @@ export default async function ChapterEditPageServer({ params }: { params: { cour
     return redirect("/admin/courses");
   }
 
+  const transformedChapter = {
+    id: chapter.id,
+    title: chapter.title,
+    description: chapter.description,
+    videoUrl: chapter.videoUrl,
+    position: chapter.position,
+    isPublished: chapter.isPublished,
+    courseId: chapter.courseId,
+    attachments: chapter.attachments.map((attachment) => ({
+      id: attachment.id,
+      name: attachment.name,
+      url: attachment.url,
+    })),
+    course: {
+      title: chapter.course.title,
+    },
+  };
+
   return (
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -44,14 +63,14 @@ export default async function ChapterEditPageServer({ params }: { params: { cour
           </Link>
           <div className="flex items-center gap-x-2">
             <LayoutDashboard className="h-6 w-6" />
-            <h1 className="text-2xl font-bold">Edit Chapters</h1>
+            <h1 className="text-2xl font-bold">Edit Chapter</h1>
           </div>
         </div>
       </div>
 
       <div className="rounded-lg border bg-card">
         <div className="p-6">
-          <EditChapterForm initialData={chapter} />
+          <EditChapterForm initialData={transformedChapter} />
         </div>
       </div>
     </div>

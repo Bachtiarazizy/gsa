@@ -1,23 +1,25 @@
-"use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, Video, FileText, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle, Loader2, ImageIcon, FileText, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { cn } from "@/lib/utils";
-import { createChapter } from "@/lib/actions/chapter";
+import { createCourse } from "@/lib/actions/course";
 import { useToast } from "@/hooks/use-toast";
 
-interface CreateChapterFormProps {
-  courseId: string;
+interface CreateCourseFormProps {
+  categories: {
+    id: string;
+    name: string;
+  }[];
 }
 
-interface CreateChapterResponse {
+interface CreateCourseResponse {
   success: boolean;
   data?: {
     id: string;
@@ -32,12 +34,12 @@ interface Attachment {
   name: string;
 }
 
-export default function CreateChapterForm({ courseId }: CreateChapterFormProps) {
+export default function CreateCourseForm({ categories }: CreateCourseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   async function onSubmit(formData: FormData) {
@@ -45,28 +47,27 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
       setIsLoading(true);
       setError(null);
 
-      formData.append("videoUrl", videoUrl);
-      // Add attachments to formData
+      formData.append("imageUrl", imageUrl);
       formData.append("attachments", JSON.stringify(attachments));
 
-      const result = (await createChapter(courseId, formData)) as CreateChapterResponse;
+      const result = (await createCourse(formData)) as CreateCourseResponse;
 
       if (!result.success || !result.data) {
-        setError(result.error || "Something went wrong");
+        setError(result.error || "Failed to create course");
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.error || "Something went wrong creating the chapter",
+          description: result.error || "Failed to create course",
         });
         return;
       }
 
       toast({
         title: "Success",
-        description: "Chapter created successfully",
+        description: "Course created successfully",
       });
 
-      router.push(`/admin/courses/${courseId}/chapters/${result.data.id}`);
+      router.push(`/admin/courses/${result.data.id}`);
       router.refresh();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
@@ -74,7 +75,7 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create chapter",
+        description: "Failed to create course",
       });
     } finally {
       setIsLoading(false);
@@ -93,27 +94,27 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
     <div className="max-w-2xl mx-auto p-6">
       <form action={onSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="title">Chapter Title</Label>
-          <Input id="title" name="title" required placeholder="Enter chapter title" disabled={isLoading} />
+          <Label htmlFor="title">Course Title</Label>
+          <Input id="title" name="title" required placeholder="Enter course title" disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" placeholder="Enter chapter description" disabled={isLoading} />
+          <Textarea id="description" name="description" placeholder="Enter course description" disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
-          <Label>Video Upload</Label>
-          <div className={cn("rounded-lg border border-dashed p-4", videoUrl && "bg-muted")}>
-            {!videoUrl && (
+          <Label>Course Image</Label>
+          <div className={cn("rounded-lg border border-dashed p-4", imageUrl && "bg-muted")}>
+            {!imageUrl && (
               <UploadDropzone
-                endpoint="chapterVideo"
+                endpoint="courseImage"
                 onClientUploadComplete={(res) => {
                   if (res?.[0]) {
-                    setVideoUrl(res[0].url);
+                    setImageUrl(res[0].url);
                     toast({
                       title: "Success",
-                      description: "Video uploaded successfully",
+                      description: "Image uploaded successfully",
                     });
                   }
                 }}
@@ -122,30 +123,30 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
                   toast({
                     variant: "destructive",
                     title: "Error",
-                    description: "Error uploading video",
+                    description: "Error uploading image",
                   });
                 }}
               />
             )}
-            {videoUrl && (
+            {imageUrl && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-x-2">
-                  <Video className="h-4 w-4" />
-                  <p className="text-sm text-muted-foreground">Video uploaded successfully</p>
+                  <ImageIcon className="h-4 w-4" />
+                  <p className="text-sm text-muted-foreground">Image uploaded successfully</p>
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setVideoUrl("");
+                    setImageUrl("");
                     toast({
                       title: "Success",
-                      description: "Video removed successfully",
+                      description: "Image removed successfully",
                     });
                   }}
                 >
-                  Change video
+                  Change image
                 </Button>
               </div>
             )}
@@ -153,7 +154,7 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
         </div>
 
         <div className="space-y-2">
-          <Label>Attachments</Label>
+          <Label>Course Attachments</Label>
           <div className="space-y-4">
             {attachments.length > 0 && (
               <div className="space-y-2">
@@ -199,6 +200,27 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
           </div>
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="categoryId">Category</Label>
+          <Select name="categoryId" required>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="price">Price</Label>
+          <Input id="price" name="price" type="number" min="0" step="0.01" required placeholder="Enter course price" disabled={isLoading} />
+        </div>
+
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -206,14 +228,14 @@ export default function CreateChapterForm({ courseId }: CreateChapterFormProps) 
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={isLoading || !videoUrl}>
+        <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Chapter...
+              Creating Course...
             </>
           ) : (
-            "Create Chapter"
+            "Create Course"
           )}
         </Button>
       </form>
