@@ -40,14 +40,13 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
 
     // Start a transaction to handle attachments update
     const course = await prisma.$transaction(async (tx) => {
-      // Delete existing attachments
+      // Pastikan hanya menghapus attachments jika skema mendukung courseId
       await tx.attachment.deleteMany({
         where: {
           courseId: params.courseId,
         },
       });
 
-      // Update course with new attachments
       return tx.course.update({
         where: {
           id: params.courseId,
@@ -59,14 +58,16 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
           imageUrl: validatedData.imageUrl,
           price: validatedData.price,
           categoryId: validatedData.categoryId,
-          attachments: {
-            createMany: {
-              data: validatedData.attachments.map((attachment) => ({
-                name: attachment.name,
-                url: attachment.url,
-              })),
-            },
-          },
+          attachments: validatedData.attachments
+            ? {
+                createMany: {
+                  data: validatedData.attachments.map((attachment) => ({
+                    name: attachment.name,
+                    url: attachment.url,
+                  })),
+                },
+              }
+            : undefined,
         },
         include: {
           category: true,

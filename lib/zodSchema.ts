@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const roleEnum = z.enum(["STUDENT", "ADMIN"]);
 
+// Base schemas
 export const categorySchema = z.object({
   id: z.string().cuid(),
   name: z.string().min(1, "Category name is required"),
@@ -13,10 +14,10 @@ export const courseSchema = z.object({
   id: z.string().cuid(),
   userId: z.string().min(1, "User ID is required"),
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  duration: z.string().optional(),
+  description: z.string().optional().nullable(),
+  duration: z.string().optional().nullable(),
   enrollmentCount: z.number().int().default(0),
-  imageUrl: z.string().optional(),
+  imageUrl: z.string().optional().nullable(),
   price: z.number().min(0, "Price must be 0 or greater").default(0),
   isPublished: z.boolean().default(false),
   categoryId: z.string().cuid(),
@@ -36,7 +37,7 @@ export const courseAttachmentSchema = z.object({
 export const chapterSchema = z.object({
   id: z.string().cuid(),
   title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   videoUrl: z.string().min(1, "Video URL is required"),
   position: z.number().int().min(0),
   isPublished: z.boolean().default(false),
@@ -58,8 +59,8 @@ export const discussionSchema = z.object({
   id: z.string().cuid(),
   userId: z.string().min(1, "User ID is required"),
   content: z.string().min(1, "Content is required"),
-  courseId: z.string().cuid().optional(),
-  chapterId: z.string().cuid().optional(),
+  courseId: z.string().cuid().optional().nullable(),
+  chapterId: z.string().cuid().optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -132,19 +133,30 @@ export const assessmentResultSchema = z.object({
   updatedAt: z.date(),
 });
 
-// Creation schemas
+// Creation input schemas
 export const createCategorySchema = categorySchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const createCourseSchema = courseSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  enrollmentCount: true,
-});
+export const createCourseSchema = courseSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    enrollmentCount: true,
+  })
+  .extend({
+    attachments: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          url: z.string().min(1),
+        })
+      )
+      .default([]),
+  });
 
 export const createCourseAttachmentSchema = courseAttachmentSchema.omit({
   id: true,
@@ -152,11 +164,22 @@ export const createCourseAttachmentSchema = courseAttachmentSchema.omit({
   updatedAt: true,
 });
 
-export const createChapterSchema = chapterSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const createChapterSchema = chapterSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    attachments: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          url: z.string().min(1),
+        })
+      )
+      .default([]),
+  });
 
 export const createAttachmentSchema = attachmentSchema.omit({
   id: true,
@@ -216,7 +239,7 @@ export const createAssessmentResultSchema = assessmentResultSchema.omit({
   updatedAt: true,
 });
 
-// Update schemas
+// Update schemas with proper partials
 export const updateCategorySchema = createCategorySchema.partial();
 export const updateCourseSchema = createCourseSchema.partial();
 export const updateChapterSchema = createChapterSchema.partial();
@@ -225,3 +248,12 @@ export const updateReplySchema = createReplySchema.partial();
 export const updateAttachmentSchema = createAttachmentSchema.partial();
 export const updateAssessmentSchema = createAssessmentSchema.partial();
 export const updateQuestionSchema = createQuestionSchema.partial();
+
+// Type exports for TypeScript usage
+export type Category = z.infer<typeof categorySchema>;
+export type Course = z.infer<typeof courseSchema>;
+export type Chapter = z.infer<typeof chapterSchema>;
+export type CreateCourseInput = z.infer<typeof createCourseSchema>;
+export type CreateChapterInput = z.infer<typeof createChapterSchema>;
+export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
+export type UpdateChapterInput = z.infer<typeof updateChapterSchema>;
