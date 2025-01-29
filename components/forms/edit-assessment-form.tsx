@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Trash2, Plus, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
 
 interface Question {
   id?: string;
@@ -31,6 +32,7 @@ interface EditAssessmentFormProps {
 }
 
 export default function EditAssessmentForm({ initialData, chapterId, courseId }: EditAssessmentFormProps) {
+  const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>(initialData.questions || []);
   const [currentQuestion, setCurrentQuestion] = useState<Partial<Question>>({
     options: ["", "", "", ""],
@@ -41,22 +43,42 @@ export default function EditAssessmentForm({ initialData, chapterId, courseId }:
 
   const addQuestion = () => {
     if (!currentQuestion.question || !currentQuestion.options?.every((opt) => opt.trim() !== "") || !currentQuestion.correctAnswer) {
-      setError("Please fill in all question fields and select a correct answer");
+      const errorMessage = "Please fill in all question fields and select a correct answer";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
       return;
     }
 
     setQuestions([...questions, currentQuestion as Question]);
     setCurrentQuestion({ options: ["", "", "", ""] });
     setError(null);
+    toast({
+      title: "Success",
+      description: "Question added successfully",
+    });
   };
 
   const removeQuestion = (index: number) => {
     setQuestions(questions.filter((_, i) => i !== index));
+    toast({
+      title: "Success",
+      description: "Question removed successfully",
+    });
   };
 
   const updateQuestion = async () => {
     if (questions.length === 0) {
-      setError("Assessment must have at least one question");
+      const errorMessage = "Assessment must have at least one question";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
       return;
     }
 
@@ -76,10 +98,21 @@ export default function EditAssessmentForm({ initialData, chapterId, courseId }:
         throw new Error("Failed to update assessment");
       }
 
+      toast({
+        title: "Success",
+        description: `Assessment ${initialData.id ? "updated" : "created"} successfully`,
+      });
+
       router.push(`/admin/courses/${courseId}/chapters/${chapterId}`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: errorMessage,
+      });
       console.error("Form submission error:", err);
     } finally {
       setIsLoading(false);
@@ -113,7 +146,7 @@ export default function EditAssessmentForm({ initialData, chapterId, courseId }:
             {currentQuestion.options?.map((option, optionIndex) => (
               <div key={optionIndex} className="flex items-center space-x-2">
                 <Input value={option} onChange={(e) => updateCurrentQuestionOption(optionIndex, e.target.value)} placeholder={`Option ${optionIndex + 1}`} className="flex-grow" disabled={isLoading} />
-                <RadioGroupItem value={option} id={`option-${optionIndex}`} />
+                <RadioGroupItem value={option} id={`option-${optionIndex}`} disabled={!option.trim()} />
                 <Label htmlFor={`option-${optionIndex}`}>Correct Answer</Label>
               </div>
             ))}

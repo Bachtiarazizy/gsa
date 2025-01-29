@@ -5,9 +5,7 @@ const f = createUploadthing();
 
 const handleAuth = async () => {
   const { userId } = await auth();
-
   if (!userId) throw new Error("Unauthorized");
-
   return { userId };
 };
 
@@ -31,8 +29,7 @@ export const ourFileRouter = {
     }),
 
   courseAttachment: f({
-    image: { maxFileSize: "4MB", maxFileCount: 1 },
-    video: { maxFileSize: "512MB", maxFileCount: 1 },
+    pdf: { maxFileSize: "16MB", maxFileCount: 1 },
   })
     .middleware(async () => {
       const user = await handleAuth();

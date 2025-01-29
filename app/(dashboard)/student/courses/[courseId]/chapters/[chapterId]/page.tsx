@@ -8,9 +8,9 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Preview } from "@/components/ui/preview";
 import { Separator } from "@/components/ui/separator";
-import { Attachments } from "@/app/(courses)/_components/attachment";
-import { VideoPlayer } from "@/app/(courses)/_components/video-player";
-import { ChapterAssessment } from "@/app/(courses)/_components/chapter-assessment";
+import { Attachments } from "@/app/(dashboard)/student/courses/_components/attachment";
+import { VideoPlayer } from "@/app/(dashboard)/student/courses/_components/video-player";
+import { ChapterAssessment } from "@/app/(dashboard)/student/courses/_components/chapter-assessment";
 
 interface ChapterPageProps {
   params: {
@@ -37,7 +37,7 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
   }
 
   if (!isEnrolled) {
-    return redirect(`/courses/${params.courseId}`);
+    return redirect(`/student/courses/${params.courseId}`);
   }
 
   return (
@@ -52,7 +52,7 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
               <div className="text-sm text-muted-foreground mb-4">{course.title}</div>
             </div>
             {nextChapter && userProgress?.isCompleted && (
-              <Button onClick={() => redirect(`/courses/${params.courseId}/chapters/${nextChapter.id}`)} className="flex items-center gap-2">
+              <Button onClick={() => redirect(`/student/courses/${params.courseId}/chapters/${nextChapter.id}`)} className="flex items-center gap-2">
                 Next Chapter
                 <ArrowRight className="h-4 w-4" />
               </Button>

@@ -24,7 +24,7 @@ const EnrollButton = ({ courseId, enrollmentStatus }: EnrollButtonProps) => {
       setIsLoading(true);
 
       if (enrollmentStatus.isEnrolled) {
-        router.push(`/courses/${courseId}/chapters`);
+        router.push(`/student/courses/${courseId}/chapters`);
         return;
       }
 
@@ -40,7 +40,7 @@ const EnrollButton = ({ courseId, enrollmentStatus }: EnrollButtonProps) => {
 
       toast.success("Successfully enrolled in the course!");
       router.refresh();
-      router.push(`/courses/${courseId}/chapters`);
+      router.push(`/student/courses/${courseId}/chapters`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {

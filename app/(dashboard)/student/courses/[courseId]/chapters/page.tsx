@@ -70,7 +70,7 @@ const CourseChaptersPage = async ({ params }: CourseChaptersPageProps) => {
         <div className="space-y-4">
           {course.chapters.map((chapter) => (
             <div key={chapter.id}>
-              <Link href={`/courses/${course.id}/chapters/${chapter.id}`}>
+              <Link href={`/student/courses/${course.id}/chapters/${chapter.id}`}>
                 <Card className="hover:shadow-md transition-shadow">
                   <CardHeader className="flex flex-row items-center gap-4 p-4">
                     <div className="flex items-center justify-center h-12 w-12 rounded-full bg-slate-100">{chapter.isCompleted ? <CheckCircle className="h-6 w-6 text-emerald-700" /> : <PlayCircle className="h-6 w-6 text-slate-700" />}</div>

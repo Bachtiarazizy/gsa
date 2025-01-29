@@ -26,7 +26,7 @@ async function StudentCoursesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {enrolledCourses.map((enrollment) => (
-          <Link key={enrollment.course.id} href={`/courses/${enrollment.course.id}`}>
+          <Link key={enrollment.course.id} href={`/student/courses/${enrollment.course.id}`}>
             <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
               <div className="relative aspect-video w-full">
                 {enrollment.course.imageUrl ? (

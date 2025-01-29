@@ -6,24 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Video, FileText, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
-import { createCourse } from "@/lib/actions/course";
+import { cn } from "@/lib/utils";
+import { createChapter } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
 
-interface Category {
-  id: string;
-  name: string;
+interface CreateChapterFormProps {
+  courseId: string;
 }
 
-interface CreateCourseFormProps {
-  categories: Category[];
-}
-
-interface CreateCourseResponse {
+interface CreateChapterResponse {
   success: boolean;
   data?: {
     id: string;
@@ -33,86 +27,56 @@ interface CreateCourseResponse {
   error?: string;
 }
 
-export default function CreateCourseForm({ categories }: CreateCourseFormProps) {
-  const { toast } = useToast();
+interface Attachment {
+  url: string;
+  name: string;
+}
+
+export default function CreateChapterForm({ courseId }: CreateChapterFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   async function onSubmit(formData: FormData) {
     try {
       setIsLoading(true);
       setError(null);
 
-      if (!imageUrl) {
-        setError("Course image is required");
+      if (!videoUrl) {
+        setError("Video is required");
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Course image is required",
+          description: "Video is required",
         });
         return;
       }
 
-      if (!categoryId) {
-        setError("Category is required");
+      formData.append("videoUrl", videoUrl);
+      formData.append("attachments", JSON.stringify(attachments));
+
+      const result = (await createChapter(courseId, formData)) as CreateChapterResponse;
+
+      if (!result.success || !result.data) {
+        setError(result.error || "Failed to create chapter");
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Category is required",
-        });
-        return;
-      }
-
-      const price = formData.get("price");
-      if (price === null || price === "") {
-        setError("Price is required");
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Price is required",
-        });
-        return;
-      }
-
-      const numericPrice = Number(price);
-      if (isNaN(numericPrice) || numericPrice < 0) {
-        setError("Please enter a valid price");
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Please enter a valid price",
-        });
-        return;
-      }
-
-      formData.set("imageUrl", imageUrl);
-      formData.set("price", numericPrice.toString());
-      formData.set("categoryId", categoryId);
-
-      const result = (await createCourse(formData)) as CreateCourseResponse;
-
-      if (!result.success) {
-        setError(result.error || "Failed to create course");
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: result.error || "Failed to create course",
+          description: result.error || "Failed to create chapter",
         });
         return;
       }
 
       toast({
         title: "Success",
-        description: "Course created successfully",
+        description: "Chapter created successfully",
       });
 
-      if (result.data) {
-        router.push(`/admin/courses/${result.data.id}`);
-        router.refresh();
-      }
+      router.push(`/admin/courses/${courseId}/chapters/${result.data.id}`);
+      router.refresh();
     } catch (err) {
       const errorMessage = "Something went wrong";
       setError(errorMessage);
@@ -127,68 +91,122 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
     }
   }
 
+  const removeAttachment = (attachmentUrl: string) => {
+    setAttachments((current) => current.filter((attachment) => attachment.url !== attachmentUrl));
+    toast({
+      title: "Success",
+      description: "Attachment removed successfully",
+    });
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-6">
       <form action={onSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="title">Course Title</Label>
-          <Input id="title" name="title" required placeholder="Enter course title" disabled={isLoading} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Select name="categoryId" value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor="title">Chapter Title</Label>
+          <Input id="title" name="title" required placeholder="Enter chapter title" disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" placeholder="Enter course description" disabled={isLoading} />
+          <Textarea id="description" name="description" placeholder="Enter chapter description" disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
-          <Label>Course Image</Label>
-          <div className="flex flex-col gap-4">
-            {imageUrl ? (
-              <>
-                <div className="relative aspect-video rounded-lg overflow-hidden">
-                  <Image src={imageUrl} alt="Course thumbnail" fill className="object-cover" />
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl(null)} disabled={isLoading}>
-                  Change Image
-                </Button>
-              </>
-            ) : (
+          <Label>Video Upload</Label>
+          <div className={cn("rounded-lg border border-dashed p-4", videoUrl && "bg-muted")}>
+            {!videoUrl && (
               <UploadDropzone
-                endpoint="courseImage"
+                endpoint="chapterVideo"
                 onClientUploadComplete={(res) => {
-                  setImageUrl(res?.[0]?.url);
+                  if (res?.[0]) {
+                    setVideoUrl(res[0].url);
+                    toast({
+                      title: "Success",
+                      description: "Video uploaded successfully",
+                    });
+                  }
                 }}
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 onUploadError={(error: Error) => {
-                  setError(error.message);
-                }}
-                appearance={{
-                  container: "border-dashed",
-                  label: "Drag and drop an image or click to browse",
+                  toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Error uploading video",
+                  });
                 }}
               />
+            )}
+            {videoUrl && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-x-2">
+                  <Video className="h-4 w-4" />
+                  <p className="text-sm text-muted-foreground">Video uploaded successfully</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setVideoUrl("");
+                    toast({
+                      title: "Success",
+                      description: "Video removed successfully",
+                    });
+                  }}
+                >
+                  Change video
+                </Button>
+              </div>
             )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Price</Label>
-          <Input id="price" name="price" type="number" min="0" step="0.01" placeholder="Enter course price" disabled={isLoading} required className="appearance-none" />
+          <Label>Attachments</Label>
+          <div className="space-y-4">
+            {attachments.length > 0 && (
+              <div className="space-y-2">
+                {attachments.map((attachment, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-x-2">
+                      <FileText className="h-4 w-4" />
+                      <p className="text-sm text-muted-foreground">{attachment.name}</p>
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(attachment.url)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <UploadDropzone
+              endpoint="courseAttachment"
+              onClientUploadComplete={(res) => {
+                if (res?.[0]) {
+                  setAttachments((current) => [
+                    ...current,
+                    {
+                      name: res[0].name,
+                      url: res[0].url,
+                    },
+                  ]);
+                  toast({
+                    title: "Success",
+                    description: "Attachment uploaded successfully",
+                  });
+                }
+              }}
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              onUploadError={(error: Error) => {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: "Error uploading attachment",
+                });
+              }}
+            />
+          </div>
         </div>
 
         {error && (
@@ -198,14 +216,14 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={isLoading || !imageUrl || !categoryId}>
+        <Button type="submit" className="w-full" disabled={isLoading || !videoUrl}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
+              Creating Chapter...
             </>
           ) : (
-            "Create Course"
+            "Create Chapter"
           )}
         </Button>
       </form>

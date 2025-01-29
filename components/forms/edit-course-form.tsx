@@ -2,89 +2,85 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Loader2, Video, FileText, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
-import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { createChapter } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
 
-interface Category {
-  id: string;
+interface CreateChapterFormProps {
+  courseId: string;
+}
+
+interface CreateChapterResponse {
+  success: boolean;
+  data?: {
+    id: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+  };
+  error?: string;
+}
+
+interface Attachment {
+  url: string;
   name: string;
 }
 
-interface Course {
-  id: string;
-  title: string;
-  description: string | null;
-  imageUrl: string | null;
-  price: number;
-  isPublished: boolean;
-  categoryId: string;
-}
-
-interface EditCourseFormProps {
-  initialData: Course;
-  categories: Category[];
-}
-
-type ApiResponse = {
-  message?: string;
-  errors?: { message: string }[];
-};
-
-export default function EditCourseForm({ initialData, categories }: EditCourseFormProps) {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(initialData.imageUrl);
-  const [categoryId, setCategoryId] = useState<string>(initialData.categoryId);
+export default function CreateChapterForm({ courseId }: CreateChapterFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
-  async function updateCourse(formData: FormData, togglePublish?: boolean) {
+  async function onSubmit(formData: FormData) {
     try {
       setIsLoading(true);
       setError(null);
 
-      if (togglePublish !== undefined) {
-        formData.append("isPublished", togglePublish.toString());
+      if (!videoUrl) {
+        const errorMessage = "Video is required";
+        setError(errorMessage);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: errorMessage,
+        });
+        return;
       }
 
-      if (imageUrl) {
-        formData.set("imageUrl", imageUrl);
-      }
+      formData.append("videoUrl", videoUrl);
+      formData.append("attachments", JSON.stringify(attachments));
 
-      formData.set("categoryId", categoryId);
+      const result = (await createChapter(courseId, formData)) as CreateChapterResponse;
 
-      const response = await fetch(`/api/courses/${initialData.id}`, {
-        method: "PATCH",
-        body: formData,
-      });
-
-      const data: ApiResponse = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 400) {
-          const errorMessage = data.errors ? data.errors.map((e) => e.message).join(", ") : data.message;
-          throw new Error(errorMessage || "Validation failed");
-        }
-        throw new Error(data.message || "Failed to update course");
+      if (!result.success || !result.data) {
+        const errorMessage = result.error || "Failed to create chapter";
+        setError(errorMessage);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: errorMessage,
+        });
+        return;
       }
 
       toast({
         title: "Success",
-        description: togglePublish !== undefined ? `Course ${togglePublish ? "published" : "unpublished"} successfully` : "Course updated successfully",
+        description: "Chapter created successfully",
       });
 
+      router.push(`/admin/courses/${courseId}/chapters/${result.data.id}`);
       router.refresh();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update course";
+      const errorMessage = err instanceof Error ? err.message : "Failed to create chapter";
       setError(errorMessage);
       toast({
         variant: "destructive",
@@ -97,93 +93,120 @@ export default function EditCourseForm({ initialData, categories }: EditCourseFo
     }
   }
 
-  async function onSubmit(formData: FormData) {
-    await updateCourse(formData);
-  }
-
-  async function onPublish() {
-    await updateCourse(new FormData(), true);
-  }
-
-  async function onUnpublish() {
-    await updateCourse(new FormData(), false);
-  }
+  const removeAttachment = (attachmentUrl: string) => {
+    setAttachments((current) => current.filter((attachment) => attachment.url !== attachmentUrl));
+    toast({
+      title: "Success",
+      description: "Attachment removed successfully",
+    });
+  };
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-slate-100">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <p className="text-sm">
-              Course status: <span className="font-medium">{initialData.isPublished ? "Published" : "Draft"}</span>
-            </p>
-            <Button onClick={initialData.isPublished ? onUnpublish : onPublish} variant={initialData.isPublished ? "outline" : "default"} disabled={isLoading}>
-              {initialData.isPublished ? "Unpublish" : "Publish"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
+    <div className="max-w-2xl mx-auto p-6">
       <form action={onSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="title">Course Title</Label>
-          <Input id="title" name="title" defaultValue={initialData.title} required disabled={isLoading} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Select name="categoryId" value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor="title">Chapter Title</Label>
+          <Input id="title" name="title" required placeholder="Enter chapter title" disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" defaultValue={initialData.description || ""} disabled={isLoading} />
+          <Textarea id="description" name="description" placeholder="Enter chapter description" disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
-          <Label>Course Image</Label>
-          <div className="flex flex-col gap-4">
-            {imageUrl ? (
-              <>
-                <div className="relative aspect-video rounded-lg overflow-hidden">
-                  <Image src={imageUrl} alt="Course thumbnail" fill className="object-cover" />
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl(null)} disabled={isLoading}>
-                  Change Image
-                </Button>
-              </>
-            ) : (
+          <Label>Video Upload</Label>
+          <div className={cn("rounded-lg border border-dashed p-4", videoUrl && "bg-muted")}>
+            {!videoUrl && (
               <UploadDropzone
-                endpoint="courseImage"
+                endpoint="chapterVideo"
                 onClientUploadComplete={(res) => {
-                  setImageUrl(res?.[0]?.url);
+                  if (res?.[0]) {
+                    setVideoUrl(res[0].url);
+                    toast({
+                      title: "Success",
+                      description: "Video uploaded successfully",
+                    });
+                  }
                 }}
                 onUploadError={(error: Error) => {
-                  setError(error.message);
-                }}
-                appearance={{
-                  container: "border-dashed",
-                  label: "Drag and drop an image or click to browse",
+                  toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: error.message || "Error uploading video",
+                  });
                 }}
               />
+            )}
+            {videoUrl && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-x-2">
+                  <Video className="h-4 w-4" />
+                  <p className="text-sm text-muted-foreground">Video uploaded successfully</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setVideoUrl("");
+                    toast({
+                      title: "Success",
+                      description: "Video removed successfully",
+                    });
+                  }}
+                >
+                  Change video
+                </Button>
+              </div>
             )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Price</Label>
-          <Input id="price" name="price" type="number" min="0" step="0.01" defaultValue={initialData.price} disabled={isLoading} />
+          <Label>Attachments</Label>
+          <div className="space-y-4">
+            {attachments.length > 0 && (
+              <div className="space-y-2">
+                {attachments.map((attachment, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-x-2">
+                      <FileText className="h-4 w-4" />
+                      <p className="text-sm text-muted-foreground">{attachment.name}</p>
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(attachment.url)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <UploadDropzone
+              endpoint="courseAttachment"
+              onClientUploadComplete={(res) => {
+                if (res?.[0]) {
+                  setAttachments((current) => [
+                    ...current,
+                    {
+                      name: res[0].name,
+                      url: res[0].url,
+                    },
+                  ]);
+                  toast({
+                    title: "Success",
+                    description: "Attachment uploaded successfully",
+                  });
+                }
+              }}
+              onUploadError={(error: Error) => {
+                toast({
+                  variant: "destructive",
+                  title: "Error",
+                  description: error.message || "Error uploading attachment",
+                });
+              }}
+            />
+          </div>
         </div>
 
         {error && (
@@ -193,14 +216,14 @@ export default function EditCourseForm({ initialData, categories }: EditCourseFo
           </Alert>
         )}
 
-        <Button type="submit" disabled={isLoading || !categoryId}>
+        <Button type="submit" className="w-full" disabled={isLoading || !videoUrl}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              Creating Chapter...
             </>
           ) : (
-            "Save Changes"
+            "Create Chapter"
           )}
         </Button>
       </form>
