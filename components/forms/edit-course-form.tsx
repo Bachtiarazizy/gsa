@@ -1,36 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, FileText, X } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { UploadDropzone } from "@/lib/uploadthing";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Category } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import Image from "next/image";
-
-interface Category {
-  id: string;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Button } from "../ui/button";
+import { UploadDropzone } from "@/lib/uploadthing";
+import { Alert, AlertDescription } from "../ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 interface Course {
   id: string;
   title: string;
   description: string | null;
   imageUrl: string | null;
+  attachmentUrl: string | null;
   price: number;
   categoryId: string;
-  attachments: Array<{
-    url: string;
-    name: string;
-  }>;
 }
 
 interface EditCourseFormProps {
@@ -38,19 +29,14 @@ interface EditCourseFormProps {
   categories: Category[];
 }
 
-interface Attachment {
-  url: string;
-  name: string;
-}
-
-export default function EditCourseForm({ course, categories }: EditCourseFormProps) {
+export function EditCourseForm({ course, categories }: EditCourseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [attachments, setAttachments] = useState<Attachment[]>(course.attachments);
   const [categoryId, setCategoryId] = useState<string>(course.categoryId);
   const [imageUrl, setImageUrl] = useState<string | null>(course.imageUrl);
+  const [attachmentUrl, setAttachmentUrl] = useState<string | null>(course.attachmentUrl);
 
   async function onSubmit(formData: FormData) {
     try {
@@ -99,12 +85,13 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
         return;
       }
 
-      formData.append("attachments", JSON.stringify(attachments));
       formData.set("categoryId", categoryId);
       formData.set("imageUrl", imageUrl);
       formData.set("price", numericPrice.toString());
+      if (attachmentUrl) {
+        formData.set("attachmentUrl", attachmentUrl);
+      }
 
-      // Update the course via API
       const response = await fetch(`/api/courses/${course.id}`, {
         method: "PATCH",
         body: formData,
@@ -134,14 +121,6 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
       setIsLoading(false);
     }
   }
-
-  const removeAttachment = (attachmentUrl: string) => {
-    setAttachments((current) => current.filter((attachment) => attachment.url !== attachmentUrl));
-    toast({
-      title: "Success",
-      description: "Attachment removed successfully",
-    });
-  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -203,49 +182,37 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
         </div>
 
         <div className="space-y-2">
-          <Label>Attachments</Label>
+          <Label>Course Attachment</Label>
           <div className="space-y-4">
-            {attachments.length > 0 && (
-              <div className="space-y-2">
-                {attachments.map((attachment, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <div className="flex items-center gap-x-2">
-                      <FileText className="h-4 w-4" />
-                      <p className="text-sm text-muted-foreground">{attachment.name}</p>
-                    </div>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(attachment.url)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+            {attachmentUrl ? (
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">Attachment uploaded</p>
+                <Button type="button" variant="outline" size="sm" onClick={() => setAttachmentUrl(null)} disabled={isLoading}>
+                  Remove
+                </Button>
               </div>
-            )}
-            <UploadDropzone
-              endpoint="courseAttachment"
-              onClientUploadComplete={(res) => {
-                if (res?.[0]) {
-                  setAttachments((current) => [
-                    ...current,
-                    {
-                      name: res[0].name,
-                      url: res[0].url,
-                    },
-                  ]);
+            ) : (
+              <UploadDropzone
+                endpoint="courseAttachment"
+                onClientUploadComplete={(res) => {
+                  if (res?.[0]) {
+                    setAttachmentUrl(res[0].url);
+                    toast({
+                      title: "Success",
+                      description: "Attachment uploaded successfully",
+                    });
+                  }
+                }}
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                onUploadError={(error: Error) => {
                   toast({
-                    title: "Success",
-                    description: "Attachment uploaded successfully",
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Error uploading attachment",
                   });
-                }
-              }}
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              onUploadError={(error: Error) => {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: "Error uploading attachment",
-                });
-              }}
-            />
+                }}
+              />
+            )}
           </div>
         </div>
 

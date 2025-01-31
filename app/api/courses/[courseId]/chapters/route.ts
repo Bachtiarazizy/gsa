@@ -1,4 +1,3 @@
-// app/api/courses/[courseId]/chapters/route.ts
 import prisma from "@/lib/db";
 import { createChapterSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -15,7 +14,8 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
     const values = {
       title: formData.get("title") as string,
       description: formData.get("description") as string,
-      videoUrl: formData.get("videoUrl") as string, // This will be the UploadThing URL
+      videoUrl: formData.get("videoUrl") as string,
+      attachmentUrl: formData.get("attachmentUrl") as string, // Added attachmentUrl field
     };
 
     const body = createChapterSchema.parse(values);
@@ -28,7 +28,7 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
     });
 
     if (!courseOwner) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse(JSON.stringify({ message: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
     const lastChapter = await prisma.chapter.findFirst({
@@ -46,7 +46,8 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
       data: {
         title: body.title,
         description: body.description,
-        videoUrl: body.videoUrl, // UploadThing URL
+        videoUrl: body.videoUrl,
+        attachmentUrl: body.attachmentUrl, // Added attachmentUrl field
         position: newPosition,
         courseId: params.courseId,
       },
@@ -55,6 +56,6 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
     return NextResponse.json(chapter);
   } catch (error) {
     console.error("[CHAPTERS]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse(JSON.stringify({ message: "Internal Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

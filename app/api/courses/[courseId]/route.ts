@@ -1,4 +1,3 @@
-// app/api/courses/[courseId]/route.ts
 import prisma from "@/lib/db";
 import { updateCourseSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -20,12 +19,12 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       imageUrl: formData.get("imageUrl"),
       price: Number(formData.get("price")),
       categoryId: formData.get("categoryId"),
-      attachments: JSON.parse((formData.get("attachments") as string) || "[]"),
+      attachmentUrl: formData.get("attachmentUrl"), // Updated to single attachmentUrl
     };
 
     const validatedData = updateCourseSchema.parse(data);
 
-    // Verify category exists
+    // Verify category exists if categoryId is provided
     if (validatedData.categoryId) {
       const category = await prisma.category.findUnique({
         where: {
@@ -38,48 +37,29 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       }
     }
 
-    // Start a transaction to handle attachments update
-    const course = await prisma.$transaction(async (tx) => {
-      // Pastikan hanya menghapus attachments jika skema mendukung courseId
-      await tx.attachment.deleteMany({
-        where: {
-          courseId: params.courseId,
-        },
-      });
-
-      return tx.course.update({
-        where: {
-          id: params.courseId,
-          userId,
-        },
-        data: {
-          title: validatedData.title,
-          description: validatedData.description,
-          imageUrl: validatedData.imageUrl,
-          price: validatedData.price,
-          categoryId: validatedData.categoryId,
-          attachments: validatedData.attachments
-            ? {
-                createMany: {
-                  data: validatedData.attachments.map((attachment) => ({
-                    name: attachment.name,
-                    url: attachment.url,
-                  })),
-                },
-              }
-            : undefined,
-        },
-        include: {
-          category: true,
-          attachments: true,
-          _count: {
-            select: {
-              chapters: true,
-              enrollments: true,
-            },
+    // Update course with single attachmentUrl
+    const course = await prisma.course.update({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+      data: {
+        title: validatedData.title,
+        description: validatedData.description,
+        imageUrl: validatedData.imageUrl,
+        price: validatedData.price,
+        categoryId: validatedData.categoryId,
+        attachmentUrl: validatedData.attachmentUrl, // Updated to single attachmentUrl
+      },
+      include: {
+        category: true,
+        _count: {
+          select: {
+            chapters: true,
+            enrollments: true,
           },
         },
-      });
+      },
     });
 
     return NextResponse.json(course);
@@ -114,7 +94,6 @@ export async function GET(req: Request, { params }: { params: { courseId: string
       },
       include: {
         category: true,
-        attachments: true,
         chapters: {
           orderBy: {
             position: "asc",
@@ -147,7 +126,6 @@ export async function DELETE(req: Request, { params }: { params: { courseId: str
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Delete course and all related data
     const course = await prisma.course.delete({
       where: {
         id: params.courseId,

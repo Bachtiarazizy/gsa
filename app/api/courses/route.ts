@@ -1,4 +1,3 @@
-// app/api/courses/route.ts
 import prisma from "@/lib/db";
 import { createCourseSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
       imageUrl: formData.get("imageUrl"),
       price: Number(formData.get("price")),
       categoryId: formData.get("categoryId"),
-      attachments: JSON.parse((formData.get("attachments") as string) || "[]"),
+      attachmentUrl: formData.get("attachmentUrl"), // Updated to single attachmentUrl
     };
 
     const validatedData = createCourseSchema.parse(data);
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
       return new NextResponse(JSON.stringify({ message: "Category not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
 
-    // Create course with attachments
+    // Create course with single attachmentUrl
     const course = await prisma.course.create({
       data: {
         userId,
@@ -45,18 +44,10 @@ export async function POST(req: Request) {
         price: validatedData.price,
         isPublished: false,
         categoryId: validatedData.categoryId,
-        attachments: {
-          createMany: {
-            data: validatedData.attachments.map((attachment) => ({
-              name: attachment.name,
-              url: attachment.url,
-            })),
-          },
-        },
+        attachmentUrl: validatedData.attachmentUrl, // Updated to single attachmentUrl
       },
       include: {
         category: true,
-        attachments: true,
       },
     });
 
@@ -86,7 +77,6 @@ export async function GET(req: Request) {
       },
       include: {
         category: true,
-        attachments: true,
         chapters: {
           orderBy: {
             position: "asc",

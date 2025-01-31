@@ -18,18 +18,10 @@ export const courseSchema = z.object({
   duration: z.string().optional().nullable(),
   enrollmentCount: z.number().int().default(0),
   imageUrl: z.string().optional().nullable(),
+  attachmentUrl: z.string().optional().nullable(), // Added this field
   price: z.number().min(0, "Price must be 0 or greater").default(0),
   isPublished: z.boolean().default(false),
   categoryId: z.string().cuid(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const courseAttachmentSchema = z.object({
-  id: z.string().cuid(),
-  name: z.string().min(1),
-  url: z.string().min(1),
-  courseId: z.string().cuid(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -39,18 +31,10 @@ export const chapterSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional().nullable(),
   videoUrl: z.string().min(1, "Video URL is required"),
+  attachmentUrl: z.string().optional().nullable(), // Added this field
   position: z.number().int().min(0),
   isPublished: z.boolean().default(false),
   courseId: z.string().cuid(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const attachmentSchema = z.object({
-  id: z.string().cuid(),
-  name: z.string().min(1),
-  url: z.string().min(1),
-  chapterId: z.string().cuid(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -140,48 +124,14 @@ export const createCategorySchema = categorySchema.omit({
   updatedAt: true,
 });
 
-export const createCourseSchema = courseSchema
-  .omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-    enrollmentCount: true,
-  })
-  .extend({
-    attachments: z
-      .array(
-        z.object({
-          name: z.string().min(1),
-          url: z.string().min(1),
-        })
-      )
-      .default([]),
-  });
-
-export const createCourseAttachmentSchema = courseAttachmentSchema.omit({
+export const createCourseSchema = courseSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  enrollmentCount: true,
 });
 
-export const createChapterSchema = chapterSchema
-  .omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    attachments: z
-      .array(
-        z.object({
-          name: z.string().min(1),
-          url: z.string().min(1),
-        })
-      )
-      .default([]),
-  });
-
-export const createAttachmentSchema = attachmentSchema.omit({
+export const createChapterSchema = chapterSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -245,7 +195,6 @@ export const updateCourseSchema = createCourseSchema.partial();
 export const updateChapterSchema = createChapterSchema.partial();
 export const updateDiscussionSchema = createDiscussionSchema.partial();
 export const updateReplySchema = createReplySchema.partial();
-export const updateAttachmentSchema = createAttachmentSchema.partial();
 export const updateAssessmentSchema = createAssessmentSchema.partial();
 export const updateQuestionSchema = createQuestionSchema.partial();
 

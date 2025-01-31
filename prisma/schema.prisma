@@ -23,6 +23,7 @@ model Course {
   duration        String?
   enrollmentCount Int       @default(0)
   imageUrl        String?
+  attachmentUrl   String?   // Added to replace CourseAttachment model
   price           Float     @default(0)
   isPublished     Boolean   @default(false)
   categoryId      String
@@ -31,44 +32,29 @@ model Course {
 
   category    Category   @relation(fields: [categoryId], references: [id])
   chapters    Chapter[]
-  attachments CourseAttachment[] 
   enrollments CourseEnrollment[]
-  discussions Discussion[]  // New relation
+  discussions Discussion[]  
 
   @@index([userId])
   @@index([categoryId])
 }
 
-model CourseAttachment {
-  id        String   @id @default(cuid())
-  name      String
-  url       String
-  courseId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@index([courseId])
-}
-
-
 model Chapter {
-  id          String    @id @default(cuid())
-  title       String
-  description String?   @db.Text
-  videoUrl    String
-  position    Int
-  isPublished Boolean   @default(false)
-  courseId    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  title        String
+  description  String?   @db.Text
+  videoUrl     String
+  attachmentUrl String?  // Added to replace Attachment model
+  position     Int
+  isPublished  Boolean   @default(false)
+  courseId     String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progress    ChapterProgress[]
   assessment  Assessment?
-  discussions Discussion[]  // New relation
-  attachments Attachment[] 
+  discussions Discussion[]  
 
   @@index([courseId])
 }
@@ -132,7 +118,6 @@ model ReplyLike {
   @@index([userId])
   @@index([replyId])
 }
-
 
 model Assessment {
   id          String    @id @default(cuid())
@@ -210,17 +195,4 @@ model AssessmentResult {
 enum Role {
   STUDENT
   ADMIN
-}
-
-model Attachment {
-  id        String   @id @default(cuid())
-  name      String
-  url       String
-  chapterId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@index([chapterId])
 }
