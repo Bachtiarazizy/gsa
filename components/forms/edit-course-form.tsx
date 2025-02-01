@@ -1,27 +1,35 @@
 "use client";
 
-import { useToast } from "@/hooks/use-toast";
-import { Category } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import Image from "next/image";
-import { Button } from "../ui/button";
-import { UploadDropzone } from "@/lib/uploadthing";
-import { Alert, AlertDescription } from "../ui/alert";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { UploadDropzone } from "@/lib/uploadthing";
+import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
+import { UpdateCourseInput } from "@/lib/zodSchema";
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface Course {
   id: string;
   title: string;
   description: string | null;
-  imageUrl: string | null;
+  duration: string | null;
+  imageUrl: string;
   attachmentUrl: string | null;
+  attachmentOriginalName: string | null;
   price: number;
   categoryId: string;
+  isPublished: boolean;
 }
 
 interface EditCourseFormProps {
@@ -35,8 +43,10 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [categoryId, setCategoryId] = useState<string>(course.categoryId);
-  const [imageUrl, setImageUrl] = useState<string | null>(course.imageUrl);
+  const [imageUrl, setImageUrl] = useState<string>(course.imageUrl);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(course.attachmentUrl);
+  const [attachmentOriginalName, setAttachmentOriginalName] = useState<string | null>(course.attachmentOriginalName);
+  const [duration, setDuration] = useState<string>(course.duration || "");
 
   async function onSubmit(formData: FormData) {
     try {
@@ -85,16 +95,23 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
         return;
       }
 
-      formData.set("categoryId", categoryId);
-      formData.set("imageUrl", imageUrl);
-      formData.set("price", numericPrice.toString());
-      if (attachmentUrl) {
-        formData.set("attachmentUrl", attachmentUrl);
-      }
+      const courseData: Partial<UpdateCourseInput> = {
+        title: formData.get("title") as string,
+        description: (formData.get("description") as string) || null,
+        duration: duration || null,
+        price: numericPrice,
+        categoryId,
+        imageUrl,
+        attachmentUrl: attachmentUrl || null,
+        attachmentOriginalName: attachmentOriginalName || null,
+      };
 
       const response = await fetch(`/api/courses/${course.id}`, {
         method: "PATCH",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(courseData),
       });
 
       if (!response.ok) {
@@ -109,7 +126,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
       router.push(`/admin/courses/${course.id}`);
       router.refresh();
     } catch (err) {
-      const errorMessage = "Something went wrong";
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
       setError(errorMessage);
       toast({
         variant: "destructive",
@@ -136,6 +153,11 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="duration">Duration</Label>
+          <Input id="duration" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="e.g., 2 weeks, 10 hours" disabled={isLoading} />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
           <Select name="categoryId" value={categoryId} onValueChange={setCategoryId} disabled={isLoading}>
             <SelectTrigger>
@@ -159,7 +181,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
                 <div className="relative aspect-video rounded-lg overflow-hidden">
                   <Image src={imageUrl} alt="Course thumbnail" fill className="object-cover" />
                 </div>
-                <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl(null)} disabled={isLoading}>
+                <Button type="button" variant="outline" size="sm" onClick={() => setImageUrl("")} disabled={isLoading}>
                   Change Image
                 </Button>
               </>
@@ -167,10 +189,17 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
               <UploadDropzone
                 endpoint="courseImage"
                 onClientUploadComplete={(res) => {
-                  setImageUrl(res?.[0]?.url);
+                  if (res?.[0]) {
+                    setImageUrl(res[0].url);
+                  }
                 }}
                 onUploadError={(error: Error) => {
                   setError(error.message);
+                  toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Error uploading image",
+                  });
                 }}
                 appearance={{
                   container: "border-dashed",
@@ -186,25 +215,34 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
           <div className="space-y-4">
             {attachmentUrl ? (
               <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground">Attachment uploaded</p>
-                <Button type="button" variant="outline" size="sm" onClick={() => setAttachmentUrl(null)} disabled={isLoading}>
+                <p className="text-sm text-muted-foreground">{attachmentOriginalName || "Attachment uploaded"}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setAttachmentUrl(null);
+                    setAttachmentOriginalName(null);
+                  }}
+                  disabled={isLoading}
+                >
                   Remove
                 </Button>
               </div>
             ) : (
               <UploadDropzone
-                endpoint="courseAttachment"
+                endpoint="attachment"
                 onClientUploadComplete={(res) => {
                   if (res?.[0]) {
                     setAttachmentUrl(res[0].url);
+                    setAttachmentOriginalName(res[0].name);
                     toast({
                       title: "Success",
                       description: "Attachment uploaded successfully",
                     });
                   }
                 }}
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                onUploadError={(error: Error) => {
+                onUploadError={() => {
                   toast({
                     variant: "destructive",
                     title: "Error",

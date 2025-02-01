@@ -24,6 +24,7 @@ model Course {
   enrollmentCount Int       @default(0)
   imageUrl        String?
   attachmentUrl   String?   // Added to replace CourseAttachment model
+  attachmentOriginalName String?
   price           Float     @default(0)
   isPublished     Boolean   @default(false)
   categoryId      String
@@ -45,6 +46,7 @@ model Chapter {
   description  String?   @db.Text
   videoUrl     String
   attachmentUrl String?  // Added to replace Attachment model
+  attachmentOriginalName String?
   position     Int
   isPublished  Boolean   @default(false)
   courseId     String

@@ -28,15 +28,13 @@ export const ourFileRouter = {
       return { uploadedBy: metadata.userId, url: file.url };
     }),
 
-  courseAttachment: f({
-    pdf: { maxFileSize: "16MB", maxFileCount: 1 },
-  })
-    .middleware(async () => {
-      const user = await handleAuth();
-      return user;
-    })
+  attachment: f({ pdf: { maxFileSize: "8MB", maxFileCount: 3 } })
+    .middleware(() => handleAuth())
     .onUploadComplete(async ({ metadata, file }) => {
-      return { uploadedBy: metadata.userId, url: file.url };
+      return {
+        uploadedBy: metadata.userId,
+        filename: file.name,
+      };
     }),
 } satisfies FileRouter;
 

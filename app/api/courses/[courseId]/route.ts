@@ -2,7 +2,6 @@ import prisma from "@/lib/db";
 import { updateCourseSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
 
 export async function PATCH(req: Request, { params }: { params: { courseId: string } }) {
   try {
@@ -11,20 +10,36 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const formData = await req.formData();
-
+    const json = await req.json();
     const data = {
-      title: formData.get("title"),
-      description: formData.get("description"),
-      imageUrl: formData.get("imageUrl"),
-      price: Number(formData.get("price")),
-      categoryId: formData.get("categoryId"),
-      attachmentUrl: formData.get("attachmentUrl"), // Updated to single attachmentUrl
+      title: json.title,
+      description: json.description,
+      duration: json.duration,
+      imageUrl: json.imageUrl,
+      attachmentUrl: json.attachmentUrl,
+      attachmentOriginalName: json.attachmentOriginalName,
+      price: Number(json.price),
+      categoryId: json.categoryId,
     };
 
     const validatedData = updateCourseSchema.parse(data);
 
-    // Verify category exists if categoryId is provided
+    // Verify course exists and belongs to user
+    const existingCourse = await prisma.course.findUnique({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+    });
+
+    if (!existingCourse) {
+      return new NextResponse(JSON.stringify({ message: "Course not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify category if it's being updated
     if (validatedData.categoryId) {
       const category = await prisma.category.findUnique({
         where: {
@@ -33,50 +48,31 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       });
 
       if (!category) {
-        return new NextResponse(JSON.stringify({ message: "Category not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
+        return new NextResponse(JSON.stringify({ message: "Category not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
       }
     }
 
-    // Update course with single attachmentUrl
-    const course = await prisma.course.update({
+    const updatedCourse = await prisma.course.update({
       where: {
         id: params.courseId,
         userId,
       },
-      data: {
-        title: validatedData.title,
-        description: validatedData.description,
-        imageUrl: validatedData.imageUrl,
-        price: validatedData.price,
-        categoryId: validatedData.categoryId,
-        attachmentUrl: validatedData.attachmentUrl, // Updated to single attachmentUrl
-      },
+      data: validatedData,
       include: {
         category: true,
-        _count: {
-          select: {
-            chapters: true,
-            enrollments: true,
-          },
-        },
       },
     });
 
-    return NextResponse.json(course);
+    return NextResponse.json(updatedCourse);
   } catch (error) {
-    console.error("[COURSE_UPDATE]", error);
-
-    if (error instanceof ZodError) {
-      return new NextResponse(
-        JSON.stringify({
-          message: "Invalid data",
-          errors: error.errors,
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    console.error("[COURSES]", error);
+    return new NextResponse(JSON.stringify({ message: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
 

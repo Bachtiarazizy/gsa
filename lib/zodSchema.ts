@@ -18,7 +18,8 @@ export const courseSchema = z.object({
   duration: z.string().optional().nullable(),
   enrollmentCount: z.number().int().default(0),
   imageUrl: z.string().optional().nullable(),
-  attachmentUrl: z.string().optional().nullable(), // Added this field
+  attachmentUrl: z.string().optional().nullable(),
+  attachmentOriginalName: z.string().optional().nullable(), // Added field
   price: z.number().min(0, "Price must be 0 or greater").default(0),
   isPublished: z.boolean().default(false),
   categoryId: z.string().cuid(),
@@ -31,7 +32,8 @@ export const chapterSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional().nullable(),
   videoUrl: z.string().min(1, "Video URL is required"),
-  attachmentUrl: z.string().optional().nullable(), // Added this field
+  attachmentUrl: z.string().optional().nullable(),
+  attachmentOriginalName: z.string().optional().nullable(), // Added field
   position: z.number().int().min(0),
   isPublished: z.boolean().default(false),
   courseId: z.string().cuid(),
@@ -81,7 +83,7 @@ export const assessmentSchema = z.object({
 
 export const questionSchema = z.object({
   id: z.string().cuid(),
-  question: z.string().min(1),
+  question: z.string().min(1, "Question is required"),
   options: z.array(z.string()),
   correctAnswer: z.string(),
   assessmentId: z.string().cuid(),
@@ -198,11 +200,35 @@ export const updateReplySchema = createReplySchema.partial();
 export const updateAssessmentSchema = createAssessmentSchema.partial();
 export const updateQuestionSchema = createQuestionSchema.partial();
 
-// Type exports for TypeScript usage
+// Type exports
 export type Category = z.infer<typeof categorySchema>;
 export type Course = z.infer<typeof courseSchema>;
 export type Chapter = z.infer<typeof chapterSchema>;
+export type Discussion = z.infer<typeof discussionSchema>;
+export type Reply = z.infer<typeof replySchema>;
+export type DiscussionLike = z.infer<typeof discussionLikeSchema>;
+export type ReplyLike = z.infer<typeof replyLikeSchema>;
+export type Assessment = z.infer<typeof assessmentSchema>;
+export type Question = z.infer<typeof questionSchema>;
+export type CourseEnrollment = z.infer<typeof courseEnrollmentSchema>;
+export type ChapterProgress = z.infer<typeof chapterProgressSchema>;
+export type AssessmentResult = z.infer<typeof assessmentResultSchema>;
+
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type CreateCourseInput = z.infer<typeof createCourseSchema>;
 export type CreateChapterInput = z.infer<typeof createChapterSchema>;
+export type CreateDiscussionInput = z.infer<typeof createDiscussionSchema>;
+export type CreateReplyInput = z.infer<typeof createReplySchema>;
+export type CreateAssessmentInput = z.infer<typeof createAssessmentSchema>;
+export type CreateQuestionInput = z.infer<typeof createQuestionSchema>;
+export type CreateCourseEnrollmentInput = z.infer<typeof createCourseEnrollmentSchema>;
+export type CreateChapterProgressInput = z.infer<typeof createChapterProgressSchema>;
+export type CreateAssessmentResultInput = z.infer<typeof createAssessmentResultSchema>;
+
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
 export type UpdateChapterInput = z.infer<typeof updateChapterSchema>;
+export type UpdateDiscussionInput = z.infer<typeof updateDiscussionSchema>;
+export type UpdateReplyInput = z.infer<typeof updateReplySchema>;
+export type UpdateAssessmentInput = z.infer<typeof updateAssessmentSchema>;
+export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>;
