@@ -3,170 +3,235 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Loader2, ImageIcon, FileText, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertCircle, FileText, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
-import { cn } from "@/lib/utils";
-import { createCourse } from "@/lib/actions/course";
+import { updateChapterStatus } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
 
-interface CreateCourseFormProps {
-  categories: {
-    id: string;
-    name: string;
-  }[];
-}
-
-interface CreateCourseResponse {
-  success: boolean;
-  data?: {
-    id: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: any;
-  };
-  error?: string;
-}
-
 interface Attachment {
-  url: string;
+  id: string;
   name: string;
+  url: string;
 }
 
-export default function CreateCourseForm({ categories }: CreateCourseFormProps) {
+interface EditChapterFormProps {
+  initialData: {
+    id: string;
+    title: string;
+    description: string | null;
+    videoUrl: string;
+    position: number;
+    isPublished: boolean;
+    courseId: string;
+    attachments: Attachment[];
+    course: {
+      title: string;
+    };
+  };
+}
+
+type ApiResponse = {
+  message?: string;
+  errors?: { message: string }[];
+};
+
+export default function EditChapterForm({ initialData }: EditChapterFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(initialData.videoUrl);
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData.attachments);
   const router = useRouter();
   const { toast } = useToast();
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>("");
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
-  async function onSubmit(formData: FormData) {
+  async function updateChapter(formData: FormData, togglePublish?: boolean) {
     try {
       setIsLoading(true);
       setError(null);
 
-      formData.append("imageUrl", imageUrl);
+      if (togglePublish !== undefined) {
+        formData.append("isPublished", togglePublish.toString());
+      }
+
+      if (videoUrl) {
+        formData.set("videoUrl", videoUrl);
+      }
+
+      // Add attachments to formData
       formData.append("attachments", JSON.stringify(attachments));
 
-      const result = (await createCourse(formData)) as CreateCourseResponse;
+      const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}`, {
+        method: "PATCH",
+        body: formData,
+      });
 
-      if (!result.success || !result.data) {
-        setError(result.error || "Failed to create course");
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: result.error || "Failed to create course",
-        });
-        return;
+      const data: ApiResponse = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          const errorMessage = data.errors ? data.errors.map((e) => e.message).join(", ") : data.message;
+          throw new Error(errorMessage || "Validation failed");
+        }
+        throw new Error(data.message || "Failed to update chapter");
       }
 
       toast({
         title: "Success",
-        description: "Course created successfully",
+        description: "Chapter updated successfully",
       });
 
-      router.push(`/admin/courses/${result.data.id}`);
       router.refresh();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError("Something went wrong");
+      const errorMessage = err instanceof Error ? err.message : "Failed to update chapter";
+      setError(errorMessage);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create course",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
     }
   }
 
-  const removeAttachment = (attachmentUrl: string) => {
-    setAttachments((current) => current.filter((attachment) => attachment.url !== attachmentUrl));
+  async function onSubmit(formData: FormData) {
+    await updateChapter(formData);
+  }
+
+  async function onPublish() {
+    await updateChapterStatus(initialData.id, initialData.courseId, true);
     toast({
       title: "Success",
-      description: "Attachment removed successfully",
+      description: "Chapter published successfully",
     });
+    router.refresh();
+  }
+
+  async function onUnpublish() {
+    await updateChapterStatus(initialData.id, initialData.courseId, false);
+    toast({
+      title: "Success",
+      description: "Chapter unpublished successfully",
+    });
+    router.refresh();
+  }
+
+  const removeAttachment = async (attachmentId: string) => {
+    try {
+      const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}/attachments/${attachmentId}`, { method: "DELETE" });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete attachment");
+      }
+
+      setAttachments((current) => current.filter((attachment) => attachment.id !== attachmentId));
+      toast({
+        title: "Success",
+        description: "Attachment removed successfully",
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to remove attachment",
+      });
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="space-y-6">
+      <Card className="bg-slate-100">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <p className="text-sm">
+              Chapter status: <span className="font-medium">{initialData.isPublished ? "Published" : "Draft"}</span>
+            </p>
+            <Button onClick={initialData.isPublished ? onUnpublish : onPublish} variant={initialData.isPublished ? "outline" : "default"} disabled={isLoading}>
+              {initialData.isPublished ? "Unpublish" : "Publish"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <form action={onSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="title">Course Title</Label>
-          <Input id="title" name="title" required placeholder="Enter course title" disabled={isLoading} />
+          <Label htmlFor="title">Chapter Title</Label>
+          <Input id="title" name="title" defaultValue={initialData.title} required disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" placeholder="Enter course description" disabled={isLoading} />
+          <Textarea id="description" name="description" defaultValue={initialData.description || ""} disabled={isLoading} />
         </div>
 
         <div className="space-y-2">
-          <Label>Course Image</Label>
-          <div className={cn("rounded-lg border border-dashed p-4", imageUrl && "bg-muted")}>
-            {!imageUrl && (
-              <UploadDropzone
-                endpoint="courseImage"
-                onClientUploadComplete={(res) => {
-                  if (res?.[0]) {
-                    setImageUrl(res[0].url);
+          <Label>Chapter Video</Label>
+          <div className="flex flex-col gap-4">
+            {videoUrl ? (
+              <>
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <video src={videoUrl} controls className="w-full h-full object-cover" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setVideoUrl(null);
                     toast({
                       title: "Success",
-                      description: "Image uploaded successfully",
+                      description: "Video removed successfully",
                     });
-                  }
+                  }}
+                  disabled={isLoading}
+                >
+                  Change Video
+                </Button>
+              </>
+            ) : (
+              <UploadDropzone
+                endpoint="chapterVideo"
+                onClientUploadComplete={(res) => {
+                  setVideoUrl(res?.[0]?.url);
+                  toast({
+                    title: "Success",
+                    description: "Video uploaded successfully",
+                  });
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 onUploadError={(error: Error) => {
                   toast({
                     variant: "destructive",
                     title: "Error",
-                    description: "Error uploading image",
+                    description: "Error uploading video",
                   });
                 }}
+                appearance={{
+                  container: "border-dashed",
+                  label: "Drag and drop a video or click to browse",
+                }}
               />
-            )}
-            {imageUrl && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-x-2">
-                  <ImageIcon className="h-4 w-4" />
-                  <p className="text-sm text-muted-foreground">Image uploaded successfully</p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setImageUrl("");
-                    toast({
-                      title: "Success",
-                      description: "Image removed successfully",
-                    });
-                  }}
-                >
-                  Change image
-                </Button>
-              </div>
             )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Course Attachments</Label>
+          <Label>Attachments</Label>
           <div className="space-y-4">
             {attachments.length > 0 && (
               <div className="space-y-2">
-                {attachments.map((attachment, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                {attachments.map((attachment) => (
+                  <div key={attachment.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <div className="flex items-center gap-x-2">
                       <FileText className="h-4 w-4" />
                       <p className="text-sm text-muted-foreground">{attachment.name}</p>
                     </div>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(attachment.url)}>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(attachment.id)} disabled={isLoading}>
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -180,6 +245,7 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
                   setAttachments((current) => [
                     ...current,
                     {
+                      id: res[0].key,
                       name: res[0].name,
                       url: res[0].url,
                     },
@@ -203,24 +269,8 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="categoryId">Category</Label>
-          <Select name="categoryId" required>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="price">Price</Label>
-          <Input id="price" name="price" type="number" min="0" step="0.01" required placeholder="Enter course price" disabled={isLoading} />
+          <Label htmlFor="position">Position</Label>
+          <Input id="position" name="position" type="number" min="1" defaultValue={initialData.position} required disabled={isLoading} />
         </div>
 
         {error && (
@@ -230,14 +280,14 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Course...
+              Saving...
             </>
           ) : (
-            "Create Course"
+            "Save Changes"
           )}
         </Button>
       </form>

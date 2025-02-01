@@ -25,7 +25,7 @@ interface CreateCourseFormProps {
   categories: Category[];
 }
 
-export function CreateCourseForm({ categories }: CreateCourseFormProps) {
+export default function CreateCourseForm({ categories }: CreateCourseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);

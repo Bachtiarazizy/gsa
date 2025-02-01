@@ -29,7 +29,7 @@ interface EditCourseFormProps {
   categories: Category[];
 }
 
-export function EditCourseForm({ course, categories }: EditCourseFormProps) {
+export default function EditCourseForm({ course, categories }: EditCourseFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
