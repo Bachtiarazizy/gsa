@@ -8,9 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
-import { updateChapterStatus } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
 
 interface Attachment {
@@ -19,20 +17,8 @@ interface Attachment {
   url: string;
 }
 
-interface EditChapterFormProps {
-  initialData: {
-    id: string;
-    title: string;
-    description: string | null;
-    videoUrl: string;
-    position: number;
-    isPublished: boolean;
-    courseId: string;
-    attachments: Attachment[];
-    course: {
-      title: string;
-    };
-  };
+interface ChapterFormProps {
+  courseId: string;
 }
 
 type ApiResponse = {
@@ -40,32 +26,29 @@ type ApiResponse = {
   errors?: { message: string }[];
 };
 
-export default function EditChapterForm({ initialData }: EditChapterFormProps) {
+export default function ChapterForm({ courseId }: ChapterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(initialData.videoUrl);
-  const [attachments, setAttachments] = useState<Attachment[]>(initialData.attachments);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const router = useRouter();
   const { toast } = useToast();
 
-  async function updateChapter(formData: FormData, togglePublish?: boolean) {
+  async function onSubmit(formData: FormData) {
     try {
       setIsLoading(true);
       setError(null);
 
-      if (togglePublish !== undefined) {
-        formData.append("isPublished", togglePublish.toString());
+      if (!videoUrl) {
+        throw new Error("Video is required");
       }
 
-      if (videoUrl) {
-        formData.set("videoUrl", videoUrl);
-      }
-
-      // Add attachments to formData
+      formData.set("videoUrl", videoUrl);
       formData.append("attachments", JSON.stringify(attachments));
+      formData.append("courseId", courseId);
 
-      const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}`, {
-        method: "PATCH",
+      const response = await fetch(`/api/courses/${courseId}/chapters`, {
+        method: "POST",
         body: formData,
       });
 
@@ -76,17 +59,18 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
           const errorMessage = data.errors ? data.errors.map((e) => e.message).join(", ") : data.message;
           throw new Error(errorMessage || "Validation failed");
         }
-        throw new Error(data.message || "Failed to update chapter");
+        throw new Error(data.message || "Failed to create chapter");
       }
 
       toast({
         title: "Success",
-        description: "Chapter updated successfully",
+        description: "Chapter created successfully",
       });
 
+      router.push(`/admin/courses/${courseId}`);
       router.refresh();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update chapter";
+      const errorMessage = err instanceof Error ? err.message : "Failed to create chapter";
       setError(errorMessage);
       toast({
         variant: "destructive",
@@ -98,75 +82,25 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
     }
   }
 
-  async function onSubmit(formData: FormData) {
-    await updateChapter(formData);
-  }
-
-  async function onPublish() {
-    await updateChapterStatus(initialData.id, initialData.courseId, true);
+  const removeAttachment = (attachmentId: string) => {
+    setAttachments((current) => current.filter((attachment) => attachment.id !== attachmentId));
     toast({
       title: "Success",
-      description: "Chapter published successfully",
+      description: "Attachment removed successfully",
     });
-    router.refresh();
-  }
-
-  async function onUnpublish() {
-    await updateChapterStatus(initialData.id, initialData.courseId, false);
-    toast({
-      title: "Success",
-      description: "Chapter unpublished successfully",
-    });
-    router.refresh();
-  }
-
-  const removeAttachment = async (attachmentId: string) => {
-    try {
-      const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}/attachments/${attachmentId}`, { method: "DELETE" });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete attachment");
-      }
-
-      setAttachments((current) => current.filter((attachment) => attachment.id !== attachmentId));
-      toast({
-        title: "Success",
-        description: "Attachment removed successfully",
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to remove attachment",
-      });
-    }
   };
 
   return (
     <div className="space-y-6">
-      <Card className="bg-slate-100">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <p className="text-sm">
-              Chapter status: <span className="font-medium">{initialData.isPublished ? "Published" : "Draft"}</span>
-            </p>
-            <Button onClick={initialData.isPublished ? onUnpublish : onPublish} variant={initialData.isPublished ? "outline" : "default"} disabled={isLoading}>
-              {initialData.isPublished ? "Unpublish" : "Publish"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       <form action={onSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="title">Chapter Title</Label>
-          <Input id="title" name="title" defaultValue={initialData.title} required disabled={isLoading} />
+          <Input id="title" name="title" required disabled={isLoading} placeholder="Enter chapter title" />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" defaultValue={initialData.description || ""} disabled={isLoading} />
+          <Textarea id="description" name="description" disabled={isLoading} placeholder="Enter chapter description (optional)" />
         </div>
 
         <div className="space-y-2">
@@ -190,7 +124,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
                   }}
                   disabled={isLoading}
                 >
-                  Change Video
+                  Remove Video
                 </Button>
               </>
             ) : (
@@ -203,7 +137,6 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
                     description: "Video uploaded successfully",
                   });
                 }}
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 onUploadError={(error: Error) => {
                   toast({
                     variant: "destructive",
@@ -213,7 +146,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
                 }}
                 appearance={{
                   container: "border-dashed",
-                  label: "Drag and drop a video or click to browse",
+                  label: "Drag and drop a video or click to browse (max 512MB)",
                 }}
               />
             )}
@@ -221,7 +154,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label>Attachments</Label>
+          <Label>Attachments (PDF only, max 3 files, 8MB each)</Label>
           <div className="space-y-4">
             {attachments.length > 0 && (
               <div className="space-y-2">
@@ -238,39 +171,44 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
                 ))}
               </div>
             )}
-            <UploadDropzone
-              endpoint="courseAttachment"
-              onClientUploadComplete={(res) => {
-                if (res?.[0]) {
-                  setAttachments((current) => [
-                    ...current,
-                    {
-                      id: res[0].key,
-                      name: res[0].name,
-                      url: res[0].url,
-                    },
-                  ]);
+            {attachments.length < 3 && (
+              <UploadDropzone
+                endpoint="attachment"
+                onClientUploadComplete={(res) => {
+                  if (res?.[0]) {
+                    setAttachments((current) => [
+                      ...current,
+                      {
+                        id: res[0].key,
+                        name: res[0].name,
+                        url: res[0].url,
+                      },
+                    ]);
+                    toast({
+                      title: "Success",
+                      description: "Attachment uploaded successfully",
+                    });
+                  }
+                }}
+                onUploadError={(error: Error) => {
                   toast({
-                    title: "Success",
-                    description: "Attachment uploaded successfully",
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Error uploading attachment",
                   });
-                }
-              }}
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              onUploadError={(error: Error) => {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: "Error uploading attachment",
-                });
-              }}
-            />
+                }}
+                appearance={{
+                  container: "border-dashed",
+                  label: "Drag and drop PDF files or click to browse",
+                }}
+              />
+            )}
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="position">Position</Label>
-          <Input id="position" name="position" type="number" min="1" defaultValue={initialData.position} required disabled={isLoading} />
+          <Input id="position" name="position" type="number" min="1" required disabled={isLoading} placeholder="Enter chapter position" />
         </div>
 
         {error && (
@@ -280,16 +218,21 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
           </Alert>
         )}
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            "Save Changes"
-          )}
-        </Button>
+        <div className="flex items-center gap-x-2">
+          <Button type="button" variant="ghost" onClick={() => router.push(`/admin/courses/${courseId}`)} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              "Create Chapter"
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );

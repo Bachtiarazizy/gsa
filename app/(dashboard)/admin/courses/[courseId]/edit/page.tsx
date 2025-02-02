@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import EditCourseForm from "@/components/forms/edit-course-form";
 import { auth } from "@clerk/nextjs/server";
+import { Course, Category } from "@/lib/zodSchema";
+import PublishButton from "../../_components/publish-button";
+import DeleteButton from "../../_components/delete-button";
 
 export const metadata: Metadata = {
   title: "Edit Course",
@@ -18,7 +21,20 @@ interface PageProps {
   };
 }
 
-async function getCategoriesData() {
+interface TransformedCourse {
+  id: string;
+  title: string;
+  description: string | null;
+  duration: string | null;
+  imageUrl: string;
+  attachmentUrl: string | null;
+  attachmentOriginalName: string | null;
+  price: number;
+  categoryId: string;
+  isPublished: boolean;
+}
+
+async function getCategoriesData(): Promise<Category[]> {
   try {
     const categories = await prisma.category.findMany({
       orderBy: {
@@ -32,7 +48,7 @@ async function getCategoriesData() {
   }
 }
 
-async function getCourseData(courseId: string, userId: string) {
+async function getCourseData(courseId: string, userId: string): Promise<Course> {
   try {
     const course = await prisma.course.findUnique({
       where: {
@@ -40,24 +56,7 @@ async function getCourseData(courseId: string, userId: string) {
         userId,
       },
       include: {
-        attachments: {
-          select: {
-            id: true,
-            name: true,
-            url: true,
-          },
-        },
-        chapters: {
-          orderBy: {
-            position: "asc",
-          },
-          select: {
-            id: true,
-            title: true,
-            isPublished: true,
-            position: true,
-          },
-        },
+        category: true,
       },
     });
 
@@ -82,18 +81,18 @@ export default async function CourseEditPage({ params }: PageProps) {
   try {
     const [course, categories] = await Promise.all([getCourseData(params.courseId, userId), getCategoriesData()]);
 
-    // Transform the course data to match EditCourseForm's expected structure
-    const transformedCourse = {
+    // Transform the course data with null coalescing to handle undefined values
+    const transformedCourse: TransformedCourse = {
       id: course.id,
       title: course.title,
-      description: course.description,
-      imageUrl: course.imageUrl,
+      description: course.description ?? null,
+      duration: course.duration ?? null,
+      imageUrl: course.imageUrl ?? "",
+      attachmentUrl: course.attachmentUrl ?? null,
+      attachmentOriginalName: course.attachmentOriginalName ?? null,
       price: course.price,
       categoryId: course.categoryId,
-      attachments: course.attachments.map((attachment) => ({
-        url: attachment.url,
-        name: attachment.name,
-      })),
+      isPublished: course.isPublished,
     };
 
     return (
@@ -112,11 +111,18 @@ export default async function CourseEditPage({ params }: PageProps) {
             </div>
             <p className="text-sm text-muted-foreground">Make changes to your course information below</p>
           </div>
+          <div className="flex items-center gap-x-2">
+            <PublishButton courseId={course.id} isPublished={course.isPublished} />
+            <DeleteButton courseId={course.id} />
+          </div>
         </div>
-
-        <div className="rounded-lg border bg-card">
-          <div className="p-6">
-            <EditCourseForm course={transformedCourse} categories={categories} />
+        <div className="w-full">
+          <div className="w-full space-y-4">
+            <div className="w-full rounded-lg border bg-card">
+              <div className="p-6">
+                <EditCourseForm course={transformedCourse} categories={categories} />
+              </div>
+            </div>
           </div>
         </div>
       </div>

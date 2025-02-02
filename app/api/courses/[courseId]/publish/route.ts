@@ -1,35 +1,29 @@
-import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
 
-// PATCH: Publish a course
 export async function PATCH(req: Request, { params }: { params: { courseId: string } }) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const { courseId } = params; // Get courseId from URL params
+    const { userId } = await auth();
+    const { isPublished } = await req.json();
 
-    // Ensure the course belongs to the authenticated user
-    const course = await prisma.course.findFirst({
-      where: { id: courseId, userId },
-    });
-
-    if (!course) {
-      return NextResponse.json({ error: "Course not found or unauthorized" }, { status: 404 });
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Update the course's isPublished status to true
-    const updatedCourse = await prisma.course.update({
-      where: { id: courseId },
-      data: { isPublished: true },
+    const course = await prisma.course.update({
+      where: {
+        id: params.courseId,
+        userId,
+      },
+      data: {
+        isPublished,
+      },
     });
 
-    return NextResponse.json(updatedCourse);
+    return NextResponse.json(course);
   } catch (error) {
-    console.error("[PUBLISH_COURSE_ERROR]", error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    console.log("[COURSE_PUBLISH]", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }
