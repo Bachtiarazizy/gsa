@@ -2,6 +2,7 @@ import prisma from "@/lib/db";
 import { createChapterSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
 export async function POST(req: Request, { params }: { params: { courseId: string } }) {
   try {
@@ -11,15 +12,28 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
     }
 
     const formData = await req.formData();
+    const attachmentsString = formData.get("attachments") as string;
+    let attachments = [];
+
+    try {
+      attachments = JSON.parse(attachmentsString || "[]");
+    } catch (e) {
+      console.error("Error parsing attachments:", e);
+    }
+
     const values = {
       title: formData.get("title") as string,
-      description: formData.get("description") as string,
+      description: (formData.get("description") as string) || null,
       videoUrl: formData.get("videoUrl") as string,
-      attachmentUrl: formData.get("attachmentUrl") as string, // Added attachmentUrl field
+      position: parseInt(formData.get("position") as string) || 0,
+      courseId: params.courseId,
+      isPublished: false,
     };
 
-    const body = createChapterSchema.parse(values);
+    // Validate the input data against the schema
+    const validatedData = createChapterSchema.parse(values);
 
+    // Verify course ownership
     const courseOwner = await prisma.course.findUnique({
       where: {
         id: params.courseId,
@@ -31,31 +45,70 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
       return new NextResponse(JSON.stringify({ message: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
-    const lastChapter = await prisma.chapter.findFirst({
-      where: {
-        courseId: params.courseId,
-      },
-      orderBy: {
-        position: "desc",
+    // Get the last chapter position if position is not provided
+    if (!validatedData.position) {
+      const lastChapter = await prisma.chapter.findFirst({
+        where: {
+          courseId: params.courseId,
+        },
+        orderBy: {
+          position: "desc",
+        },
+      });
+
+      validatedData.position = lastChapter ? lastChapter.position + 1 : 1;
+    }
+
+    // Create the chapter with the first attachment (if any)
+    const chapter = await prisma.chapter.create({
+      data: {
+        title: validatedData.title,
+        description: validatedData.description,
+        videoUrl: validatedData.videoUrl,
+        position: validatedData.position,
+        courseId: validatedData.courseId,
+        isPublished: validatedData.isPublished,
+        // If there are attachments, store the first one's URL and name
+        attachmentUrl: attachments[0]?.url || null,
+        attachmentOriginalName: attachments[0]?.name || null,
       },
     });
 
-    const newPosition = lastChapter ? lastChapter.position + 1 : 1;
-
-    const chapter = await prisma.chapter.create({
+    // If creation was successful, update the course
+    await prisma.course.update({
+      where: {
+        id: params.courseId,
+      },
       data: {
-        title: body.title,
-        description: body.description,
-        videoUrl: body.videoUrl,
-        attachmentUrl: body.attachmentUrl, // Added attachmentUrl field
-        position: newPosition,
-        courseId: params.courseId,
+        updatedAt: new Date(),
       },
     });
 
     return NextResponse.json(chapter);
   } catch (error) {
     console.error("[CHAPTERS]", error);
-    return new NextResponse(JSON.stringify({ message: "Internal Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
+
+    // Type guard for ZodError
+    if (error instanceof ZodError) {
+      return new NextResponse(
+        JSON.stringify({
+          message: "Validation Error",
+          errors: error.errors,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Handle Prisma errors or other known error types if needed
+    // if (error instanceof Prisma.PrismaClientKnownRequestError) { ... }
+
+    // Generic error handling
+    return new NextResponse(JSON.stringify({ message: "Internal Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
