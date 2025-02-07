@@ -17,7 +17,8 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       videoUrl: formData.get("videoUrl") as string,
       position: Number(formData.get("position")),
       isPublished: formData.get("isPublished") === "true",
-      attachmentUrl: formData.get("attachmentUrl"),
+      attachmentUrl: formData.get("attachmentUrl") as string | null,
+      attachmentOriginalName: formData.get("attachmentOriginalName") as string | null,
     };
 
     if (!values.title || !values.videoUrl || !values.position) {
@@ -29,7 +30,8 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       title: values.title,
       description: values.description,
       videoUrl: values.videoUrl,
-      attachment: values.attachmentUrl,
+      attachmentUrl: values.attachmentUrl,
+      attachmentOriginalName: values.attachmentOriginalName,
     });
 
     // First verify the course belongs to the user
@@ -69,6 +71,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
         position: values.position,
         isPublished: values.isPublished,
         attachmentUrl: validatedFields.attachmentUrl,
+        attachmentOriginalName: validatedFields.attachmentOriginalName,
       },
     });
 

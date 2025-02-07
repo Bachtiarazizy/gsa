@@ -13,12 +13,6 @@ import { UploadDropzone } from "@/lib/uploadthing";
 import { updateChapterStatus } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
 
-interface Attachment {
-  id: string;
-  name: string;
-  url: string;
-}
-
 interface EditChapterFormProps {
   initialData: {
     id: string;
@@ -28,7 +22,8 @@ interface EditChapterFormProps {
     position: number;
     isPublished: boolean;
     courseId: string;
-    attachments: Attachment[];
+    attachmentUrl: string | null;
+    attachmentOriginalName: string | null;
     course: {
       title: string;
     };
@@ -44,7 +39,8 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(initialData.videoUrl);
-  const [attachments, setAttachments] = useState<Attachment[]>(initialData.attachments);
+  const [attachmentUrl, setAttachmentUrl] = useState<string | null>(initialData.attachmentUrl);
+  const [attachmentName, setAttachmentName] = useState<string | null>(initialData.attachmentOriginalName);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -61,8 +57,10 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
         formData.set("videoUrl", videoUrl);
       }
 
-      // Add attachments to formData
-      formData.append("attachments", JSON.stringify(attachments));
+      if (attachmentUrl) {
+        formData.set("attachmentUrl", attachmentUrl);
+        formData.set("attachmentOriginalName", attachmentName || "");
+      }
 
       const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}`, {
         method: "PATCH",
@@ -119,29 +117,6 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
     });
     router.refresh();
   }
-
-  const removeAttachment = async (attachmentId: string) => {
-    try {
-      const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}/attachments/${attachmentId}`, { method: "DELETE" });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete attachment");
-      }
-
-      setAttachments((current) => current.filter((attachment) => attachment.id !== attachmentId));
-      toast({
-        title: "Success",
-        description: "Attachment removed successfully",
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to remove attachment",
-      });
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -203,7 +178,6 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
                     description: "Video uploaded successfully",
                   });
                 }}
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 onUploadError={(error: Error) => {
                   toast({
                     variant: "destructive",
@@ -221,50 +195,54 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label>Attachments</Label>
+          <Label>Attachment</Label>
           <div className="space-y-4">
-            {attachments.length > 0 && (
-              <div className="space-y-2">
-                {attachments.map((attachment) => (
-                  <div key={attachment.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <div className="flex items-center gap-x-2">
-                      <FileText className="h-4 w-4" />
-                      <p className="text-sm text-muted-foreground">{attachment.name}</p>
-                    </div>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(attachment.id)} disabled={isLoading}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+            {attachmentUrl && attachmentName && (
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                <div className="flex items-center gap-x-2">
+                  <FileText className="h-4 w-4" />
+                  <p className="text-sm text-muted-foreground">{attachmentName}</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAttachmentUrl(null);
+                    setAttachmentName(null);
+                    toast({
+                      title: "Success",
+                      description: "Attachment removed successfully",
+                    });
+                  }}
+                  disabled={isLoading}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             )}
-            <UploadDropzone
-              endpoint="courseAttachment"
-              onClientUploadComplete={(res) => {
-                if (res?.[0]) {
-                  setAttachments((current) => [
-                    ...current,
-                    {
-                      id: res[0].key,
-                      name: res[0].name,
-                      url: res[0].url,
-                    },
-                  ]);
+            {!attachmentUrl && (
+              <UploadDropzone
+                endpoint="attachment"
+                onClientUploadComplete={(res) => {
+                  if (res?.[0]) {
+                    setAttachmentUrl(res[0].url);
+                    setAttachmentName(res[0].name);
+                    toast({
+                      title: "Success",
+                      description: "Attachment uploaded successfully",
+                    });
+                  }
+                }}
+                onUploadError={(error: Error) => {
                   toast({
-                    title: "Success",
-                    description: "Attachment uploaded successfully",
+                    variant: "destructive",
+                    title: "Error",
+                    description: "Error uploading attachment",
                   });
-                }
-              }}
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              onUploadError={(error: Error) => {
-                toast({
-                  variant: "destructive",
-                  title: "Error",
-                  description: "Error uploading attachment",
-                });
-              }}
-            />
+                }}
+              />
+            )}
           </div>
         </div>
 

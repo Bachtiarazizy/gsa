@@ -19,7 +19,6 @@ export default async function ChapterEditPageServer({ params }: { params: { cour
       courseId: params.courseId,
     },
     include: {
-      attachments: true,
       course: {
         select: {
           userId: true,
@@ -41,11 +40,8 @@ export default async function ChapterEditPageServer({ params }: { params: { cour
     position: chapter.position,
     isPublished: chapter.isPublished,
     courseId: chapter.courseId,
-    attachments: chapter.attachments.map((attachment) => ({
-      id: attachment.id,
-      name: attachment.name,
-      url: attachment.url,
-    })),
+    attachmentUrl: chapter.attachmentUrl,
+    attachmentOriginalName: chapter.attachmentOriginalName,
     course: {
       title: chapter.course.title,
     },
