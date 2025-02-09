@@ -1,22 +1,65 @@
-// ChapterPage.tsx
 import React from "react";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getChapter } from "@/lib/actions/chapter";
 import { Banner } from "@/components/ui/banner";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Preview } from "@/components/ui/preview";
-import { Separator } from "@/components/ui/separator";
-import { Attachments } from "@/app/(dashboard)/student/courses/_components/attachment";
 import { VideoPlayer } from "@/app/(dashboard)/student/courses/_components/video-player";
-import { ChapterAssessment } from "@/app/(dashboard)/student/courses/_components/chapter-assessment";
+import Link from "next/link";
+import ChapterAssessment from "../../../_components/chapter-assessment";
+import ClientDiscussions from "../../../_components/client-discussion";
+import { Assessment, Discussion } from "@/lib/types";
+import NextChapterNavigation from "../../../_components/next-chapter-button";
+import { FileText } from "lucide-react";
 
 interface ChapterPageProps {
   params: {
     courseId: string;
     chapterId: string;
   };
+}
+
+interface Chapter {
+  id: string;
+  title: string;
+  description: string | null;
+  videoUrl: string;
+  attachmentUrl: string | null;
+  attachmentOriginalName: string | null;
+  position: number;
+  isPublished: boolean;
+  courseId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  assessment: Assessment | null;
+  discussions: Discussion[] | null;
+}
+
+interface Course {
+  id: string;
+  title: string;
+}
+
+interface GetChapterResponse {
+  chapter: Chapter | null;
+  course: Course | null;
+  nextChapter: {
+    id: string;
+    title: string;
+    description: string | null;
+    videoUrl: string;
+    attachmentUrl: string | null;
+    attachmentOriginalName: string | null;
+    position: number;
+    isPublished: boolean;
+    courseId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    assessment: Assessment | null;
+    discussions: Discussion[] | null;
+  } | null;
+  userProgress: { isCompleted: boolean } | null;
+  isEnrolled: boolean;
 }
 
 const ChapterPage = async ({ params }: ChapterPageProps) => {
@@ -26,7 +69,7 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
     return redirect("/");
   }
 
-  const { chapter, course, nextChapter, userProgress, isEnrolled } = await getChapter({
+  const { chapter, course, nextChapter, userProgress, isEnrolled }: GetChapterResponse = await getChapter({
     userId,
     chapterId: params.chapterId,
     courseId: params.courseId,
@@ -51,12 +94,7 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
               <h2 className="text-2xl font-semibold mb-2">{chapter.title}</h2>
               <div className="text-sm text-muted-foreground mb-4">{course.title}</div>
             </div>
-            {nextChapter && userProgress?.isCompleted && (
-              <Button onClick={() => redirect(`/student/courses/${params.courseId}/chapters/${nextChapter.id}`)} className="flex items-center gap-2">
-                Next Chapter
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            )}
+            {nextChapter && userProgress?.isCompleted && <NextChapterNavigation courseId={params.courseId} nextChapterId={nextChapter.id} />}
           </div>
 
           {chapter.videoUrl && <VideoPlayer videoUrl={chapter.videoUrl} chapterId={params.chapterId} userId={userId} isCompleted={!!userProgress?.isCompleted} hasAssessment={!!chapter.assessment} />}
@@ -65,19 +103,23 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
             <Preview value={chapter.description || ""} />
           </div>
 
-          <Attachments attachments={chapter.attachments} />
-
-          {!userProgress?.isCompleted && chapter.assessment && <ChapterAssessment assessment={chapter.assessment} chapterId={params.chapterId} userId={userId} />}
-
-          {chapter.discussions?.length > 0 && (
-            <>
-              <Separator className="my-4" />
-              <div className="flex flex-col gap-y-4">
-                <h3 className="text-xl font-semibold">Discussion</h3>
-                {/* Add your Discussion component here */}
-              </div>
-            </>
+          {chapter.attachmentUrl && (
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-2">Chapter Resources</h3>
+              <Link href={chapter.attachmentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center p-3 w-full bg-sky-50 border border-sky-200 text-sky-700 rounded-md hover:bg-sky-100 transition">
+                <FileText className="h-4 w-4 flex-shrink-0 mr-2" />
+                <span className="text-sm line-clamp-1">{chapter.attachmentOriginalName || "Download Resource"}</span>
+              </Link>
+            </div>
           )}
+
+          {!userProgress?.isCompleted && chapter.assessment && (
+            <div className="mt-8">
+              <ChapterAssessment assessment={chapter.assessment} chapterId={params.chapterId} userId={userId} courseId={params.courseId} />
+            </div>
+          )}
+
+          {chapter.discussions && <ClientDiscussions initialDiscussions={chapter.discussions} userId={userId} chapterId={params.chapterId} />}
         </div>
       </div>
     </div>

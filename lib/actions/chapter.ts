@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import prisma from "../db";
+import { GetChapterResponse } from "../chapter-types";
 
 export async function updateChapterStatus(chapterId: string, courseId: string, isPublished: boolean) {
   const { userId } = await auth();
@@ -12,7 +13,6 @@ export async function updateChapterStatus(chapterId: string, courseId: string, i
     throw new Error("Unauthorized");
   }
 
-  // Verify the chapter belongs to the course and the current user
   const chapter = await prisma.chapter.findUnique({
     where: {
       id: chapterId,
@@ -32,7 +32,6 @@ export async function updateChapterStatus(chapterId: string, courseId: string, i
     data: { isPublished },
   });
 
-  // Revalidate the course page to reflect changes
   revalidatePath(`/courses/${courseId}/chapters/${chapterId}`);
 }
 
@@ -46,14 +45,14 @@ export async function createChapter(courseId: string, formData: FormData) {
   }
 
   try {
-    // Prepare chapter data
     const chapterData = {
       title: formData.get("title") as string,
       description: formData.get("description") as string | undefined,
       videoUrl: formData.get("videoUrl") as string,
+      attachmentUrl: formData.get("attachmentUrl") as string | undefined,
+      attachmentOriginalName: formData.get("attachmentOriginalName") as string | undefined,
     };
 
-    // Determine the next position for the chapter
     const lastChapter = await prisma.chapter.findFirst({
       where: { courseId },
       orderBy: { position: "desc" },
@@ -62,17 +61,15 @@ export async function createChapter(courseId: string, formData: FormData) {
 
     const newPosition = lastChapter ? lastChapter.position + 1 : 0;
 
-    // Create chapter in database
     const chapter = await prisma.chapter.create({
       data: {
         ...chapterData,
         courseId,
         position: newPosition,
-        isPublished: false, // Default to draft
+        isPublished: false,
       },
     });
 
-    // Revalidate course chapters page
     revalidatePath(`/courses/${courseId}`);
 
     return {
@@ -99,7 +96,6 @@ export async function createChapter(courseId: string, formData: FormData) {
 }
 
 export async function getStudentDashboardData(userId: string) {
-  // Get enrolled courses
   const enrolledCourses = await prisma.courseEnrollment.findMany({
     where: {
       userId: userId,
@@ -110,7 +106,6 @@ export async function getStudentDashboardData(userId: string) {
     },
   });
 
-  // Get completed chapters
   const completedChapters = await prisma.chapterProgress.findMany({
     where: {
       userId: userId,
@@ -118,7 +113,6 @@ export async function getStudentDashboardData(userId: string) {
     },
   });
 
-  // Get assessment results
   const assessmentResults = await prisma.assessmentResult.findMany({
     where: {
       userId: userId,
@@ -128,7 +122,6 @@ export async function getStudentDashboardData(userId: string) {
     },
   });
 
-  // Get recent activities (combination of chapter completions, assessments, and enrollments)
   const recentEnrollments = await prisma.courseEnrollment.findMany({
     where: {
       userId: userId,
@@ -181,23 +174,22 @@ export async function getStudentDashboardData(userId: string) {
     take: 5,
   });
 
-  // Combine and sort recent activities
   const recentActivities = [
     ...recentEnrollments.map((enrollment) => ({
       id: enrollment.id,
-      type: "ENROLLMENT",
+      type: "ENROLLMENT" as const,
       title: enrollment.course.title,
       createdAt: enrollment.createdAt,
     })),
     ...recentCompletions.map((completion) => ({
       id: completion.id,
-      type: "COMPLETION",
+      type: "COMPLETION" as const,
       title: `${completion.chapter.course.title} - ${completion.chapter.title}`,
       createdAt: completion.updatedAt,
     })),
     ...recentAssessments.map((assessment) => ({
       id: assessment.id,
-      type: "ASSESSMENT",
+      type: "ASSESSMENT" as const,
       title: `${assessment.assessment.chapter.course.title} - Assessment`,
       createdAt: assessment.createdAt,
     })),
@@ -236,6 +228,7 @@ export const getCourseWithChapters = async ({ userId, courseId }: GetCourseWithC
                 userId,
               },
             },
+            assessment: true,
           },
           orderBy: {
             position: "asc",
@@ -267,21 +260,15 @@ export const getCourseWithChapters = async ({ userId, courseId }: GetCourseWithC
   }
 };
 
-interface UpdateChapterProgressParams {
-  userId: string;
-  chapterId: string;
-  isCompleted: boolean;
-}
-
-export const getChapter = async ({ userId, courseId, chapterId }: { userId: string; courseId: string; chapterId: string }) => {
+export const getChapter = async ({ userId, courseId, chapterId }: { userId: string; courseId: string; chapterId: string }): Promise<GetChapterResponse> => {
   try {
     const course = await prisma.course.findUnique({
       where: {
         id: courseId,
       },
       select: {
-        title: true,
         id: true,
+        title: true,
       },
     });
 
@@ -290,14 +277,66 @@ export const getChapter = async ({ userId, courseId, chapterId }: { userId: stri
         id: chapterId,
         courseId: courseId,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        videoUrl: true,
+        attachmentUrl: true,
+        attachmentOriginalName: true,
+        position: true,
+        isPublished: true,
+        courseId: true,
+        createdAt: true,
+        updatedAt: true,
         assessment: {
-          include: {
-            questions: true,
+          select: {
+            id: true,
+            chapterId: true,
+            createdAt: true,
+            updatedAt: true,
+            questions: {
+              select: {
+                id: true,
+                question: true,
+                options: true,
+                correctAnswer: true,
+                assessmentId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
           },
         },
-        attachments: true,
-        discussions: true,
+        discussions: {
+          select: {
+            id: true,
+            userId: true,
+            content: true,
+            courseId: true,
+            chapterId: true,
+            createdAt: true,
+            updatedAt: true,
+            replies: {
+              select: {
+                id: true,
+                userId: true,
+                content: true,
+                discussionId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            likes: {
+              select: {
+                id: true,
+                userId: true,
+                discussionId: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -311,6 +350,67 @@ export const getChapter = async ({ userId, courseId, chapterId }: { userId: stri
       },
       orderBy: {
         position: "asc",
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        videoUrl: true,
+        attachmentUrl: true,
+        attachmentOriginalName: true,
+        position: true,
+        isPublished: true,
+        courseId: true,
+        createdAt: true,
+        updatedAt: true,
+        assessment: {
+          select: {
+            id: true,
+            chapterId: true,
+            createdAt: true,
+            updatedAt: true,
+            questions: {
+              select: {
+                id: true,
+                question: true,
+                options: true,
+                correctAnswer: true,
+                assessmentId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
+        discussions: {
+          select: {
+            id: true,
+            userId: true,
+            content: true,
+            courseId: true,
+            chapterId: true,
+            createdAt: true,
+            updatedAt: true,
+            replies: {
+              select: {
+                id: true,
+                userId: true,
+                content: true,
+                discussionId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            likes: {
+              select: {
+                id: true,
+                userId: true,
+                discussionId: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -375,9 +475,17 @@ export const updateChapterProgress = async ({ userId, chapterId, isCompleted }: 
   }
 };
 
-export const submitAssessment = async ({ userId, chapterId, assessmentId, answers }: { userId: string; chapterId: string; assessmentId: string; answers: Record<string, string> }) => {
+export const submitAssessment = async ({ userId, chapterId, assessmentId, answers, courseId }: { userId: string; chapterId: string; assessmentId: string; answers: Record<string, string>; courseId: string }) => {
   try {
-    // Get the assessment questions to check answers
+    // Add debug logging at the start
+    console.log("Received submission data:", {
+      userId,
+      chapterId,
+      assessmentId,
+      answerCount: Object.keys(answers).length,
+      courseId,
+    });
+
     const assessment = await prisma.assessment.findUnique({
       where: { id: assessmentId },
       include: { questions: true },
@@ -397,8 +505,7 @@ export const submitAssessment = async ({ userId, chapterId, assessmentId, answer
     const score = Math.round((correctAnswers / assessment.questions.length) * 100);
     const isPassed = score >= 70;
 
-    // Create assessment result
-    const result = await prisma.assessmentResult.create({
+    await prisma.assessmentResult.create({
       data: {
         userId,
         assessmentId,
@@ -407,7 +514,6 @@ export const submitAssessment = async ({ userId, chapterId, assessmentId, answer
       },
     });
 
-    // If passed, mark chapter as completed
     if (isPassed) {
       await prisma.chapterProgress.upsert({
         where: {
@@ -427,11 +533,30 @@ export const submitAssessment = async ({ userId, chapterId, assessmentId, answer
       });
     }
 
-    revalidatePath(`/courses/${chapterId}`);
+    // Use try-catch specifically for revalidatePath
+    try {
+      revalidatePath(`/student/courses/${courseId}/chapters/${chapterId}`);
+    } catch (revalidateError) {
+      console.error("Revalidation error:", revalidateError);
+      // Continue execution even if revalidation fails
+    }
 
     return { success: true, score, isPassed };
   } catch (error) {
-    console.error("[SUBMIT_ASSESSMENT]", error);
+    // More detailed error logging
+    console.error("[SUBMIT_ASSESSMENT] Error details:", {
+      error: error?.toString(),
+      errorName: (error as Error)?.name,
+      errorMessage: (error as Error)?.message,
+      errorStack: (error as Error)?.stack,
+      payload: {
+        userId,
+        chapterId,
+        assessmentId,
+        answerCount: answers ? Object.keys(answers).length : "no answers",
+        courseId,
+      },
+    });
     return { success: false, error: "Failed to submit assessment" };
   }
 };
