@@ -1,137 +1,178 @@
 "use client";
+
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Assessment } from "@/lib/types";
-import InteractiveQuestion from "./interactive-question";
-import InteractiveButton from "./interactive-button";
-import axios from "axios";
-import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RotateCcw } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Assessment } from "@/lib/types";
 
 interface ChapterAssessmentProps {
   assessment: Assessment;
   chapterId: string;
-  userId: string;
   courseId: string;
 }
 
-const ChapterAssessment = ({ assessment, chapterId, userId, courseId }: ChapterAssessmentProps) => {
+const ChapterAssessment = ({ assessment, chapterId, courseId }: ChapterAssessmentProps) => {
+  const router = useRouter();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasAttempted, setHasAttempted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ score: number; isPassed: boolean } | null>(null);
 
-  const totalQuestions = assessment.questions?.length ?? 0;
-  const answeredQuestions = Object.keys(selectedAnswers).length;
-  const progressPercentage = (answeredQuestions / totalQuestions) * 100;
+  // Guard clause for when questions are undefined
+  if (!assessment.questions || assessment.questions.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Assessment Unavailable</CardTitle>
+          <CardDescription>This assessment has no questions available.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const handleAnswerChange = (questionId: string, value: string) => {
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: value }));
+  const currentQuestion = assessment.questions[currentQuestionIndex];
+  const totalQuestions = assessment.questions.length;
+  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+
+  const handleAnswerSelect = (value: string) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [currentQuestion.id]: value,
+    }));
   };
 
-  const resetAssessment = () => {
-    setSelectedAnswers({});
-    setHasAttempted(false);
+  const handleNext = () => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }
   };
 
-  const handleAssessmentSubmit = async () => {
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+      setError(null);
 
-      if (!assessment.questions) {
-        toast({
-          title: "Error",
-          description: "No questions found in the assessment",
-          variant: "destructive",
-        });
-        return;
-      }
+      // Calculate score
+      const score = (assessment.questions ?? []).reduce((acc, question) => {
+        return acc + (selectedAnswers[question.id] === question.correctAnswer ? 1 : 0);
+      }, 0);
 
-      const unansweredQuestions = assessment.questions.filter((question) => !selectedAnswers[question.id]);
+      const isPassed = score / totalQuestions >= 0.7;
 
-      if (unansweredQuestions.length > 0) {
-        toast({
-          title: "Incomplete Assessment",
-          description: `Please answer all questions (${unansweredQuestions.length} remaining)`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const response = await axios.post(`/api/courses/${courseId}/chapters/${chapterId}/assessments/${assessment.id}`, { answers: selectedAnswers });
-
-      const result = response.data;
-
-      if (result.success) {
-        if (result.isPassed) {
-          toast({
-            title: "Success",
-            description: result.message,
-            variant: "default",
-          });
-          // Wait for toast to be visible before reloading
-          setTimeout(() => {
-            window.location.reload();
-          }, 3000);
-        } else {
-          setHasAttempted(true);
-          toast({
-            title: "Assessment Not Passed",
-            description: result.message,
-            variant: "destructive",
-          });
-          // Clear answers after a short delay
-          setTimeout(() => {
-            setSelectedAnswers({});
-          }, 1500);
-        }
-      }
-    } catch (error) {
-      console.error("Assessment submission error:", error);
-      const errorMessage = axios.isAxiosError(error) && error.response?.data ? (error.response.data as string) : "Something went wrong. Please try again.";
-
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
+      const response = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/assessments/${assessment.id}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          score,
+          isPassed,
+          answers: selectedAnswers,
+        }),
       });
+
+      if (!response.ok) throw new Error("Failed to submit assessment");
+
+      setResult({ score, isPassed });
+      if (isPassed) {
+        router.refresh();
+      }
+    } catch {
+      setError("Failed to submit assessment. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return (
-    <Card className="mt-8">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-bold">Chapter Assessment</CardTitle>
-          {hasAttempted && (
-            <Button onClick={resetAssessment} variant="outline" className="flex items-center gap-2">
-              <RotateCcw className="h-4 w-4" />
+  if (result) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Assessment Complete</CardTitle>
+          <CardDescription>
+            You scored {result.score} out of {totalQuestions} questions
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert variant={result.isPassed ? "success" : "destructive"}>
+            <div className="flex items-center gap-x-2">
+              {result.isPassed ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+              <AlertTitle>{result.isPassed ? "Congratulations!" : "Assessment Not Passed"}</AlertTitle>
+            </div>
+            <AlertDescription>{result.isPassed ? "You've successfully completed this chapter's assessment." : "You'll need to score at least 70% to proceed. Feel free to try again!"}</AlertDescription>
+          </Alert>
+          {!result.isPassed && (
+            <Button
+              onClick={() => {
+                setResult(null);
+                setSelectedAnswers({});
+                setCurrentQuestionIndex(0);
+              }}
+              className="mt-4"
+            >
               Try Again
             </Button>
           )}
-        </div>
-        <div className="mt-2 space-y-2">
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Progress</span>
-            <span>
-              {answeredQuestions} of {totalQuestions} questions answered
-            </span>
-          </div>
-          <Progress value={progressPercentage} className="h-2" />
-        </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Chapter Assessment</CardTitle>
+        <CardDescription>
+          Question {currentQuestionIndex + 1} of {totalQuestions}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-8">
-          {assessment.questions &&
-            assessment.questions.map((question, questionIndex) => (
-              <InteractiveQuestion key={question.id} question={question} questionIndex={questionIndex} selectedAnswer={selectedAnswers[question.id]} onAnswerChange={handleAnswerChange} />
+        <div className="space-y-4">
+          <div className="font-medium text-lg">{currentQuestion.question}</div>
+          <RadioGroup value={selectedAnswers[currentQuestion.id] || ""} onValueChange={handleAnswerSelect}>
+            {currentQuestion.options.map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`option-${index}`} />
+                <Label htmlFor={`option-${index}`}>{option}</Label>
+              </div>
             ))}
-          <InteractiveButton isSubmitting={isSubmitting} onSubmit={handleAssessmentSubmit} />
+          </RadioGroup>
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
         </div>
       </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button onClick={handlePrevious} disabled={currentQuestionIndex === 0} variant="outline">
+          Previous
+        </Button>
+        <div className="flex gap-x-2">
+          {!isLastQuestion && (
+            <Button onClick={handleNext} disabled={!selectedAnswers[currentQuestion.id]}>
+              Next
+            </Button>
+          )}
+          {isLastQuestion && (
+            <Button onClick={handleSubmit} disabled={isSubmitting || Object.keys(selectedAnswers).length !== totalQuestions}>
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
+          )}
+        </div>
+      </CardFooter>
     </Card>
   );
 };

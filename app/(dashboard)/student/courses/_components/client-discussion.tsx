@@ -9,9 +9,10 @@ interface ClientDiscussionsProps {
   initialDiscussions: Discussion[];
   userId: string;
   chapterId: string;
+  courseId: string;
 }
 
-const ClientDiscussions = ({ initialDiscussions, userId, chapterId }: ClientDiscussionsProps) => {
+const ClientDiscussions = ({ initialDiscussions, userId, chapterId, courseId }: ClientDiscussionsProps) => {
   const [discussions, setDiscussions] = useState<Discussion[]>(
     initialDiscussions.map((discussion) => ({
       ...discussion,
@@ -24,7 +25,7 @@ const ClientDiscussions = ({ initialDiscussions, userId, chapterId }: ClientDisc
 
   const handleReply = async (discussionId: string, content: string) => {
     try {
-      const response = await fetch("/api/discussions/reply", {
+      const response = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/discussions/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,7 +60,7 @@ const ClientDiscussions = ({ initialDiscussions, userId, chapterId }: ClientDisc
 
   const handleLike = async (discussionId: string) => {
     try {
-      const response = await fetch("/api/discussions/like", {
+      const response = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/discussions/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +83,7 @@ const ClientDiscussions = ({ initialDiscussions, userId, chapterId }: ClientDisc
 
   const handleLikeReply = async (replyId: string) => {
     try {
-      const response = await fetch("/api/discussions/reply/like", {
+      const response = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/discussions/reply/like`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +119,7 @@ const ClientDiscussions = ({ initialDiscussions, userId, chapterId }: ClientDisc
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/discussions", {
+      const response = await fetch(`/api/courses/${courseId}/chapters/${chapterId}/discussions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

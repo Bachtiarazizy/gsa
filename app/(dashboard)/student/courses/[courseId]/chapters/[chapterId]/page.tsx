@@ -6,11 +6,11 @@ import { Banner } from "@/components/ui/banner";
 import { Preview } from "@/components/ui/preview";
 import { VideoPlayer } from "@/app/(dashboard)/student/courses/_components/video-player";
 import Link from "next/link";
-import ChapterAssessment from "../../../_components/chapter-assessment";
 import ClientDiscussions from "../../../_components/client-discussion";
 import { Assessment, Discussion } from "@/lib/types";
 import NextChapterNavigation from "../../../_components/next-chapter-button";
 import { FileText } from "lucide-react";
+import ChapterAssessment from "../../../_components/chapter-assessment";
 
 interface ChapterPageProps {
   params: {
@@ -115,11 +115,11 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
 
           {!userProgress?.isCompleted && chapter.assessment && (
             <div className="mt-8">
-              <ChapterAssessment assessment={chapter.assessment} chapterId={params.chapterId} userId={userId} courseId={params.courseId} />
+              <ChapterAssessment assessment={chapter.assessment} chapterId={params.chapterId} courseId={params.courseId} />
             </div>
           )}
 
-          {chapter.discussions && <ClientDiscussions initialDiscussions={chapter.discussions} userId={userId} chapterId={params.chapterId} />}
+          {chapter.discussions && <ClientDiscussions initialDiscussions={chapter.discussions} userId={userId} courseId={params.courseId} chapterId={params.chapterId} />}
         </div>
       </div>
     </div>

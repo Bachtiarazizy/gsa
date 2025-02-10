@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { HeartIcon, MessageCircle, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { Discussion, Reply } from "@/lib/types";
+import { Discussion } from "@/lib/types";
 
 interface DiscussionProps {
   discussions: Discussion[];
