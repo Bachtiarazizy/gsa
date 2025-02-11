@@ -6,9 +6,9 @@ const FeatureOne = () => {
   return (
     <section id="section-content-1">
       {/* Section Spacer */}
-      <div className="py-20 xl:py-[130px]">
+      <div className="py-20 xl:py-[130px] w-full px-6 sm:px-8 lg:px-24">
         {/* Section Container */}
-        <div className="global-container">
+        <div className="">
           <div className="grid items-center gap-10 md:grid-cols-[minmax(0,_1fr)_1.3fr] lg:gap-[60px] xl:gap-x-[94px]">
             <div className="jos" data-jos_animation="fade-left">
               <div className="overflow-hidden rounded-[10px]">
@@ -18,18 +18,18 @@ const FeatureOne = () => {
             <div className="jos" data-jos_animation="fade-right">
               {/* Section Content Block */}
               <div className="mb-6">
-                <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-white sm:text-[44px] lg:text-[56px] xl:text-[70px]">Securing networks, servers and data</h2>
+                <h2 className="font-heading text-4xl font-medium leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">Transform Your Career with Expert-Led Training</h2>{" "}
               </div>
               {/* Section Content Block */}
               <div>
                 <p className="mb-8 text-lg leading-[1.42] last:mb-0 lg:text-[21px]">
-                  Large corporations &amp; businesses across industries use our AI cybersecurity solutions to safeguard their networks, servers, &amp; data from cyber threats.
+                  Global Skills Academy empowers learners worldwide with industry-relevant courses designed by leading experts. Our comprehensive learning platform combines theoretical knowledge with practical skills development.
                 </p>
                 <p className="mb-8 text-lg leading-[1.42] last:mb-0 lg:text-[21px]">
-                  Our cyber security platform supercharges your security with AI-powered security tools. Turn mountains of data into actionable insights and respond in real-time.
+                  Whether you&apos;re starting your journey or advancing your career, our interactive platform provides personalized learning paths, real-world projects, and professional certifications to help you achieve your goals.
                 </p>
-                <Link rel="noopener noreferrer" href="https://www.example.com" className="button inline-block h-full rounded border-none bg-colorGreen py-3 text-base text-black after:border-none after:bg-white">
-                  Explore the Platform
+                <Link rel="noopener noreferrer" href="https://www.example.com" className="button inline-block h-full rounded border-none bg-[#1A1AFF] py-3 text-base text-black after:border-none after:bg-white">
+                  Explore Our Courses
                 </Link>
               </div>
             </div>

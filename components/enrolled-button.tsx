@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Loader2, BookOpen } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface EnrollButtonProps {
   courseId: string;

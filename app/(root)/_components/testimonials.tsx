@@ -6,13 +6,13 @@ const Testimonials = () => {
   return (
     <section id="testimonial-section">
       {/* Section Spacer */}
-      <div className="pb-20 xl:pb-[150px]">
+      <div className="pb-20 xl:pb-[150px] px-6 sm:px-8 lg:px-24">
         {/* Section Container */}
-        <div className="global-container">
+        <div className="">
           <div className="mb-10 flex flex-wrap items-center justify-between gap-8 md:mb-16 lg:mb-20">
             {/* Section Content Block */}
             <div className="jos max-w-[480px] lg:max-w-2xl xl:max-w-[840px]">
-              <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-white sm:text-[44px] lg:text-[56px] xl:text-[70px]">What people are saying about AI cybersecurity</h2>
+              <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] sm:text-[44px] lg:text-[56px] xl:text-[70px]">What people are saying about AI cybersecurity</h2>
             </div>
             {/* Section Content Block */}
             <Link rel="noopener noreferrer" href="https://www.example.com" className="button inline-block h-full rounded border-none bg-colorGreen py-3 text-base text-black after:border-none after:bg-white">
@@ -24,7 +24,7 @@ const Testimonials = () => {
         {/* Testimonial List */}
         <div className="horizontal-slide-from-right-to-left grid w-[200%] grid-flow-col gap-6">
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -41,7 +41,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -58,7 +58,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -75,7 +75,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -92,7 +92,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -109,7 +109,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -126,7 +126,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -143,7 +143,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>
@@ -160,7 +160,7 @@ const Testimonials = () => {
           </div>
           {/* Testimonial Item */}
           {/* Testimonial Item */}
-          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] text-white">
+          <div className="flex w-[415px] flex-col gap-y-8 rounded-[10px] border-[1px] border-colorCodGray p-[30px] ">
             <div className="block">
               <Image src="/assets/img_placeholder/th-4/icon-green-rating.svg" alt="rating" width={146} height={25} />
             </div>

@@ -15,11 +15,8 @@ export default withUt({
     },
     extend: {
       fontFamily: {
-        dmSans: ["var(--font-DMSans)", "sans-serif"],
-        clashDisplay: ["var(--font-clash-display)", "sans-serif"],
-        raleway: ["var(--font-raleway)", "sans-serif"],
-        spaceGrotesk: ["var(--font-space-grotesk)", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        inter: ["var(--font-inter)"],
+        futuru: ["var(--font-futuru)"],
       },
       colors: {
         background: "hsl(var(--background))",

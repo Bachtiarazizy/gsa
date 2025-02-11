@@ -10,9 +10,9 @@ const WhyUs = () => {
   return (
     <section id="content-section-4">
       {/* Section Spacer */}
-      <div className="pb-20 xl:pb-[150px]">
+      <div className="pb-20 xl:pb-[150px] px-6 sm:px-8 lg:px-24">
         {/* Section Container */}
-        <div className="global-container">
+        <div className="">
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,_.75fr)_1fr] lg:gap-20 xl:gap-24">
             {/* Process Accordion */}
             <ul className="accordion tab-content flex flex-col gap-y-6" id="process-accordian">
@@ -72,7 +72,7 @@ const WhyUs = () => {
             <div className="jos" data-jos_animation="fade-right">
               {/* Section Content Block */}
               <div className="mb-6">
-                <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-white sm:text-[44px] lg:text-[56px] xl:text-[70px]">Optimize the highest security standards</h2>
+                <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px]  sm:text-[44px] lg:text-[56px] xl:text-[70px]">Optimize the highest security standards</h2>
               </div>
               {/* Section Content Block */}
               <div>
@@ -84,7 +84,7 @@ const WhyUs = () => {
               <ul className="mt-[50px] grid grid-cols-1 gap-10 gap-y-5 text-center sm:grid-cols-3">
                 {/* Counter Items */}
                 <li>
-                  <h3 className="font-spaceGrotesk text-5xl leading-[1.05] tracking-[-1px] text-colorGreen md:text-5xl lg:text-6xl xl:text-[70px]" data-module="countup">
+                  <h3 className="font-spaceGrotesk text-5xl leading-[1.05] tracking-[-1px] text-primary md:text-5xl lg:text-6xl xl:text-[70px]" data-module="countup">
                     <span className="start-number" data-countup-number={95}>
                       92
                     </span>
@@ -95,7 +95,7 @@ const WhyUs = () => {
                 {/* Counter Items */}
                 {/* Counter Items */}
                 <li>
-                  <h3 className="font-spaceGrotesk text-5xl leading-[1.05] tracking-[-1px] text-colorGreen md:text-5xl lg:text-6xl xl:text-[70px]" data-module="countup">
+                  <h3 className="font-spaceGrotesk text-5xl leading-[1.05] tracking-[-1px] text-primary md:text-5xl lg:text-6xl xl:text-[70px]" data-module="countup">
                     <span className="start-number" data-countup-number={50}>
                       50
                     </span>
@@ -106,7 +106,7 @@ const WhyUs = () => {
                 {/* Counter Items */}
                 {/* Counter Items */}
                 <li>
-                  <h3 className="font-spaceGrotesk text-5xl leading-[1.05] tracking-[-1px] text-colorGreen md:text-5xl lg:text-6xl xl:text-[70px]" data-module="countup">
+                  <h3 className="font-spaceGrotesk text-5xl leading-[1.05] tracking-[-1px] text-primary md:text-5xl lg:text-6xl xl:text-[70px]" data-module="countup">
                     <span className="start-number" data-countup-number={76}>
                       76
                     </span>

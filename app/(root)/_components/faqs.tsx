@@ -9,12 +9,12 @@ const Faqs = () => {
   return (
     <section className="faq-section">
       {/* Section Spacer */}
-      <div className="py-20 xl:pb-[150px] xl:pt-[130px]">
+      <div className="py-20 xl:pb-[150px] xl:pt-[130px] px-6 sm:px-8 lg:px-24">
         {/* Section Container */}
-        <div className="global-container">
+        <div className="">
           {/* Section Content Block */}
           <div className="jos mx-auto mb-10 text-center md:mb-16 md:max-w-xl lg:mb-20 lg:max-w-3xl xl:max-w-[856px]">
-            <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-white sm:text-[44px] lg:text-[56px] xl:text-[70px]">Our experts are able to answer all your questions</h2>
+            <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px]  sm:text-[44px] lg:text-[56px] xl:text-[70px]">Our experts are able to answer all your questions</h2>
           </div>
           {/* Section Content Block */}
           {/* Accordion*/}

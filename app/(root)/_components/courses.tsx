@@ -6,18 +6,18 @@ const Courses = () => {
   return (
     <section id="service-section">
       {/* Section Spacer */}
-      <div className="pb-20 pt-20 xl:pb-[130px] xl:pt-[150px]">
+      <div className="pb-20 pt-20 xl:pb-[130px] xl:pt-[150px] px-6 sm:px-8 lg:px-24 bg-[#02021E]">
         {/* Section Container */}
-        <div className="global-container">
+        <div className="">
           {/* Section Content Block */}
           <div className="jos mx-auto mb-10 text-center md:mb-16 md:max-w-xl lg:mb-20 lg:max-w-3xl xl:max-w-[856px]">
-            <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-white sm:text-[44px] lg:text-[56px] xl:text-[70px]">Get all the tools to tackle cybersecurity together</h2>
+            <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-primary-foreground sm:text-[44px] lg:text-[56px] xl:text-[70px]">Get all the tools to tackle cybersecurity together</h2>
           </div>
           {/* Section Content Block */}
           {/* Service List */}
           <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-[#121212] p-[30px]" data-jos_delay="0.1">
+            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.1">
               <div className="mb-8 flex items-center gap-x-6">
                 <div className="h-[50px] w-[50px]">
                   <Image src="/assets/img_placeholder/th-4/icon-green-service-1.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
@@ -32,7 +32,7 @@ const Courses = () => {
             </li>
             {/* Service Item */}
             {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-[#121212] p-[30px]" data-jos_delay="0.2">
+            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.2">
               <div className="mb-8 flex items-center gap-x-6">
                 <div className="h-[50px] w-[50px]">
                   <Image src="/assets/img_placeholder/th-4/icon-green-service-2.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
@@ -47,7 +47,7 @@ const Courses = () => {
             </li>
             {/* Service Item */}
             {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-[#121212] p-[30px]" data-jos_delay="0.3">
+            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.3">
               <div className="mb-8 flex items-center gap-x-6">
                 <div className="h-[50px] w-[50px]">
                   <Image src="/assets/img_placeholder/th-4/icon-green-service-3.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
@@ -62,7 +62,7 @@ const Courses = () => {
             </li>
             {/* Service Item */}
             {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-[#121212] p-[30px]" data-jos_delay="0.4">
+            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.4">
               <div className="mb-8 flex items-center gap-x-6">
                 <div className="h-[50px] w-[50px]">
                   <Image src="/assets/img_placeholder/th-4/icon-green-service-4.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
@@ -77,7 +77,7 @@ const Courses = () => {
             </li>
             {/* Service Item */}
             {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-[#121212] p-[30px]" data-jos_delay="0.5">
+            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.5">
               <div className="mb-8 flex items-center gap-x-6">
                 <div className="h-[50px] w-[50px]">
                   <Image src="/assets/img_placeholder/th-4/icon-green-service-5.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
@@ -92,7 +92,7 @@ const Courses = () => {
             </li>
             {/* Service Item */}
             {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-[#121212] p-[30px]" data-jos_delay="0.6">
+            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.6">
               <div className="mb-8 flex items-center gap-x-6">
                 <div className="h-[50px] w-[50px]">
                   <Image src="/assets/img_placeholder/th-4/icon-green-service-6.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
