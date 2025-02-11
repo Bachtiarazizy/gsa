@@ -4,7 +4,6 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
 import { Toaster } from "@/components/ui/toaster";
-import localFont from "next/font/local";
 import { Inter } from "next/font/google";
 import "jos-animation/dist/jos.css";
 import "swiper/css";
@@ -16,59 +15,6 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
-});
-
-// Load Futuru font
-const futuru = localFont({
-  src: [
-    {
-      path: "../fonts/Futuru-Thin.woff2",
-      weight: "100",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-ExtraLight.woff2",
-      weight: "200",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-Light.woff2",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-SemiBold.woff2",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-ExtraBold.woff2",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "../fonts/Futuru-Black.woff2",
-      weight: "900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-futuru",
-  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -83,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${inter.variable} ${futuru.variable}`}>
+      <html lang="en" className={`${inter.variable}`}>
         <body className="font-inter">
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
           {children}
