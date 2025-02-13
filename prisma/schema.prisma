@@ -152,15 +152,33 @@ model CourseEnrollment {
   id        String   @id @default(cuid())
   userId    String
   courseId  String
+  studentProfileId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   role        Role      @default(STUDENT)
 
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  studentProfile  StudentProfile @relation(fields: [studentProfileId], references: [id])
 
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+}
+
+model StudentProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique  // Clerk user ID
+  firstName     String
+  lastName      String
+  email         String   @unique
+  university    String
+  major         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  enrollments   CourseEnrollment[]
+
+  @@index([userId])
 }
 
 model ChapterProgress {

@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { BarChart, Book, Home, Users, LucideIcon, Compass } from "lucide-react";
+import { BarChart, Book, Home, Users, LucideIcon, Compass, ChartBar, Settings } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 
 interface RouteType {
@@ -44,6 +44,16 @@ const studentRoutes: RouteType[] = [
     href: "/student/search",
     label: "Browse",
     icon: Compass,
+  },
+  {
+    href: "/student/discussions",
+    label: "Discussions",
+    icon: ChartBar,
+  },
+  {
+    href: "/student/settings",
+    label: "Discussions",
+    icon: Settings,
   },
 ];
 

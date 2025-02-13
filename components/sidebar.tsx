@@ -1,14 +1,19 @@
 import Link from "next/link";
 import { SidebarRoutes } from "./sidebar-routes";
+import { GraduationCap } from "lucide-react";
 
 export const Sidebar = () => {
   return (
     <div className="h-full border-r flex flex-col overflow-y-auto bg-background shadow-sm">
       <div className="p-6">
-        <Link href="/" className="flex items-center w-full transition-all  hover:opacity-70 py-1">
-          <h1 className="text-xl font-bold text-primary">
-            Sekolah<span className="text-red-500">Ekspor</span>
-          </h1>
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className={`p-2.5 rounded-xl transition-all duration-300 bg-primary text-white shadow-m}`}>
+            <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight transition-colors duration-300 text-primary}`}>Global Skills</h1>
+            <p className={`text-sm font-medium tracking-wider uppercase transition-colors duration-300 text-primary/70}`}>Academy</p>
+          </div>
         </Link>
       </div>
       <div className="flex flex-col w-full">

@@ -1,4 +1,4 @@
-// app/(admin)/courses/create/page.tsx
+// app/(dashboard)/admin/courses/create/page.tsx
 import { Metadata } from "next";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import Link from "next/link";

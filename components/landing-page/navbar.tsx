@@ -26,7 +26,7 @@ export default function Navbar() {
   return (
     <div
       className={`fixed w-full top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
-        ${scrolled ? "bg-[#1A1AFF] backdrop-blur-sm border-b shadow-sm" : "bg-transparent"}`}
+        ${scrolled ? "bg-primary-foreground backdrop-blur-sm border-b shadow-sm" : "bg-transparent"}`}
     >
       <div className="w-full flex justify-between items-center px-6 py-4 lg:py-7 sm:px-8 lg:px-24">
         <Link href="/" className="flex items-center gap-3 group">
@@ -34,8 +34,8 @@ export default function Navbar() {
             <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div className="flex flex-col">
-            <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight transition-colors duration-300 ${scrolled ? "text-primary-foreground" : "text-primary-foreground"}`}>Global Skills</h1>
-            <p className={`text-sm font-medium tracking-wider uppercase transition-colors duration-300 ${scrolled ? "text-primary-foreground/70" : "text-primary-foreground/90"}`}>Academy</p>
+            <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight transition-colors duration-300 ${scrolled ? "text-primary" : "text-primary-foreground"}`}>Global Skills</h1>
+            <p className={`text-sm font-medium tracking-wider uppercase transition-colors duration-300 ${scrolled ? "text-primary/70" : "text-primary-foreground/90"}`}>Academy</p>
           </div>
         </Link>
 
