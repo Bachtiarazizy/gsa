@@ -54,6 +54,11 @@ export interface Chapter {
   discussions?: Discussion[];
 }
 
+export interface UserProfile {
+  firstName: string;
+  lastName: string;
+}
+
 export interface Discussion {
   id: string;
   userId: string;
@@ -63,10 +68,11 @@ export interface Discussion {
   createdAt: Date;
   updatedAt: Date;
 
+  userProfile?: UserProfile | null;
+  likes?: { userId: string }[];
+  replies?: Reply[];
   course?: Course | null;
   chapter?: Chapter | null;
-  replies?: Reply[];
-  likes?: DiscussionLike[];
 }
 
 export interface Reply {
@@ -78,6 +84,7 @@ export interface Reply {
   updatedAt: Date;
 
   discussion?: Discussion;
+  userProfile?: UserProfile | null;
   likes?: ReplyLike[];
 }
 

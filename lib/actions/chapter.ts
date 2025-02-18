@@ -325,16 +325,21 @@ export const getChapter = async ({ userId, courseId, chapterId }: { userId: stri
                 discussionId: true,
                 createdAt: true,
                 updatedAt: true,
+                likes: {
+                  select: {
+                    userId: true,
+                  },
+                },
               },
             },
             likes: {
               select: {
-                id: true,
                 userId: true,
-                discussionId: true,
-                createdAt: true,
               },
             },
+          },
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
@@ -413,6 +418,81 @@ export const getChapter = async ({ userId, courseId, chapterId }: { userId: stri
         },
       },
     });
+
+    // Get all user IDs from discussions and replies
+    const userIds = new Set<string>();
+
+    if (chapter?.discussions) {
+      chapter.discussions.forEach((discussion) => {
+        userIds.add(discussion.userId);
+
+        if (discussion.replies) {
+          discussion.replies.forEach((reply) => {
+            userIds.add(reply.userId);
+          });
+        }
+      });
+    }
+
+    if (nextChapter?.discussions) {
+      nextChapter.discussions.forEach((discussion) => {
+        userIds.add(discussion.userId);
+
+        if (discussion.replies) {
+          discussion.replies.forEach((reply) => {
+            userIds.add(reply.userId);
+          });
+        }
+      });
+    }
+
+    // Fetch student profiles for all these users
+    const userProfiles = await prisma.studentProfile.findMany({
+      where: {
+        userId: {
+          in: Array.from(userIds),
+        },
+      },
+      select: {
+        userId: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    // Create a lookup map
+    const userProfileMap: Record<string, { firstName: string; lastName: string }> = {};
+    userProfiles.forEach((profile) => {
+      userProfileMap[profile.userId] = {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      };
+    });
+
+    // Enhance discussions and replies with user profiles
+    if (chapter?.discussions) {
+      chapter.discussions = chapter.discussions.map((discussion) => ({
+        ...discussion,
+        userProfile: userProfileMap[discussion.userId] || null,
+        replies:
+          discussion.replies?.map((reply) => ({
+            ...reply,
+            userProfile: userProfileMap[reply.userId] || null,
+          })) || [],
+      }));
+    }
+
+    if (nextChapter?.discussions) {
+      nextChapter.discussions = nextChapter.discussions.map((discussion) => ({
+        ...discussion,
+        userProfile: userProfileMap[discussion.userId] || null,
+        replies:
+          discussion.replies?.map((reply) => ({
+            ...reply,
+            userProfile: userProfileMap[reply.userId] || null,
+          })) || [],
+      }));
+    }
 
     const userProgress = await prisma.chapterProgress.findUnique({
       where: {

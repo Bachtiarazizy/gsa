@@ -1,30 +1,41 @@
 import prisma from "@/lib/db";
-import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
+// In /api/courses/[courseId]/chapters/[chapterId]/discussions/reply/index.ts
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    const { content, discussionId } = await req.json();
-
     if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new Response("Unauthorized", { status: 401 });
     }
 
+    const { discussionId, content } = await req.json();
+
+    // Create the reply
     const reply = await prisma.reply.create({
       data: {
         content,
         userId,
         discussionId,
       },
-      include: {
-        likes: true,
+    });
+
+    // Fetch user profile
+    const userProfile = await prisma.studentProfile.findUnique({
+      where: { userId },
+      select: {
+        firstName: true,
+        lastName: true,
       },
     });
 
-    return NextResponse.json(reply);
+    return Response.json({
+      ...reply,
+      userProfile,
+      likes: [],
+    });
   } catch (error) {
-    console.error("[DISCUSSIONS_REPLY_POST]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    console.error("[REPLY_POST]", error);
+    return new Response("Internal Error", { status: 500 });
   }
 }

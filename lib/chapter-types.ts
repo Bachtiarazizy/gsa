@@ -18,20 +18,15 @@ export interface Assessment {
   questions: Question[];
 }
 
-export interface Reply {
-  id: string;
-  userId: string;
-  content: string;
-  discussionId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface DiscussionLike {
   id: string;
   userId: string;
   discussionId: string;
   createdAt: Date;
+}
+export interface UserProfile {
+  firstName: string;
+  lastName: string;
 }
 
 export interface Discussion {
@@ -42,8 +37,20 @@ export interface Discussion {
   chapterId: string | null;
   createdAt: Date;
   updatedAt: Date;
-  replies: Reply[];
-  likes: DiscussionLike[];
+  userProfile?: UserProfile | null;
+  replies?: Reply[];
+  likes?: { userId: string }[];
+}
+
+export interface Reply {
+  id: string;
+  userId: string;
+  content: string;
+  discussionId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userProfile?: UserProfile | null;
+  likes?: { userId: string }[];
 }
 
 export interface Chapter {

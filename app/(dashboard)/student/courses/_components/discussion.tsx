@@ -45,10 +45,10 @@ const DiscussionComponent = ({ discussions, userId, onReply, onLike, onLikeReply
           <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div className="flex items-center space-x-4">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>{discussion.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback>{discussion.userProfile ? discussion.userProfile.firstName.charAt(0) + discussion.userProfile.lastName.charAt(0) : discussion.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">User-{discussion.userId.slice(0, 4)}</p>
+                <p className="text-sm font-medium leading-none">{discussion.userProfile ? `${discussion.userProfile.firstName} ${discussion.userProfile.lastName}` : `User-${discussion.userId.slice(0, 4)}`}</p>
                 <p className="text-sm text-muted-foreground">{formatDistanceToNow(new Date(discussion.createdAt), { addSuffix: true })}</p>
               </div>
             </div>
@@ -74,9 +74,9 @@ const DiscussionComponent = ({ discussions, userId, onReply, onLike, onLikeReply
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarFallback>{reply.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                          <AvatarFallback>{reply.userProfile ? reply.userProfile.firstName.charAt(0) + reply.userProfile.lastName.charAt(0) : reply.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        <p className="text-sm font-medium">User-{reply.userId.slice(0, 4)}</p>
+                        <p className="text-sm font-medium">{reply.userProfile ? `${reply.userProfile.firstName} ${reply.userProfile.lastName}` : `User-${reply.userId.slice(0, 4)}`}</p>
                         <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}</p>
                       </div>
                       <Button variant="ghost" size="sm" className="flex items-center gap-1" onClick={() => onLikeReply(reply.id)}>
