@@ -1,4 +1,3 @@
-// app/(dashboard)/student/setting/page.tsx
 import { Metadata } from "next";
 import { ArrowLeft, UserCog } from "lucide-react";
 import Link from "next/link";

@@ -1,14 +1,19 @@
 import { redirect } from "next/navigation";
-import { File, CheckCircle, Lock, PlayCircle } from "lucide-react";
+import { File, CheckCircle, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { getCourseWithChapters } from "@/lib/actions/chapter";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Course Chapters | Global Skills Academy",
+  description: "Learn something new today",
+};
 
 interface CourseChaptersPageProps {
   params: {

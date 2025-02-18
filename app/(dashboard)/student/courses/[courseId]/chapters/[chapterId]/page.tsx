@@ -11,6 +11,12 @@ import { Assessment, Discussion } from "@/lib/types";
 import NextChapterNavigation from "../../../_components/next-chapter-button";
 import { FileText } from "lucide-react";
 import ChapterAssessment from "../../../_components/chapter-assessment";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Chapter | Global Skills Academy",
+  description: "Learn something new today",
+};
 
 interface ChapterPageProps {
   params: {
@@ -62,7 +68,7 @@ interface GetChapterResponse {
   isEnrolled: boolean;
 }
 
-const ChapterPage = async ({ params }: ChapterPageProps) => {
+const ChapterIdPage = async ({ params }: ChapterPageProps) => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -126,4 +132,4 @@ const ChapterPage = async ({ params }: ChapterPageProps) => {
   );
 };
 
-export default ChapterPage;
+export default ChapterIdPage;

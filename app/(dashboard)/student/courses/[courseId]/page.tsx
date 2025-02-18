@@ -7,6 +7,12 @@ import { Separator } from "@/components/ui/separator";
 import { getCourse } from "@/lib/actions/course";
 import { getEnrollmentStatus } from "@/lib/actions/enrollment";
 import EnrollButton from "@/components/enrolled-button";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Course | Global Skills Academy",
+  description: "Learn something new today",
+};
 
 interface CoursePageProps {
   params: {
@@ -14,7 +20,7 @@ interface CoursePageProps {
   };
 }
 
-const CoursePage = async ({ params }: CoursePageProps) => {
+const CourseIdPage = async ({ params }: CoursePageProps) => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -104,4 +110,4 @@ const CoursePage = async ({ params }: CoursePageProps) => {
   );
 };
 
-export default CoursePage;
+export default CourseIdPage;

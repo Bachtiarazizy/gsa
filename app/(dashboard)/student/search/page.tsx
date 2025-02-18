@@ -5,6 +5,12 @@ import { getCourses } from "@/lib/actions/course";
 import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Search Courses | Global Skills Academy",
+  description: "Search for courses",
+};
 
 interface SearchPageProps {
   searchParams: {

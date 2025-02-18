@@ -7,6 +7,12 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { getStudentCourses } from "@/lib/actions/course";
 import Image from "next/image";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My Courses | Global Skills Academy",
+  description: "Continue your learning journey",
+};
 
 async function StudentCoursesPage() {
   const { userId } = await auth();

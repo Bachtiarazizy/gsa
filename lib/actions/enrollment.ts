@@ -17,12 +17,24 @@ export const enrollInCourse = async (userId: string, courseId: string) => {
       throw new Error("Already enrolled in this course");
     }
 
+    // Get the student profile for the user
+    const studentProfile = await prisma.studentProfile.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (!studentProfile) {
+      throw new Error("Student profile not found. Please complete your profile first.");
+    }
+
     // Create enrollment and increment count in a transaction
     await prisma.$transaction([
       prisma.courseEnrollment.create({
         data: {
           userId,
           courseId,
+          studentProfileId: studentProfile.id,
         },
       }),
       prisma.course.update({
@@ -47,7 +59,7 @@ export const enrollInCourse = async (userId: string, courseId: string) => {
       }),
     ]);
 
-    revalidatePath(`/courses/${courseId}`);
+    revalidatePath(`/student/courses/${courseId}`);
     return { success: true };
   } catch (error) {
     console.error("[COURSE_ENROLLMENT]", error);

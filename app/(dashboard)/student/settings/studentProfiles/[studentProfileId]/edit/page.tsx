@@ -1,12 +1,12 @@
 // app/(dashboard)/settings/student-profile/[studentProfileId]/edit/page.tsx
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
-import { Metadata } from "next";
 import { ArrowLeft, UserCog } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import StudentProfileEditForm from "@/components/forms/edit-student-data-form";
 import prisma from "@/lib/db";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Edit Student Profile",

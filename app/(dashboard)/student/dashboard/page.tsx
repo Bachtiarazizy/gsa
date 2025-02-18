@@ -6,6 +6,12 @@ import { formatDistance } from "date-fns";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { getStudentDashboardData } from "@/lib/actions/chapter";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard | Global Skills Academy",
+  description: "Track your progress and learning journey",
+};
 
 async function StudentDashboard() {
   const { userId } = await auth();
