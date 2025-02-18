@@ -11,7 +11,7 @@ export const Sidebar = () => {
             <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div className="flex flex-col">
-            <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight transition-colors duration-300 text-primary}`}>Global Skills</h1>
+            <h1 className={`text-lg sm:text-xl lg:text-2xl font-bold tracking-tight transition-colors duration-300 text-primary}`}>Global Skills</h1>
             <p className={`text-sm font-medium tracking-wider uppercase transition-colors duration-300 text-primary/70}`}>Academy</p>
           </div>
         </Link>
