@@ -52,7 +52,7 @@ const studentRoutes: RouteType[] = [
   },
   {
     href: "/student/settings",
-    label: "Discussions",
+    label: "Settings",
     icon: Settings,
   },
 ];

@@ -61,17 +61,20 @@ export default async function CourseDetailsPage({ params }: PageProps) {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-x-2">
-          <GraduationCap className="h-8 w-8" />
-          <div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <GraduationCap className="h-8 w-8" />
+              <h1 className="text-base sm:text-2xl font-bold">{course.title}</h1>
+            </div>
+
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">{course.title}</h1>
               <Badge variant="outline" className="text-xs">
                 {course.category.name}
               </Badge>
+              <p className="text-sm text-muted-foreground">{course.isPublished ? "Published" : "Draft"}</p>
             </div>
-            <p className="text-sm text-muted-foreground">{course.isPublished ? "Published" : "Draft"}</p>
           </div>
         </div>
         <Link href={`/admin/courses/${params.courseId}/edit`}>
@@ -121,7 +124,7 @@ export default async function CourseDetailsPage({ params }: PageProps) {
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-slate-100 p-4 rounded-lg">
                 <h3 className="font-medium text-sm text-muted-foreground">Total Chapters</h3>
-                <p className="text-2xl font-bold">{course._count.chapters}</p>
+                <p className="text-2xl  font-bold">{course._count.chapters}</p>
               </div>
               <div className="bg-slate-100 p-4 rounded-lg">
                 <h3 className="font-medium text-sm text-muted-foreground">Published</h3>

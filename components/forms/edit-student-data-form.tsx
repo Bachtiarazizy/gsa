@@ -1,3 +1,4 @@
+// components/forms/edit-student-data-form.tsx
 "use client";
 
 import { useState } from "react";
@@ -9,7 +10,21 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 
-export default function StudentProfileForm() {
+interface StudentData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  university: string;
+  major: string;
+}
+
+interface StudentProfileEditFormProps {
+  studentProfileId: string;
+  initialData: StudentData;
+}
+
+export default function StudentProfileEditForm({ studentProfileId, initialData }: StudentProfileEditFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +46,7 @@ export default function StudentProfileForm() {
         return;
       }
 
-      const studentData = {
+      const updatedStudentData = {
         firstName: formData.get("firstName"),
         lastName: formData.get("lastName"),
         email: formData.get("email"),
@@ -39,27 +54,26 @@ export default function StudentProfileForm() {
         major: formData.get("major"),
       };
 
-      const response = await fetch("/api/studentProfiles", {
-        method: "POST",
+      const response = await fetch(`/api/studentProfiles/${studentProfileId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(studentData),
+        body: JSON.stringify(updatedStudentData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create student profile");
+        throw new Error("Failed to update student profile");
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const profile = await response.json();
+      await response.json();
 
       toast({
         title: "Success",
-        description: "Student profile created successfully",
+        description: "Student profile updated successfully",
       });
 
-      router.push(`/student/settings`); // or wherever you want to redirect after success
+      router.push(`/student/settings`);
       router.refresh();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Something went wrong";
@@ -80,27 +94,27 @@ export default function StudentProfileForm() {
       <form action={onSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="firstName">First Name</Label>
-          <Input id="firstName" name="firstName" required placeholder="Enter your first name" disabled={isLoading} />
+          <Input id="firstName" name="firstName" required placeholder="Enter your first name" disabled={isLoading} defaultValue={initialData.firstName} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="lastName">Last Name</Label>
-          <Input id="lastName" name="lastName" required placeholder="Enter your last name" disabled={isLoading} />
+          <Input id="lastName" name="lastName" required placeholder="Enter your last name" disabled={isLoading} defaultValue={initialData.lastName} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" required placeholder="Enter your email address" disabled={isLoading} />
+          <Input id="email" name="email" type="email" required placeholder="Enter your email address" disabled={isLoading} defaultValue={initialData.email} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="university">University/Campus</Label>
-          <Input id="university" name="university" required placeholder="Enter your university name" disabled={isLoading} />
+          <Input id="university" name="university" required placeholder="Enter your university name" disabled={isLoading} defaultValue={initialData.university} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="major">Major</Label>
-          <Input id="major" name="major" required placeholder="Enter your major" disabled={isLoading} />
+          <Input id="major" name="major" required placeholder="Enter your major" disabled={isLoading} defaultValue={initialData.major} />
         </div>
 
         {error && (
@@ -114,10 +128,10 @@ export default function StudentProfileForm() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating Profile...
+              Updating Profile...
             </>
           ) : (
-            "Create Profile"
+            "Save Changes"
           )}
         </Button>
       </form>
