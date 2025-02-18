@@ -111,10 +111,6 @@ export default async function CourseEditPage({ params }: PageProps) {
             </div>
             <p className="text-sm text-muted-foreground">Make changes to your course information below</p>
           </div>
-          <div className="flex items-center gap-x-2">
-            <PublishButton courseId={course.id} isPublished={course.isPublished} />
-            <DeleteButton courseId={course.id} />
-          </div>
         </div>
         <div className="w-full">
           <div className="w-full space-y-4">
@@ -124,6 +120,10 @@ export default async function CourseEditPage({ params }: PageProps) {
               </div>
             </div>
           </div>
+        </div>
+        <div className="flex items-center gap-x-2">
+          <PublishButton courseId={course.id} isPublished={course.isPublished} />
+          <DeleteButton courseId={course.id} />
         </div>
       </div>
     );

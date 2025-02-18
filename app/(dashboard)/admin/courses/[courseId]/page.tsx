@@ -61,7 +61,7 @@ export default async function CourseDetailsPage({ params }: PageProps) {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
         <div className="flex items-center gap-x-2">
           <GraduationCap className="h-8 w-8" />
           <div>
