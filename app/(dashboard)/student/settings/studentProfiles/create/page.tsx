@@ -1,15 +1,60 @@
-import { Metadata } from "next";
+"use client";
+
 import { ArrowLeft, UserCog } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import StudentProfileForm from "@/components/forms/student-data-form";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
-export const metadata: Metadata = {
-  title: "Student Profile Settings",
-  description: "Update your student profile information",
-};
+const ProfileSettingsPageSkeleton = () => (
+  <div className="rounded-lg border bg-card">
+    <div className="p-6 space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-48" />
+        <Skeleton className="h-5 w-96" />
+      </div>
+
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+
+        <Skeleton className="h-10 w-32" />
+      </div>
+    </div>
+  </div>
+);
 
 export default function StudentSettingsPage() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -27,16 +72,21 @@ export default function StudentSettingsPage() {
           <p className="text-sm text-muted-foreground">Update your profile information below. This information will be visible to your instructors.</p>
         </div>
       </div>
+
       <div className="flex-1">
-        <div className="rounded-lg border bg-card">
-          <div className="p-6 space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold">Profile Details</h2>
-              <p className="text-sm text-muted-foreground">Fill in your personal information to complete your student profile</p>
+        {isLoading ? (
+          <ProfileSettingsPageSkeleton />
+        ) : (
+          <div className="rounded-lg border bg-card">
+            <div className="p-6 space-y-4">
+              <div>
+                <h2 className="text-xl font-semibold">Profile Details</h2>
+                <p className="text-sm text-muted-foreground">Fill in your personal information to complete your student profile</p>
+              </div>
+              <StudentProfileForm />
             </div>
-            <StudentProfileForm />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

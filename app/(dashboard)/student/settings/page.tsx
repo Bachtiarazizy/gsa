@@ -8,11 +8,56 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const SettingsPageSkeleton = () => (
+  <div className="space-y-6">
+    <Card>
+      <CardHeader>
+        <CardTitle>Appearance</CardTitle>
+        <CardDescription>Customize how the application looks on your device.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col space-y-1">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Sun className="h-4 w-4 text-muted-foreground" />
+            <Skeleton className="h-6 w-10" />
+            <Moon className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Student Profile</CardTitle>
+        <CardDescription>Manage your student profile information.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+          <Skeleton className="h-9 w-32" />
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+);
 
 const SettingPage = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   interface ProfileData {
     id: string;
     firstName: string;
@@ -20,9 +65,6 @@ const SettingPage = () => {
     email: string;
     university: string;
   }
-
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch student profile data
   useEffect(() => {
@@ -36,7 +78,6 @@ const SettingPage = () => {
           const data = await response.json();
           setProfileData(data);
         } else if (response.status !== 404) {
-          // 404 means profile doesn't exist, which is fine
           throw new Error("Failed to fetch profile data");
         }
       } catch (error) {
@@ -73,6 +114,15 @@ const SettingPage = () => {
       router.push("/student/settings/studentProfiles/create");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+        <Skeleton className="h-8 w-32 mb-6" />
+        <SettingsPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">

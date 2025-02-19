@@ -54,7 +54,7 @@ export default async function ChapterEditPageServer({ params }: { params: { cour
   };
 
   return (
-    <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-y-2">
           <Link href={`/admin/courses/${params.courseId}/chapters/${params.chapterId}`}>

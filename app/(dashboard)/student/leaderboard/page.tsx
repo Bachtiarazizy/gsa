@@ -22,6 +22,11 @@ interface LeaderboardEntry {
   totalScore: number;
 }
 
+interface UserStats {
+  rank: number;
+  stats: LeaderboardEntry;
+}
+
 const RankIcon = ({ rank }: { rank: number }) => {
   if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500" />;
   if (rank === 2) return <Medal className="h-6 w-6 text-gray-400" />;
@@ -32,43 +37,54 @@ const RankIcon = ({ rank }: { rank: number }) => {
 const StudentLeaderboardPage = () => {
   const { userId, isLoaded, isSignedIn } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userRank, setUserRank] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
+    const fetchLeaderboardData = async () => {
       try {
-        const response = await fetch("/api/leaderboard");
-        if (!response.ok) throw new Error("Failed to fetch leaderboard");
+        // Fetch global leaderboard
+        const leaderboardResponse = await fetch("/api/leaderboard");
+        if (!leaderboardResponse.ok) throw new Error("Failed to fetch leaderboard");
+        const leaderboardData = await leaderboardResponse.json();
 
-        const data = await response.json();
-        setLeaderboard(data);
+        // Fetch current user's stats
+        const userStatsResponse = await fetch(`/api/users/${userId}/stats`);
+        if (!userStatsResponse.ok) throw new Error("Failed to fetch user stats");
+        const userStatsData = await userStatsResponse.json();
+
+        // Sort leaderboard by total score
+        const sortedLeaderboard = leaderboardData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.totalScore - a.totalScore);
 
         // Find user's rank
-        const rank = data.findIndex((entry: LeaderboardEntry) => entry.userId === userId) + 1;
-        setUserRank(rank > 0 ? rank : null);
+        const userRank = sortedLeaderboard.findIndex((entry: LeaderboardEntry) => entry.userId === userId) + 1;
+
+        setLeaderboard(sortedLeaderboard);
+        setUserStats({
+          rank: userRank,
+          stats: userStatsData,
+        });
       } catch (err) {
         setError("Failed to load leaderboard. Please try again later.");
-        console.error("Error fetching leaderboard:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (isLoaded && isSignedIn) {
-      fetchLeaderboard();
+      fetchLeaderboardData();
     }
   }, [isLoaded, isSignedIn, userId]);
 
-  // Redirect if not authenticated
   if (isLoaded && !isSignedIn) {
     redirect("/sign-in");
   }
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-4 md:p-6">
         <Skeleton className="h-8 w-[200px] mb-6" />
         {[1, 2, 3, 4, 5].map((i) => (
           <Skeleton key={i} className="h-16 w-full" />
@@ -79,7 +95,7 @@ const StudentLeaderboardPage = () => {
 
   if (error) {
     return (
-      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-4 md:p-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
@@ -90,19 +106,19 @@ const StudentLeaderboardPage = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+    <div className="max-w-5xl mx-auto flex-1 space-y-6 p-4 md:p-6">
       <h1 className="text-2xl font-bold mb-6">Student Leaderboard</h1>
 
-      {userRank && (
+      {userStats && (
         <Card className="mb-6 bg-primary/5">
           <CardHeader>
             <CardTitle>Your Ranking</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
-              <RankIcon rank={userRank} />
-              <span className="font-semibold">#{userRank} Place</span>
-              {userRank <= 3 && <Award className="h-5 w-5 text-primary" />}
+              <RankIcon rank={userStats.rank} />
+              <span className="font-semibold">#{userStats.rank} Place</span>
+              {userStats.rank <= 3 && <Award className="h-5 w-5 text-primary" />}
             </div>
           </CardContent>
         </Card>
@@ -112,7 +128,7 @@ const StudentLeaderboardPage = () => {
         {leaderboard.map((entry, index) => (
           <Card key={entry.id} className={`${entry.userId === userId ? "border-primary" : ""}`}>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <RankIcon rank={index + 1} />
                   <Avatar className="h-10 w-10">
@@ -125,7 +141,7 @@ const StudentLeaderboardPage = () => {
                     <p className="text-sm text-muted-foreground">{entry.university}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-8">
+                <div className="grid grid-cols-2 md:flex items-center gap-4 md:gap-8 pl-14 md:pl-0">
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">Courses</p>
                     <p className="font-medium">{entry.completedCourses}</p>

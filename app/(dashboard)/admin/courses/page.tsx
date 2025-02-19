@@ -20,7 +20,7 @@ export default async function CoursesPage() {
   const courses = await getAllCourses();
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <CourseTable
         courses={courses}
         onDelete={async (id) => {

@@ -84,106 +84,98 @@ export default async function AdminUsersPage() {
   const { totalEnrollments, totalUniqueStudents, multiCourseStudents, recentEnrollments, enrollmentGrowth } = await getUsersData();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="flex h-16 items-center px-4">
-          <div className="ml-auto flex items-center space-x-4"></div>
+    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">Monitor student enrollments and engagement.</p>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">Monitor student enrollments and engagement.</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Total Enrollments</CardTitle>
-                <Users className="h-6 w-6 text-blue-500" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Total Enrollments</CardTitle>
+              <Users className="h-6 w-6 text-blue-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">{totalEnrollments}</p>
+                <p className="text-sm text-muted-foreground">Course Enrollments</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-2xl font-bold">{totalEnrollments}</p>
-                  <p className="text-sm text-muted-foreground">Course Enrollments</p>
+              {enrollmentGrowth > 0 && (
+                <div className="flex items-center text-green-500">
+                  <span className="text-sm font-medium">+{enrollmentGrowth}% this month</span>
                 </div>
-                {enrollmentGrowth > 0 && (
-                  <div className="flex items-center text-green-500">
-                    <span className="text-sm font-medium">+{enrollmentGrowth}% this month</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Unique Students</CardTitle>
-                <UserCheck className="h-6 w-6 text-purple-500" />
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Unique Students</CardTitle>
+              <UserCheck className="h-6 w-6 text-purple-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">{totalUniqueStudents}</p>
+                <p className="text-sm text-muted-foreground">Active Learners</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-2xl font-bold">{totalUniqueStudents}</p>
-                  <p className="text-sm text-muted-foreground">Active Learners</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Multi-Course Students</CardTitle>
-                <GraduationCap className="h-6 w-6 text-green-500" />
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Multi-Course Students</CardTitle>
+              <GraduationCap className="h-6 w-6 text-green-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">{multiCourseStudents}</p>
+                <p className="text-sm text-muted-foreground">Enrolled in Multiple Courses</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-2xl font-bold">{multiCourseStudents}</p>
-                  <p className="text-sm text-muted-foreground">Enrolled in Multiple Courses</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Recent Enrollments</CardTitle>
-                <Clock className="h-6 w-6 text-orange-500" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentEnrollments.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No recent enrollments</p>
-                ) : (
-                  recentEnrollments.map((enrollment) => (
-                    <div key={enrollment.id} className="flex items-center">
-                      <div className="ml-4">
-                        <p className="text-sm font-medium">New Enrollment</p>
-                        <p className="text-sm text-muted-foreground">{enrollment.course.title}</p>
-                      </div>
-                      <div className="ml-auto text-sm text-muted-foreground">{formatDistance(new Date(enrollment.createdAt), new Date(), { addSuffix: true })}</div>
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Recent Enrollments</CardTitle>
+              <Clock className="h-6 w-6 text-orange-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentEnrollments.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No recent enrollments</p>
+              ) : (
+                recentEnrollments.map((enrollment) => (
+                  <div key={enrollment.id} className="flex items-center">
+                    <div className="ml-4">
+                      <p className="text-sm font-medium">New Enrollment</p>
+                      <p className="text-sm text-muted-foreground">{enrollment.course.title}</p>
                     </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    <div className="ml-auto text-sm text-muted-foreground">{formatDistance(new Date(enrollment.createdAt), new Date(), { addSuffix: true })}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

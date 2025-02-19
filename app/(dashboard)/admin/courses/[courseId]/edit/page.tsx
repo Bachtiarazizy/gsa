@@ -96,7 +96,7 @@ export default async function CourseEditPage({ params }: PageProps) {
     };
 
     return (
-      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+      <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-y-2">
             <Link href="/admin/courses">
