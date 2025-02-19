@@ -68,7 +68,7 @@ const StudentLeaderboardPage = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 space-y-4">
+      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
         <Skeleton className="h-8 w-[200px] mb-6" />
         {[1, 2, 3, 4, 5].map((i) => (
           <Skeleton key={i} className="h-16 w-full" />
@@ -79,7 +79,7 @@ const StudentLeaderboardPage = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
@@ -90,7 +90,7 @@ const StudentLeaderboardPage = () => {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
       <h1 className="text-2xl font-bold mb-6">Student Leaderboard</h1>
 
       {userRank && (

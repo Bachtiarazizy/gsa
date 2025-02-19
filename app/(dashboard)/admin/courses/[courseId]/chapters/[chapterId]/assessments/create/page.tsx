@@ -2,6 +2,12 @@ import AssessmentForm from "@/components/forms/assessment-form";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Create Assessment - Admin Dashboard",
+  description: "Create a new assessment for your course",
+};
 
 export default function ChapterAssessmentPage({ params }: { params: { courseId: string; chapterId: string } }) {
   return (

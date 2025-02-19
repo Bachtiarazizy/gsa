@@ -5,6 +5,12 @@ import EditChapterForm from "@/components/forms/edit-chapter-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Edit Chapter - Admin Dashboard",
+  description: "Modify your existing chapter details",
+};
 
 export default async function ChapterEditPageServer({ params }: { params: { courseId: string; chapterId: string } }) {
   const { userId } = await auth();

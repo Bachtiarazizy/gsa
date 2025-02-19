@@ -6,6 +6,12 @@ import { getDashboardData } from "@/lib/actions/course";
 import { formatDistance } from "date-fns";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description: "Monitor your courses and performance.",
+};
 
 async function AdminPage() {
   const { userId } = await auth();

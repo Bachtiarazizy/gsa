@@ -11,7 +11,7 @@ import PublishButton from "../../_components/publish-button";
 import DeleteButton from "../../_components/delete-button";
 
 export const metadata: Metadata = {
-  title: "Edit Course",
+  title: "Edit Course - Admin Dashboard",
   description: "Modify your existing course details",
 };
 

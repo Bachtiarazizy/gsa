@@ -5,6 +5,12 @@ import { formatDistance } from "date-fns";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin Users - Dashboard",
+  description: "Monitor student enrollments and engagement.",
+};
 
 async function getUsersData() {
   try {

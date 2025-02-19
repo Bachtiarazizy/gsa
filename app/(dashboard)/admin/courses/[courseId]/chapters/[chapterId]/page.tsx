@@ -5,6 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Video, FileEdit, ClipboardList } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Chapter Details - Admin Dashboard",
+  description: "View and manage chapter details",
+};
 
 interface PageProps {
   params: {

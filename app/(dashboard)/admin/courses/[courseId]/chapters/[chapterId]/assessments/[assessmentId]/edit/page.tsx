@@ -5,6 +5,12 @@ import EditAssessmentForm from "@/components/forms/edit-assessment-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ClipboardList } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Edit Assessment - Admin Dashboard",
+  description: "Modify your existing assessment details",
+};
 
 export default async function AssessmentEditPageServer({ params }: { params: { courseId: string; chapterId: string; assessmentId: string } }) {
   const { userId } = await auth();

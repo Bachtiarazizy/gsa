@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, FileEdit, GraduationCap, Users, Clock, ChevronRight, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Course Details - Admin Dashboard",
+  description: "Manage your course content and discussions.",
+};
 
 interface PageProps {
   params: {

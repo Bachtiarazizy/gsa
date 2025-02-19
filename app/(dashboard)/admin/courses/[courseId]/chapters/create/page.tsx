@@ -15,7 +15,7 @@ interface CreateChapterPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Create a New Chapter",
+  title: "Create a New Chapter - Admin Dashboard",
   description: "Add a new chapter to your course",
 };
 

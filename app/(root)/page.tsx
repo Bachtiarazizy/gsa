@@ -9,6 +9,12 @@ import WhyUs from "./_components/why-us";
 import Faqs from "./_components/faqs";
 import Testimonials from "./_components/testimonials";
 import Subcribe from "./_components/subcribe";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description: "Learn to code with our online courses.",
+};
 
 const Home = () => {
   return (
