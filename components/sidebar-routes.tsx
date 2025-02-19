@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { BarChart, Book, Home, Users, LucideIcon, Compass, ChartBar, Settings } from "lucide-react";
+import { Book, Users, LucideIcon, Compass, ChartBar, Settings, LayoutDashboard, LayoutDashboardIcon } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 
 interface RouteType {
@@ -15,7 +15,7 @@ const adminRoutes: RouteType[] = [
   {
     href: "/admin/dashboard",
     label: "Dashboard",
-    icon: BarChart,
+    icon: LayoutDashboardIcon,
   },
   {
     href: "/admin/courses",
@@ -32,8 +32,8 @@ const adminRoutes: RouteType[] = [
 const studentRoutes: RouteType[] = [
   {
     href: "/student/dashboard",
-    label: "Home",
-    icon: Home,
+    label: "Dashboard",
+    icon: LayoutDashboard,
   },
   {
     href: "/student/courses",

@@ -18,7 +18,7 @@ const IconMap: Record<Category["name"], LucideIcon> = {
 
 const Categories = ({ items }: CategoriesProps) => {
   return (
-    <div className="flex items-center gap-x-2 overflow-x-auto py-3 px-3 bg-secondary md:rounded-tl-3xl md:rounded-bl-xl container mx-auto">
+    <div className="flex items-center gap-x-2 overflow-x-auto bg-primary-secondary md:rounded-tl-3xl md:rounded-bl-xl container mx-auto">
       {items.map((item) => (
         <CategoryItem key={item.id} label={item.name} value={item.id} icon={IconMap[item.name]} />
       ))}

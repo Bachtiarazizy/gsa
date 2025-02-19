@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { File, CheckCircle, PlayCircle } from "lucide-react";
+import { File, CheckCircle, PlayCircle, Lock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
@@ -40,6 +40,36 @@ const CourseChaptersPage = async ({ params }: CourseChaptersPageProps) => {
   const completedChapters = course.chapters.filter((chapter) => chapter.isCompleted);
   const progressPercentage = (completedChapters.length / course.chapters.length) * 100;
 
+  // Function to check if a chapter should be locked
+  const isChapterLocked = (index: number) => {
+    if (index === 0) return false; // First chapter is always unlocked
+    return !course.chapters[index - 1].isCompleted; // Lock if previous chapter isn't completed
+  };
+
+  const ChapterCard = ({ chapter, index }: { chapter: any; index: number }) => {
+    const locked = isChapterLocked(index);
+    const content = (
+      <Card className={`${locked ? "opacity-75" : "hover:shadow-md transition-shadow"}`}>
+        <CardHeader className="flex flex-row items-center gap-4 p-4">
+          <div className="flex items-center justify-center h-12 w-12 rounded-full bg-slate-100">
+            {chapter.isCompleted ? <CheckCircle className="h-6 w-6 text-emerald-700" /> : locked ? <Lock className="h-6 w-6 text-slate-500" /> : <PlayCircle className="h-6 w-6 text-slate-700" />}
+          </div>
+          <div className="flex flex-col gap-1">
+            <CardTitle className="text-lg">{chapter.title}</CardTitle>
+            {chapter.description && <p className="text-muted-foreground text-sm line-clamp-2">{chapter.description}</p>}
+            {locked && <p className="text-sm text-red-500">Complete the previous chapter to unlock</p>}
+          </div>
+        </CardHeader>
+      </Card>
+    );
+
+    if (locked) {
+      return content;
+    }
+
+    return <Link href={`/student/courses/${course.id}/chapters/${chapter.id}`}>{content}</Link>;
+  };
+
   return (
     <div className="container max-w-5xl mx-auto py-10">
       <div className="px-6">
@@ -73,19 +103,9 @@ const CourseChaptersPage = async ({ params }: CourseChaptersPageProps) => {
         <Separator className="mb-8" />
 
         <div className="space-y-4">
-          {course.chapters.map((chapter) => (
+          {course.chapters.map((chapter, index) => (
             <div key={chapter.id}>
-              <Link href={`/student/courses/${course.id}/chapters/${chapter.id}`}>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center gap-4 p-4">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-full bg-slate-100">{chapter.isCompleted ? <CheckCircle className="h-6 w-6 text-emerald-700" /> : <PlayCircle className="h-6 w-6 text-slate-700" />}</div>
-                    <div className="flex flex-col gap-1">
-                      <CardTitle className="text-lg">{chapter.title}</CardTitle>
-                      {chapter.description && <p className="text-muted-foreground text-sm line-clamp-2">{chapter.description}</p>}
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
+              <ChapterCard chapter={chapter} index={index} />
             </div>
           ))}
         </div>

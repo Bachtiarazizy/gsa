@@ -43,8 +43,10 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
       <div className="px-6 pt-6 md:hidden md:mb-0 block">
         <SearchInput />
       </div>
-      <Categories items={categories} />
-      <div className="px-6 overflow-y-auto bg-secondary mx-0 md:mx-auto py-6 rounded-none md:h-[calc(100vh-170px)] md:rounded-none md:rounded-bl-3xl md:mt-1 md:rounded-tl-xl container">
+      <div className="px-6 py-3 bg-primary-secondary md:rounded-tl-3xl md:rounded-bl-xl container mx-auto">
+        <Categories items={categories} />
+      </div>
+      <div className="px-6 overflow-y-auto bg-primary-secondary mx-0 md:mx-auto py-6 rounded-none md:h-[calc(100vh-170px)] md:rounded-none md:rounded-bl-3xl md:mt-1 md:rounded-tl-xl container">
         <CourseList courses={courses} />
       </div>
     </div>
