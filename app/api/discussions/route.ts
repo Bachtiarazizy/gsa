@@ -2,6 +2,35 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
+import { StudentProfile } from "@prisma/client";
+
+// Define types for the query results
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type DiscussionWithRelations = {
+  id: string;
+  userId: string;
+  content: string;
+  courseId: string | null;
+  chapterId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  likes: {
+    userId: string;
+    createdAt: Date;
+  }[];
+  replies: {
+    id: string;
+    userId: string;
+    content: string;
+    createdAt: Date;
+    updatedAt: Date;
+    likes: {
+      userId: string;
+      createdAt: Date;
+    }[];
+  }[];
+  userProfile: StudentProfile | null;
+};
 
 export async function GET() {
   try {
@@ -16,64 +45,62 @@ export async function GET() {
         createdAt: "desc",
       },
       include: {
-        course: {
-          select: {
-            title: true,
-          },
-        },
-        chapter: {
-          select: {
-            title: true,
-          },
-        },
         replies: {
-          select: {
-            id: true,
-            content: true,
-            userId: true,
-            createdAt: true,
+          include: {
+            likes: {
+              select: {
+                userId: true,
+                createdAt: true,
+              },
+            },
           },
         },
         likes: {
           select: {
             userId: true,
+            createdAt: true,
           },
         },
       },
     });
 
-    return NextResponse.json(discussions);
-  } catch (error) {
-    console.log("[DISCUSSIONS_GET]", error);
-    return new NextResponse("Internal error", { status: 500 });
-  }
-}
+    // Get all unique userIds from discussions and replies
+    const userIds = new Set([...discussions.map((d) => d.userId), ...discussions.flatMap((d) => d.replies.map((r) => r.userId))]);
 
-export async function POST(req: Request) {
-  try {
-    const { userId } = await auth();
-    const { content, courseId, chapterId } = await req.json();
-
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    if (!content) {
-      return new NextResponse("Content is required", { status: 400 });
-    }
-
-    const discussion = await prisma.discussion.create({
-      data: {
-        userId,
-        content,
-        courseId,
-        chapterId,
+    // Fetch all relevant user profiles in a single query
+    const userProfiles = await prisma.studentProfile.findMany({
+      where: {
+        userId: {
+          in: Array.from(userIds),
+        },
+      },
+      select: {
+        id: true,
+        userId: true,
+        firstName: true,
+        lastName: true,
+        email: true,
       },
     });
 
-    return NextResponse.json(discussion);
+    // Create a map for quick profile lookup
+    const userProfileMap = new Map(userProfiles.map((profile) => [profile.userId, profile]));
+
+    // Transform the discussions with user profiles
+    const transformedDiscussions = discussions.map((discussion) => ({
+      ...discussion,
+      courseId: discussion.courseId || null,
+      chapterId: discussion.chapterId || null,
+      userProfile: userProfileMap.get(discussion.userId) || null,
+      replies: discussion.replies.map((reply) => ({
+        ...reply,
+        userProfile: userProfileMap.get(reply.userId) || null,
+      })),
+    }));
+
+    return NextResponse.json(transformedDiscussions);
   } catch (error) {
-    console.log("[DISCUSSIONS_POST]", error);
-    return new NextResponse("Internal error", { status: 500 });
+    console.error("[DISCUSSIONS_GET]", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }

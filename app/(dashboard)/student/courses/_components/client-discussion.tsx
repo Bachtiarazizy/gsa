@@ -146,7 +146,7 @@ const ClientDiscussions = ({ initialDiscussions, userId, chapterId, courseId }: 
     <>
       <Separator className="my-8" />
       <div className="flex flex-col gap-y-4">
-        <h3 className="text-xl font-semibold">Discussion</h3>
+        {/* <h3 className="text-xl font-semibold">Discussion</h3> */}
         <div className="mb-4">
           <textarea className="w-full p-2 border rounded-md" placeholder="Start a new discussion..." rows={3} value={newDiscussion} onChange={(e) => setNewDiscussion(e.target.value)} />
           <button className="mt-2 px-4 py-2 bg-primary text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleAddDiscussion} disabled={isSubmitting || !newDiscussion.trim()}>

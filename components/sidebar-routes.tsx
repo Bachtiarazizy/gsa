@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Book, Users, LucideIcon, Compass, ChartBar, Settings, LayoutDashboard, LayoutDashboardIcon } from "lucide-react";
+import { Book, Users, LucideIcon, Compass, ChartBar, Settings, LayoutDashboard, LayoutDashboardIcon, Trophy } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 
 interface RouteType {
@@ -49,6 +49,11 @@ const studentRoutes: RouteType[] = [
     href: "/student/discussions",
     label: "Discussions",
     icon: ChartBar,
+  },
+  {
+    href: "/student/leaderboard",
+    label: "Leaderboard",
+    icon: Trophy,
   },
   {
     href: "/student/settings",
