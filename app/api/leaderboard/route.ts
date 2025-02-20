@@ -1,18 +1,11 @@
 // app/api/leaderboard/route.ts
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    // Get all student profiles with their progress
-    const leaderboard = await prisma.studentProfile.findMany({
+    // Get all student profiles
+    const students = await prisma.studentProfile.findMany({
       select: {
         id: true,
         userId: true,
@@ -21,32 +14,12 @@ export async function GET() {
         university: true,
         enrollments: {
           select: {
+            courseId: true,
             course: {
               select: {
                 chapters: {
                   select: {
                     id: true,
-                    progress: {
-                      where: {
-                        userId,
-                      },
-                      select: {
-                        isCompleted: true,
-                      },
-                    },
-                    assessment: {
-                      select: {
-                        results: {
-                          where: {
-                            userId,
-                          },
-                          select: {
-                            score: true,
-                            isPassed: true,
-                          },
-                        },
-                      },
-                    },
                   },
                 },
               },
@@ -56,64 +29,50 @@ export async function GET() {
       },
     });
 
-    // Calculate statistics for each student
-    const leaderboardEntries = leaderboard.map((student) => {
-      let completedCourses = 0;
-      let completedChapters = 0;
-      let assessmentsPassed = 0;
-      let totalScore = 0;
-
-      student.enrollments.forEach((enrollment) => {
-        const chapters = enrollment.course.chapters;
-        let courseCompleted = true;
-
-        chapters.forEach((chapter) => {
-          // Check chapter completion
-          if (chapter.progress.some((p) => p.isCompleted)) {
-            completedChapters++;
-          } else {
-            courseCompleted = false;
-          }
-
-          // Check assessment results
-          if (chapter.assessment?.results && chapter.assessment.results.length > 0) {
-            const bestResult = chapter.assessment.results.reduce((best, current) => (current.score > best.score ? current : best));
-
-            if (bestResult.isPassed) {
-              assessmentsPassed++;
-              totalScore += bestResult.score;
-            }
-          }
+    // Get points data for each student
+    const leaderboardData = await Promise.all(
+      students.map(async (student) => {
+        // Count completed chapters
+        const completedChapters = await prisma.chapterProgress.count({
+          where: {
+            userId: student.userId,
+            isCompleted: true,
+          },
         });
 
-        if (courseCompleted) {
-          completedCourses++;
-        }
-      });
+        // Count passed assessments
+        const passedAssessments = await prisma.assessmentResult.count({
+          where: {
+            userId: student.userId,
+            isPassed: true,
+          },
+        });
 
-      return {
-        id: student.id,
-        userId: student.userId,
-        firstName: student.firstName,
-        lastName: student.lastName,
-        university: student.university,
-        completedCourses,
-        completedChapters,
-        assessmentsPassed,
-        totalScore,
-      };
-    });
+        // Count course enrollments
+        const enrolledCourses = student.enrollments.length;
 
-    // Sort by total score and then by completed courses
-    const sortedLeaderboard = leaderboardEntries.sort((a, b) => {
-      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
-      if (b.completedCourses !== a.completedCourses) return b.completedCourses - a.completedCourses;
-      return b.completedChapters - a.completedChapters;
-    });
+        // Calculate total points
+        const points =
+          completedChapters * 10 + // 10 points per completed chapter
+          passedAssessments * 50 + // 50 points per passed assessment
+          enrolledCourses * 5; // 5 points per course enrollment
+
+        return {
+          id: student.id,
+          userId: student.userId,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          points: points,
+        };
+      })
+    );
+
+    // Sort by points in descending order
+    const sortedLeaderboard = leaderboardData.sort((a, b) => b.points - a.points);
 
     return NextResponse.json(sortedLeaderboard);
   } catch (error) {
-    console.error("[LEADERBOARD_GET]", error);
+    console.error("[LEADERBOARD_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

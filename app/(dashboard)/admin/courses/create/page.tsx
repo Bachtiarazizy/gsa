@@ -1,8 +1,9 @@
-// app/(dashboard)/admin/courses/create/page.tsx
 import { Metadata } from "next";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import CreateCourseForm from "@/components/forms/course-form";
 import prisma from "@/lib/db";
 
@@ -11,13 +12,61 @@ export const metadata: Metadata = {
   description: "Create a new course for your students",
 };
 
+function CreateFormSkeleton() {
+  return (
+    <div className="rounded-lg border bg-card">
+      <div className="p-6 space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-32" /> {/* Course Details heading */}
+          <Skeleton className="h-4 w-96" /> {/* Description text */}
+        </div>
+
+        <div className="space-y-6">
+          {/* Title Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* Description Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+
+          {/* Category Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* Price Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* Button Group */}
+          <div className="flex items-center gap-x-2">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 async function getCategoriesData() {
-  // Fetch categories from your API/database
   const categories = await prisma.category.findMany();
   return categories;
 }
 
-const categories = await getCategoriesData();
+async function CreateCourseContent() {
+  const categories = await getCategoriesData();
+
+  return <CreateCourseForm categories={categories} />;
+}
 
 export default function CreateCoursePage() {
   return (
@@ -38,15 +87,9 @@ export default function CreateCoursePage() {
         </div>
       </div>
       <div className="flex-1">
-        <div className="rounded-lg border bg-card">
-          <div className="p-6 space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold">Course Details</h2>
-              <p className="text-sm text-muted-foreground">Fill in the information below to create your new course</p>
-            </div>
-            <CreateCourseForm categories={categories} />
-          </div>
-        </div>
+        <Suspense fallback={<CreateFormSkeleton />}>
+          <CreateCourseContent />
+        </Suspense>
       </div>
     </div>
   );

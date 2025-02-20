@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTheme } from "next-themes";
 
 const SettingsPageSkeleton = () => (
   <div className="space-y-6">
@@ -54,9 +55,10 @@ const SettingsPageSkeleton = () => (
 const SettingPage = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme } = useTheme();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   interface ProfileData {
     id: string;
@@ -65,6 +67,10 @@ const SettingPage = () => {
     email: string;
     university: string;
   }
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch student profile data
   useEffect(() => {
@@ -103,7 +109,6 @@ const SettingPage = () => {
       title: "Theme Changed",
       description: `Theme set to ${newTheme} mode`,
     });
-    // Here you would typically update the theme in localStorage or context
   };
 
   // Navigate to profile creation or edit page
@@ -114,6 +119,16 @@ const SettingPage = () => {
       router.push("/student/settings/studentProfiles/create");
     }
   };
+
+  // Don't render theme switch until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="max-w-5xl mx-auto flex-1 space-y-6 p-6">
+        <Skeleton className="h-8 w-32 mb-6" />
+        <SettingsPageSkeleton />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

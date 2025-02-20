@@ -15,11 +15,7 @@ interface LeaderboardEntry {
   userId: string;
   firstName: string;
   lastName: string;
-  university: string;
-  completedCourses: number;
-  completedChapters: number;
-  assessmentsPassed: number;
-  totalScore: number;
+  points: number; // Total points from all activities
 }
 
 interface UserStats {
@@ -49,13 +45,8 @@ const StudentLeaderboardPage = () => {
         if (!leaderboardResponse.ok) throw new Error("Failed to fetch leaderboard");
         const leaderboardData = await leaderboardResponse.json();
 
-        // Fetch current user's stats
-        const userStatsResponse = await fetch(`/api/users/${userId}/stats`);
-        if (!userStatsResponse.ok) throw new Error("Failed to fetch user stats");
-        const userStatsData = await userStatsResponse.json();
-
-        // Sort leaderboard by total score
-        const sortedLeaderboard = leaderboardData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.totalScore - a.totalScore);
+        // Sort leaderboard by points
+        const sortedLeaderboard = leaderboardData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.points - a.points);
 
         // Find user's rank
         const userRank = sortedLeaderboard.findIndex((entry: LeaderboardEntry) => entry.userId === userId) + 1;
@@ -63,7 +54,7 @@ const StudentLeaderboardPage = () => {
         setLeaderboard(sortedLeaderboard);
         setUserStats({
           rank: userRank,
-          stats: userStatsData,
+          stats: sortedLeaderboard.find((entry: LeaderboardEntry) => entry.userId === userId)!,
         });
       } catch (err) {
         setError("Failed to load leaderboard. Please try again later.");
@@ -119,6 +110,7 @@ const StudentLeaderboardPage = () => {
               <RankIcon rank={userStats.rank} />
               <span className="font-semibold">#{userStats.rank} Place</span>
               {userStats.rank <= 3 && <Award className="h-5 w-5 text-primary" />}
+              <span className="ml-auto font-semibold">{userStats.stats.points} Points</span>
             </div>
           </CardContent>
         </Card>
@@ -128,7 +120,7 @@ const StudentLeaderboardPage = () => {
         {leaderboard.map((entry, index) => (
           <Card key={entry.id} className={`${entry.userId === userId ? "border-primary" : ""}`}>
             <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <RankIcon rank={index + 1} />
                   <Avatar className="h-10 w-10">
@@ -138,27 +130,9 @@ const StudentLeaderboardPage = () => {
                     <p className="font-medium">
                       {entry.firstName} {entry.lastName}
                     </p>
-                    <p className="text-sm text-muted-foreground">{entry.university}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:flex items-center gap-4 md:gap-8 pl-14 md:pl-0">
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Courses</p>
-                    <p className="font-medium">{entry.completedCourses}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Chapters</p>
-                    <p className="font-medium">{entry.completedChapters}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Assessments</p>
-                    <p className="font-medium">{entry.assessmentsPassed}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Score</p>
-                    <p className="font-medium">{entry.totalScore}</p>
-                  </div>
-                </div>
+                <div className="font-semibold text-lg">{entry.points} Points</div>
               </div>
             </CardContent>
           </Card>

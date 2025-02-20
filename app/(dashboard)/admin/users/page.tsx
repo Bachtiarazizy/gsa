@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, GraduationCap, UserCheck, Clock } from "lucide-react";
 import { formatDistance } from "date-fns";
@@ -6,92 +6,105 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/db";
 import { Metadata } from "next";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
   title: "Admin Users - Dashboard",
   description: "Monitor student enrollments and engagement.",
 };
 
-async function getUsersData() {
-  try {
-    // Get total enrollments
-    const totalEnrollments = await prisma.courseEnrollment.count();
+function DashboardSkeleton() {
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <Users className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </CardContent>
+        </Card>
 
-    // Get total unique students
-    const uniqueStudents = await prisma.courseEnrollment.groupBy({
-      by: ["userId"],
-      _count: true,
-    });
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <UserCheck className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </CardContent>
+        </Card>
 
-    // Get students with multiple course enrollments
-    const multiCourseStudents = uniqueStudents.filter((student) => student._count > 1).length;
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <GraduationCap className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-36" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-    // Get recent enrollments
-    const recentEnrollments = await prisma.courseEnrollment.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        course: true,
-      },
-    });
-
-    // Calculate growth (comparing this month to last month)
-    const today = new Date();
-    const firstDayThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-
-    const thisMonthEnrollments = await prisma.courseEnrollment.count({
-      where: {
-        createdAt: {
-          gte: firstDayThisMonth,
-        },
-      },
-    });
-
-    const lastMonthEnrollments = await prisma.courseEnrollment.count({
-      where: {
-        createdAt: {
-          gte: firstDayLastMonth,
-          lt: firstDayThisMonth,
-        },
-      },
-    });
-
-    const enrollmentGrowth = lastMonthEnrollments === 0 ? thisMonthEnrollments * 100 : (((thisMonthEnrollments - lastMonthEnrollments) / lastMonthEnrollments) * 100).toFixed(1);
-
-    return {
-      totalEnrollments,
-      totalUniqueStudents: uniqueStudents.length,
-      multiCourseStudents,
-      recentEnrollments,
-      enrollmentGrowth: Number(enrollmentGrowth),
-    };
-  } catch (error) {
-    console.error("Error fetching users data:", error);
-    throw error;
-  }
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <Clock className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3].map((index) => (
+                <div key={index} className="flex items-center">
+                  <div className="ml-4 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-48" />
+                  </div>
+                  <Skeleton className="h-4 w-24 ml-auto" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  );
 }
 
-export default async function AdminUsersPage() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function DashboardContent({ userId }: { userId: string }) {
   const { totalEnrollments, totalUniqueStudents, multiCourseStudents, recentEnrollments, enrollmentGrowth } = await getUsersData();
 
   return (
-    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">Monitor student enrollments and engagement.</p>
-        </div>
-      </div>
-
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
@@ -177,6 +190,91 @@ export default async function AdminUsersPage() {
           </CardContent>
         </Card>
       </div>
+    </>
+  );
+}
+
+async function getUsersData() {
+  try {
+    // Get total enrollments
+    const totalEnrollments = await prisma.courseEnrollment.count();
+
+    // Get total unique students
+    const uniqueStudents = await prisma.courseEnrollment.groupBy({
+      by: ["userId"],
+      _count: true,
+    });
+
+    // Get students with multiple course enrollments
+    const multiCourseStudents = uniqueStudents.filter((student) => student._count > 1).length;
+
+    // Get recent enrollments
+    const recentEnrollments = await prisma.courseEnrollment.findMany({
+      take: 5,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        course: true,
+      },
+    });
+
+    // Calculate growth (comparing this month to last month)
+    const today = new Date();
+    const firstDayThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+    const thisMonthEnrollments = await prisma.courseEnrollment.count({
+      where: {
+        createdAt: {
+          gte: firstDayThisMonth,
+        },
+      },
+    });
+
+    const lastMonthEnrollments = await prisma.courseEnrollment.count({
+      where: {
+        createdAt: {
+          gte: firstDayLastMonth,
+          lt: firstDayThisMonth,
+        },
+      },
+    });
+
+    const enrollmentGrowth = lastMonthEnrollments === 0 ? thisMonthEnrollments * 100 : (((thisMonthEnrollments - lastMonthEnrollments) / lastMonthEnrollments) * 100).toFixed(1);
+
+    return {
+      totalEnrollments,
+      totalUniqueStudents: uniqueStudents.length,
+      multiCourseStudents,
+      recentEnrollments,
+      enrollmentGrowth: Number(enrollmentGrowth),
+    };
+  } catch (error) {
+    console.error("Error fetching users data:", error);
+    throw error;
+  }
+}
+
+export default async function AdminUsersPage() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
+
+  return (
+    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">Monitor student enrollments and engagement.</p>
+        </div>
+      </div>
+
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent userId={userId} />
+      </Suspense>
     </div>
   );
 }

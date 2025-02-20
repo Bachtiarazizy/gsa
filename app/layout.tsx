@@ -9,6 +9,7 @@ import "jos-animation/dist/jos.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "@/styles/globals.css";
+import { ThemeProvider } from "next-themes";
 
 // Load Inter font
 const inter = Inter({
@@ -31,9 +32,11 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${inter.variable}`}>
         <body className="font-inter">
-          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-          {children}
-          <Toaster />
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

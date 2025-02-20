@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Users, DollarSign, Clock } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { getDashboardData } from "@/lib/actions/course";
 import { formatDistance } from "date-fns";
@@ -9,17 +10,99 @@ import { auth } from "@clerk/nextjs/server";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Admin Dashboard | Global Skills Academy",
   description: "Monitor your courses and performance.",
 };
 
-async function AdminPage() {
-  const { userId } = await auth();
+function DashboardSkeleton() {
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <BookOpen className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </CardContent>
+        </Card>
 
-  if (!userId) {
-    redirect("/sign-in");
-  }
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <Users className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </CardContent>
+        </Card>
 
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <DollarSign className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">
+                <Skeleton className="h-6 w-32" />
+              </CardTitle>
+              <Clock className="h-6 w-6 text-gray-300" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3].map((index) => (
+                <div key={index} className="flex items-center">
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-48" />
+                  </div>
+                  <Skeleton className="h-4 w-24 ml-auto" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function DashboardContent({ userId }: { userId: string }) {
   const { totalCourses, totalStudents, totalRevenue, recentActivities, growth } = await getDashboardData();
 
   // Parse growth values as numbers
@@ -27,13 +110,7 @@ async function AdminPage() {
   const studentGrowth = parseFloat(growth.students);
 
   return (
-    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Here&apos;s an overview of your courses and performance.</p>
-        </div>
-      </div>
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Link href="/admin/courses" className="block">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
@@ -98,6 +175,7 @@ async function AdminPage() {
           </CardContent>
         </Card>
       </div>
+
       <div className="mt-8">
         <Card>
           <CardHeader>
@@ -125,8 +203,29 @@ async function AdminPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 }
 
-export default AdminPage;
+export default async function AdminPage() {
+  const { userId } = await auth();
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
+
+  return (
+    <div className="min-h-screen bg-background max-w-5xl mx-auto flex-1 space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">Here&apos;s an overview of your courses and performance.</p>
+        </div>
+      </div>
+
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent userId={userId} />
+      </Suspense>
+    </div>
+  );
+}
