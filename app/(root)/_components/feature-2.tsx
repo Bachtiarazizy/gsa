@@ -1,56 +1,70 @@
-import Image from "next/image";
 import React from "react";
+import Image from "next/image";
+import { CheckCircle } from "lucide-react";
+
+const FeatureItem: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="group flex items-start gap-4 rounded-xl p-2 transition-all duration-300 hover:bg-white/50">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 transition-transform duration-300 group-hover:scale-110">
+      <CheckCircle className="h-6 w-6" />
+    </div>
+    <span className="text-xl font-medium text-gray-800 lg:text-2xl">{children}</span>
+  </div>
+);
 
 const FeatureTwo = () => {
   return (
-    <section id="section-content-2">
-      {/* Section Spacer */}
-      <div className="py-20 xl:py-[130px] w-full px-6 sm:px-8 lg:px-24">
-        {/* Section Container */}
-        <div className="">
-          <div className="grid items-center gap-10 md:grid-cols-[1.1fr_minmax(0,_1fr)] lg:gap-[60px] xl:gap-x-[110px]">
-            <div className="jos order-2" data-jos_animation="fade-left">
-              <div className="overflow-hidden rounded-[10px]">
-                <Image src="/assets/img_placeholder/th-4/content-img-2.jpg" alt="content-img-2" width={550} height={550} className="h-auto w-full" />
-              </div>
-            </div>
-            <div className="jos order-1" data-jos_animation="fade-right">
-              {/* Section Content Block */}
-              <div className="mb-6">
-                <h2 className="font-heading text-4xl font-medium leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">Empowering Learners Across All Industries</h2>
-              </div>
-              {/* Section Content Block */}
-              <div className="">
-                <p className="mb-8 text-lg text-gray-600 leading-relaxed lg:text-xl">
-                  Global Skills Academy provides comprehensive learning solutions that cater to professionals, students, and organizations across various industries, helping them master the skills needed for todays digital world.
-                </p>
-                <ul className="flex flex-col gap-y-5 font-spaceGrotesk text-xl leading-tight tracking-tighter lg:mt-12 lg:text-[28px]">
-                  <li className="flex items-start gap-x-3">
-                    <div className="mt-[2.5px] h-[30px] w-[30px]">
-                      <Image src="/assets/img_placeholder/th-4/icon-green-badge-check.svg" alt="check-circle" width={30} height={30} className="h-full w-full" />
-                    </div>
-                    Interactive learning with real-time progress tracking
-                  </li>
-                  <li className="flex items-start gap-x-3">
-                    <div className="mt-[2.5px] h-[30px] w-[30px]">
-                      <Image src="/assets/img_placeholder/th-4/icon-green-badge-check.svg" alt="check-circle" width={30} height={30} className="h-full w-full" />
-                    </div>
-                    Industry-recognized certifications and badges
-                  </li>
-                  <li className="flex items-start gap-x-3">
-                    <div className="mt-[2.5px] h-[30px] w-[30px]">
-                      <Image src="/assets/img_placeholder/th-4/icon-green-badge-check.svg" alt="check-circle" width={30} height={30} className="h-full w-full" />
-                    </div>
-                    24/7 access to expert-led course content
-                  </li>
-                </ul>
-              </div>
+    <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white py-20 lg:py-32">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-green-100/30 blur-3xl" />
+        <div className="absolute right-1/4 bottom-1/4 h-64 w-64 rounded-full bg-blue-100/30 blur-3xl" />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* Content Section */}
+          <div className="relative space-y-8">
+            {/* Heading with gradient accent - Modified to prevent wrapping issues */}
+            <h2 className="font-heading text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+              Empowering Learners
+              <br />
+              <span className="relative">
+                <span className="relative z-10 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Across All Industries</span>
+                <svg className="absolute -bottom-2 left-0 h-3 w-full translate-y-2 text-green-200" viewBox="0 0 100 12" preserveAspectRatio="none">
+                  <path d="M0,0 Q50,12 100,0" stroke="currentColor" strokeWidth="4" fill="none" />
+                </svg>
+              </span>
+            </h2>
+
+            {/* Description */}
+            <p className="text-lg leading-relaxed text-gray-600 lg:text-xl">
+              Global Skills Academy provides comprehensive learning solutions that cater to professionals, students, and organizations across various industries, helping them master the skills needed for today&apos;s digital world.
+            </p>
+
+            {/* Feature List */}
+            <div className="space-y-4 pt-8">
+              <FeatureItem>Interactive learning with real-time progress tracking</FeatureItem>
+              <FeatureItem>Industry-recognized certifications and badges</FeatureItem>
+              <FeatureItem>24/7 access to expert-led course content</FeatureItem>
             </div>
           </div>
+
+          {/* Image Section */}
+          <div className="relative group lg:order-2">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl transition-all duration-500 hover:scale-[1.02]">
+              <div className="relative h-[400px] w-full lg:h-[500px]">
+                <Image src="/img/feature-2.jpg" alt="Learning experience illustration" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" priority />
+                {/* Image overlay effect */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-green-500/10 blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-blue-500/10 blur-2xl" />
+          </div>
         </div>
-        {/* Section Container */}
       </div>
-      {/* Section Spacer */}
     </section>
   );
 };

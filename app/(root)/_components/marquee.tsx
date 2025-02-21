@@ -2,12 +2,40 @@ import React from "react";
 
 const Marquee = () => {
   return (
-    <div id="text-slide-section">
-      <div className="bg-[#1A1AFF] py-5">
-        <div className="horizontal-slide-from-left-to-right grid grid-flow-col whitespace-nowrap">
-          <div className="flex text-4xl font-bold uppercase leading-5 text-primary-foreground">#cybersecurity #hacking #tech #programming #coding</div>
-          <div className="flex text-4xl font-bold uppercase leading-5 text-primary-foreground">#cybersecurity #hacking #tech #programming #coding</div>
-          <div className="flex text-4xl font-bold uppercase leading-5 text-primary-foreground">#cybersecurity #hacking #tech #programming #coding</div>
+    <div id="text-slide-section" className="relative overflow-hidden">
+      {/* Gradient overlays for smooth edges */}
+      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent" />
+
+      {/* Main marquee content */}
+      <div className="bg-gradient-to-r from-green-600 to-blue-600 py-6">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {/* First set of items */}
+          <div className="flex items-center gap-8 px-4">
+            <span className="text-2xl font-medium text-white opacity-90">#OnlineLearning</span>
+            <span className="text-2xl font-medium text-white opacity-90">#SkillDevelopment</span>
+            <span className="text-2xl font-medium text-white opacity-90">#ProfessionalGrowth</span>
+            <span className="text-2xl font-medium text-white opacity-90">#DigitalSkills</span>
+            <span className="text-2xl font-medium text-white opacity-90">#CareerAdvancement</span>
+          </div>
+
+          {/* Duplicate for seamless loop */}
+          <div className="flex items-center gap-8 px-4">
+            <span className="text-2xl font-medium text-white opacity-90">#OnlineLearning</span>
+            <span className="text-2xl font-medium text-white opacity-90">#SkillDevelopment</span>
+            <span className="text-2xl font-medium text-white opacity-90">#ProfessionalGrowth</span>
+            <span className="text-2xl font-medium text-white opacity-90">#DigitalSkills</span>
+            <span className="text-2xl font-medium text-white opacity-90">#CareerAdvancement</span>
+          </div>
+
+          {/* Third set for extra smoothness */}
+          <div className="flex items-center gap-8 px-4">
+            <span className="text-2xl font-medium text-white opacity-90">#OnlineLearning</span>
+            <span className="text-2xl font-medium text-white opacity-90">#SkillDevelopment</span>
+            <span className="text-2xl font-medium text-white opacity-90">#ProfessionalGrowth</span>
+            <span className="text-2xl font-medium text-white opacity-90">#DigitalSkills</span>
+            <span className="text-2xl font-medium text-white opacity-90">#CareerAdvancement</span>
+          </div>
         </div>
       </div>
     </div>

@@ -2,50 +2,42 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Hero() {
+const Hero = () => {
   return (
-    <section className="relative w-full overflow-hidden">
-      {/* Background for large screens with clip-path */}
-      <div
-        className="hidden lg:block absolute inset-0 z-0 bg-primary"
-        style={{
-          clipPath: "polygon(0 0, 100% 0, 100% 65%, 0% 100%)",
-        }}
-      />
-      {/* Normal background for smaller screens */}
-      <div className="block lg:hidden absolute inset-0 z-0 bg-primary" />
+    <section className="relative overflow-hidden bg-gradient-to-b from-white to-slate-50 py-20 lg:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="text-center">
+          <h1 className="font-heading mb-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            Empowering Indonesia&apos;s
+            <span className="relative mx-2 inline-block">
+              <span className="relative z-10 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Golden Generation 2045</span>
+              <svg className="absolute -bottom-2 left-0 h-3 w-full translate-y-2 text-green-200" viewBox="0 0 100 12" preserveAspectRatio="none" style={{ width: "100%" }}>
+                <path d="M0,0 Q50,12 100,0" stroke="currentColor" strokeWidth="4" fill="none" vectorEffect="non-scaling-stroke" />
+              </svg>
+            </span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 lg:text-xl">
+            An advanced Learning Management System developed by the Indonesian Students Association Worldwide, focusing on essential digital-era skills like digital marketing, export-import, and investment.
+          </p>
 
-      {/* Content */}
-      <div className="relative z-10 px-6 py-32 sm:px-8 lg:px-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7">
-              <div className="max-w-2xl">
-                <h1 className="text-4xl md:text-7xl font-bold tracking-wide text-primary-foreground mb-6">Empowering Indonesia&apos;s Golden Generation 2045</h1>
-                <p className="text-primary-foreground text-lg mb-8">
-                  An advanced Learning Management System developed by the Indonesian Students Association Worldwide, focusing on essential digital-era skills like digital marketing, export-import, and investment.
-                </p>
-                <div className="flex flex-wrap gap-4 mb-8">
-                  <Link href="/courses" className="px-6 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                    Get Started
-                  </Link>
-                  <Link href="/about" className="px-6 py-3 bg-transparent border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-colors duration-200">
-                    Learn More
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-5">
-              <div className="relative">
-                {/* Decorative circles */}
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
-                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
-                <Image src="/img/mobile-hero1.png" alt="xmoze app showcase" width={500} height={600} className="relative z-10 h-auto w-full max-w-md mx-auto lg:max-w-none" priority />
-              </div>
-            </div>
+          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+            <Link href="#" className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+              Get Started
+            </Link>
+            <Link href="#" className="inline-flex items-center justify-center rounded-2xl bg-white px-8 py-4 text-lg font-semibold text-gray-900 shadow-lg transition-all duration-300 hover:shadow-xl">
+              Learn More
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative mt-16">
+          <div className="overflow-hidden rounded-2xl shadow-xl">
+            <Image src="/img/hero.jpg" alt="Hero main image" width={1200} height={600} className="w-full" />
           </div>
         </div>
       </div>
     </section>
   );
-}
+};
+
+export default Hero;

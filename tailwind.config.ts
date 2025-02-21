@@ -18,6 +18,9 @@ export default withUt({
         inter: ["var(--font-inter)"],
         futuru: ["var(--font-futuru)"],
       },
+      animation: {
+        "spin-slow": "spin 3s linear infinite",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

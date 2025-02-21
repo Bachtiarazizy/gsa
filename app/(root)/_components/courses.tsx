@@ -4,114 +4,85 @@ import React from "react";
 
 const Courses = () => {
   return (
-    <section id="service-section">
-      {/* Section Spacer */}
-      <div className="pb-20 pt-20 xl:pb-[130px] xl:pt-[150px] px-6 sm:px-8 lg:px-24 bg-[#02021E]">
-        {/* Section Container */}
-        <div className="">
-          {/* Section Content Block */}
-          <div className="jos mx-auto mb-10 text-center md:mb-16 md:max-w-xl lg:mb-20 lg:max-w-3xl xl:max-w-[856px]">
-            <h2 className="font-spaceGrotesk text-4xl font-medium leading-[1.06] -tracking-[2px] text-primary-foreground sm:text-[44px] lg:text-[56px] xl:text-[70px]">Get all the tools to tackle cybersecurity together</h2>
-          </div>
-          {/* Section Content Block */}
-          {/* Service List */}
-          <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.1">
-              <div className="mb-8 flex items-center gap-x-6">
-                <div className="h-[50px] w-[50px]">
-                  <Image src="/assets/img_placeholder/th-4/icon-green-service-1.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
-                </div>
-                <div className="flex-1 font-spaceGrotesk text-3xl leading-[1.33]">Threat Detection</div>
-              </div>
-              <p className="mb-7 text-[21px] leading-[1.4]">AI can identify patterns &amp; improve the detection of unknown threats.</p>
-              <Link href="/service-details" className="relative flex h-[30px] w-[30px] items-center justify-center overflow-hidden">
-                <Image src="/assets/img_placeholder/th-4/icon-white-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="relative left-0 transition-all duration-300 group-hover:left-full" />
-                <Image src="/assets/img_placeholder/th-4/icon-green-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="absolute -left-full transition-all duration-300 group-hover:left-0" />
-              </Link>
-            </li>
-            {/* Service Item */}
-            {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.2">
-              <div className="mb-8 flex items-center gap-x-6">
-                <div className="h-[50px] w-[50px]">
-                  <Image src="/assets/img_placeholder/th-4/icon-green-service-2.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
-                </div>
-                <div className="flex-1 font-spaceGrotesk text-3xl leading-[1.33]">Phishing Detection</div>
-              </div>
-              <p className="mb-7 text-[21px] leading-[1.4]">AI examines email content &amp; sender behavior to identify phishing links.</p>
-              <Link href="/service-details" className="relative flex h-[30px] w-[30px] items-center justify-center overflow-hidden">
-                <Image src="/assets/img_placeholder/th-4/icon-white-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="relative left-0 transition-all duration-300 group-hover:left-full" />
-                <Image src="/assets/img_placeholder/th-4/icon-green-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="absolute -left-full transition-all duration-300 group-hover:left-0" />
-              </Link>
-            </li>
-            {/* Service Item */}
-            {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.3">
-              <div className="mb-8 flex items-center gap-x-6">
-                <div className="h-[50px] w-[50px]">
-                  <Image src="/assets/img_placeholder/th-4/icon-green-service-3.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
-                </div>
-                <div className="flex-1 font-spaceGrotesk text-3xl leading-[1.33]">Network Security</div>
-              </div>
-              <p className="mb-7 text-[21px] leading-[1.4]">Network traffic attempts and can take automated actions to block.</p>
-              <Link href="/service-details" className="relative flex h-[30px] w-[30px] items-center justify-center overflow-hidden">
-                <Image src="/assets/img_placeholder/th-4/icon-white-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="relative left-0 transition-all duration-300 group-hover:left-full" />
-                <Image src="/assets/img_placeholder/th-4/icon-green-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="absolute -left-full transition-all duration-300 group-hover:left-0" />
-              </Link>
-            </li>
-            {/* Service Item */}
-            {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.4">
-              <div className="mb-8 flex items-center gap-x-6">
-                <div className="h-[50px] w-[50px]">
-                  <Image src="/assets/img_placeholder/th-4/icon-green-service-4.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
-                </div>
-                <div className="flex-1 font-spaceGrotesk text-3xl leading-[1.33]">Encryption Tools</div>
-              </div>
-              <p className="mb-7 text-[21px] leading-[1.4]">Encryption software and hardware protect data by converting it.</p>
-              <Link href="/service-details" className="relative flex h-[30px] w-[30px] items-center justify-center overflow-hidden">
-                <Image src="/assets/img_placeholder/th-4/icon-white-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="relative left-0 transition-all duration-300 group-hover:left-full" />
-                <Image src="/assets/img_placeholder/th-4/icon-green-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="absolute -left-full transition-all duration-300 group-hover:left-0" />
-              </Link>
-            </li>
-            {/* Service Item */}
-            {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.5">
-              <div className="mb-8 flex items-center gap-x-6">
-                <div className="h-[50px] w-[50px]">
-                  <Image src="/assets/img_placeholder/th-4/icon-green-service-5.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
-                </div>
-                <div className="flex-1 font-spaceGrotesk text-3xl leading-[1.33]">Password Managers</div>
-              </div>
-              <p className="mb-7 text-[21px] leading-[1.4]">Password managers help users create, store, &amp; unique passwords.</p>
-              <Link href="/service-details" className="relative flex h-[30px] w-[30px] items-center justify-center overflow-hidden">
-                <Image src="/assets/img_placeholder/th-4/icon-white-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="relative left-0 transition-all duration-300 group-hover:left-full" />
-                <Image src="/assets/img_placeholder/th-4/icon-green-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="absolute -left-full transition-all duration-300 group-hover:left-0" />
-              </Link>
-            </li>
-            {/* Service Item */}
-            {/* Service Item */}
-            <li className="jos group rounded-[10px] bg-primary-foreground p-[30px]" data-jos_delay="0.6">
-              <div className="mb-8 flex items-center gap-x-6">
-                <div className="h-[50px] w-[50px]">
-                  <Image src="/assets/img_placeholder/th-4/icon-green-service-6.svg" alt="icon-green-service" width={50} height={50} className="h-full w-auto" />
-                </div>
-                <div className="flex-1 font-spaceGrotesk text-3xl leading-[1.33]">Secure Email</div>
-              </div>
-              <p className="mb-7 text-[21px] leading-[1.4]">These solutions filter and block email-based threats emails, spam.</p>
-              <Link href="/service-details" className="relative flex h-[30px] w-[30px] items-center justify-center overflow-hidden">
-                <Image src="/assets/img_placeholder/th-4/icon-white-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="relative left-0 transition-all duration-300 group-hover:left-full" />
-                <Image src="/assets/img_placeholder/th-4/icon-green-arrow-right.svg" alt="icon-white-arrow-right" width={30} height={30} className="absolute -left-full transition-all duration-300 group-hover:left-0" />
-              </Link>
-            </li>
-            {/* Service Item */}
-          </ul>
-          {/* Service List */}
+    <section id="courses-section">
+      <div className="bg-gradient-to-b from-slate-50 to-white px-6 py-20 sm:px-8 lg:px-24 xl:py-32">
+        {/* Section Header */}
+        <div className="mx-auto mb-16 text-center md:mb-20 lg:max-w-3xl">
+          <h2 className="font-heading mb-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            Empowering Learners
+            <span className="relative mx-2 block">
+              <span className="relative z-10 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">With Expert-Led Courses</span>
+              <svg className="absolute -bottom-2 left-0 h-3 w-full translate-y-2 text-green-200" viewBox="0 0 100 12" preserveAspectRatio="none">
+                <path d="M0,0 Q50,12 100,0" stroke="currentColor" strokeWidth="4" fill="none" />
+              </svg>
+            </span>
+          </h2>
+          <p className="text-lg text-gray-600 lg:text-xl">Comprehensive learning pathways designed to help you master the skills needed in today&apos;s digital world</p>
         </div>
-        {/* Section Container */}
+
+        {/* Courses Grid */}
+        <ul className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {/* Course Item 1 */}
+          <li className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="relative">
+              <div className="mb-6 flex items-center gap-x-6">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 transition-transform duration-300 group-hover:scale-110">
+                  <Image src="/api/placeholder/50/50" alt="Interactive Learning" width={32} height={32} className="h-8 w-8" />
+                </div>
+                <h3 className="font-heading text-2xl font-semibold text-gray-900">Interactive Learning</h3>
+              </div>
+              <p className="mb-6 text-lg text-gray-600">Real-time progress tracking and personalized feedback to enhance your learning experience.</p>
+              <Link href="/course-details" className="group/link inline-flex items-center gap-2 text-green-600 transition-colors duration-300 hover:text-green-700">
+                Learn more
+                <svg className="h-5 w-5 transition-transform duration-300 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </li>
+
+          {/* Course Item 2 */}
+          <li className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="relative">
+              <div className="mb-6 flex items-center gap-x-6">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 transition-transform duration-300 group-hover:scale-110">
+                  <Image src="/api/placeholder/50/50" alt="Certification Paths" width={32} height={32} className="h-8 w-8" />
+                </div>
+                <h3 className="font-heading text-2xl font-semibold text-gray-900">Industry Certifications</h3>
+              </div>
+              <p className="mb-6 text-lg text-gray-600">Earn recognized certifications and badges to showcase your expertise and skills.</p>
+              <Link href="/course-details" className="group/link inline-flex items-center gap-2 text-blue-600 transition-colors duration-300 hover:text-blue-700">
+                Learn more
+                <svg className="h-5 w-5 transition-transform duration-300 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </li>
+
+          {/* Course Item 3 */}
+          <li className="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="relative">
+              <div className="mb-6 flex items-center gap-x-6">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 transition-transform duration-300 group-hover:scale-110">
+                  <Image src="/api/placeholder/50/50" alt="Expert Access" width={32} height={32} className="h-8 w-8" />
+                </div>
+                <h3 className="font-heading text-2xl font-semibold text-gray-900">Expert-Led Content</h3>
+              </div>
+              <p className="mb-6 text-lg text-gray-600">24/7 access to comprehensive course materials created by industry experts.</p>
+              <Link href="/course-details" className="group/link inline-flex items-center gap-2 text-indigo-600 transition-colors duration-300 hover:text-indigo-700">
+                Learn more
+                <svg className="h-5 w-5 transition-transform duration-300 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </li>
+        </ul>
       </div>
-      {/* Section Spacer */}
     </section>
   );
 };

@@ -10,6 +10,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "@/styles/globals.css";
 import { ThemeProvider } from "next-themes";
+import { Suspense } from "react";
+import Preloader from "./(root)/_components/animation/preloader";
+import PageTransition from "./(root)/_components/animation/page-transition";
 
 // Load Inter font
 const inter = Inter({
@@ -32,11 +35,15 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${inter.variable}`}>
         <body className="font-inter">
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-            {children}
-            <Toaster />
-          </ThemeProvider>
+          <Suspense fallback={<Preloader />}>
+            <PageTransition>
+              <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+                {children}
+                <Toaster />
+              </ThemeProvider>
+            </PageTransition>
+          </Suspense>
         </body>
       </html>
     </ClerkProvider>
