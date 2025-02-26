@@ -31,23 +31,16 @@ const Navbar = () => {
           <div className="hidden lg:flex lg:items-center lg:gap-8">
             <NavLinks />
             <div className="flex items-center gap-4">
-              <Link href="/sign-in" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Sign In
-              </Link>
-
               <SignedOut>
                 <div className="flex items-center gap-4">
                   <SignInButton mode="modal">
-                    <button className="text-gray-600 hover:text-gray-900 transition-colors">Sign In</button>
+                    <button className="rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-6 py-2.5 text-white shadow-lg transition-all duration-300 hover:shadow-xl">Get Started</button>
                   </SignInButton>
-                  <Link href="/register" className="rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-6 py-2.5 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
-                    Get Started
-                  </Link>
                 </div>
               </SignedOut>
 
               <SignedIn>
-                <Link href="/student/dashboard" className="rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-6 py-2.5 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+                <Link href="/student/dashboard" className="rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-6 py-2.5 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
                   Dashboard
                 </Link>
                 <UserButton
@@ -75,12 +68,33 @@ const Navbar = () => {
               <MobileNavLinks />
             </div>
             <div className="flex flex-col gap-4 border-t border-gray-100 pt-4">
-              <Link href="/sign-in" className="text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
-                Sign In
-              </Link>
-              <Link href="/register" className="rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-6 py-3 text-center text-white shadow-lg transition-all duration-300 hover:shadow-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                Get Started
-              </Link>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="w-full rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-6 py-3 text-center text-white shadow-lg transition-all duration-300 hover:shadow-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                    Get Started
+                  </button>
+                </SignInButton>
+              </SignedOut>
+
+              <SignedIn>
+                <div className="flex items-center justify-between">
+                  <Link
+                    href="/student/dashboard"
+                    className="rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-6 py-3 text-center text-white shadow-lg transition-all duration-300 hover:shadow-xl"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <UserButton
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10",
+                      },
+                    }}
+                  />
+                </div>
+              </SignedIn>
             </div>
           </div>
         </div>

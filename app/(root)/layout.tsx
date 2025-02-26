@@ -6,6 +6,7 @@ import "jos-animation/dist/jos.css";
 import { usePathname } from "next/navigation";
 import Footer from "./_components/footer";
 import Navbar from "./_components/navbar";
+import ScrollProvider from "./_components/providers/scroll-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="">
       <Navbar />
-      {children}
+      <ScrollProvider>{children}</ScrollProvider>
       <Footer />
     </div>
   );

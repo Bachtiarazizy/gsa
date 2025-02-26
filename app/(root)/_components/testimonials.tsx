@@ -19,7 +19,7 @@ const Testimonials = () => {
                 </span>
               </h2>
             </div>
-            <Link href="/testimonials" className="inline-flex items-center justify-center rounded-lg bg-green-600 px-8 py-3 text-base font-medium text-white transition-colors hover:bg-green-700">
+            <Link href="/testimonials" className="inline-flex items-center justify-center rounded-full bg-green-600 px-8 py-3 text-base font-medium text-white transition-colors hover:bg-green-700">
               Read More Stories
             </Link>
           </div>

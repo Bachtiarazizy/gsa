@@ -48,7 +48,7 @@ const FeatureOne = () => {
             {/* CTA Button */}
             <Link
               href="https://www.example.com"
-              className="group inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl"
+              className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl"
             >
               Explore Our Courses
               <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />

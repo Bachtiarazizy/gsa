@@ -11,6 +11,7 @@ import Testimonials from "./_components/testimonials";
 import Subcribe from "./_components/subcribe";
 import { Metadata } from "next";
 import Sponsors from "./_components/sponsor";
+import ScrollUpButton from "./_components/animation/scroll=up-button";
 
 export const metadata: Metadata = {
   title: "Home | Global Skills Academy",
@@ -44,6 +45,8 @@ const Home = () => {
         <Faqs />
         <Testimonials />
         <Subcribe />
+
+        <ScrollUpButton scrollThreshold={500} position="bottom-right" color="purple" icon="arrow" showLabel={true} pulseEffect={true} showScrollProgress={true} />
       </main>
     </>
   );

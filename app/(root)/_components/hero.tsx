@@ -21,10 +21,10 @@ const Hero = () => {
           </p>
 
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-            <Link href="#" className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+            <Link href="#" className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl">
               Get Started
             </Link>
-            <Link href="#" className="inline-flex items-center justify-center rounded-2xl bg-white px-8 py-4 text-lg font-semibold text-gray-900 shadow-lg transition-all duration-300 hover:shadow-xl">
+            <Link href="#" className="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-gray-900 shadow-lg transition-all duration-300 hover:shadow-xl">
               Learn More
             </Link>
           </div>
