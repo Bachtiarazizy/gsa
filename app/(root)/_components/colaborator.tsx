@@ -1,14 +1,20 @@
 import React from "react";
 import Image from "next/image";
 
-const Sponsors = () => {
-  const logos = [
-    { name: "Company 1", src: "/api/placeholder/160/80" },
-    { name: "Company 2", src: "/api/placeholder/160/80" },
-    { name: "Company 3", src: "/api/placeholder/160/80" },
-    { name: "Company 4", src: "/api/placeholder/160/80" },
-    { name: "Company 5", src: "/api/placeholder/160/80" },
-    { name: "Company 6", src: "/api/placeholder/160/80" },
+const Collaborators = () => {
+  // In a real implementation, you would:
+  // 1. Download logo images from official sources
+  // 2. Get permission to use them
+  // 3. Place them in your public/images/collaborators/ folder
+  // 4. Reference them like: "/images/collaborators/google.png"
+
+  const collaborators = [
+    { name: "Research Institute Alpha", src: "/api/placeholder/160/80" },
+    { name: "University Partners Beta", src: "/api/placeholder/160/80" },
+    { name: "Innovation Lab Gamma", src: "/api/placeholder/160/80" },
+    { name: "Tech Alliance Delta", src: "/api/placeholder/160/80" },
+    { name: "Global Foundation Epsilon", src: "/api/placeholder/160/80" },
+    { name: "Scientific Coalition Zeta", src: "/api/placeholder/160/80" },
   ];
 
   return (
@@ -27,15 +33,15 @@ const Sponsors = () => {
           </div>
 
           <h2 className="font-heading text-4xl font-bold leading-tight text-gray-900 sm:text-5xl lg:text-6xl">
-            Trusted by{" "}
+            Partnerships with{" "}
             <span className="relative whitespace-nowrap">
-              <span className="relative z-10 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">Industry Leaders</span>
+              <span className="relative z-10 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">Leading Collaborators</span>
               <svg className="absolute -bottom-2 left-0 h-3 w-full translate-y-2 text-blue-200" viewBox="0 0 100 12" preserveAspectRatio="none">
                 <path d="M0,0 Q50,12 100,0" stroke="currentColor" strokeWidth="4" fill="none" />
               </svg>
             </span>
           </h2>
-          <p className="mt-6 text-xl text-gray-600">Join thousands of companies already using our platform</p>
+          <p className="mt-6 text-xl text-gray-600">Our research and development efforts are strengthened by these amazing partners</p>
         </div>
 
         {/* Logo marquee section */}
@@ -49,20 +55,22 @@ const Sponsors = () => {
             <div className="flex animate-marquee-logo">
               {/* First set of logos */}
               <div className="flex items-center space-x-16 py-8">
-                {logos.map((logo, index) => (
-                  <div key={`${logo.name}-${index}`} className="group relative flex h-24 w-48 items-center justify-center rounded-xl bg-white p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                {collaborators.map((partner, index) => (
+                  <div key={`${partner.name}-${index}`} className="group relative flex h-24 w-48 items-center justify-center rounded-xl bg-white p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-50 to-green-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <Image src={logo.src} alt={logo.name} width={160} height={80} className="relative z-10 object-contain transition-transform duration-300 group-hover:scale-110" />
+                    <Image src={partner.src} alt={partner.name} width={160} height={80} className="relative z-10 object-contain transition-transform duration-300 group-hover:scale-110" />
+                    <span className="absolute bottom-2 text-xs font-medium text-gray-500">{partner.name}</span>
                   </div>
                 ))}
               </div>
 
               {/* Duplicate set for seamless loop */}
               <div className="flex items-center space-x-16 py-8">
-                {logos.map((logo, index) => (
-                  <div key={`${logo.name}-${index}-duplicate`} className="group relative flex h-24 w-48 items-center justify-center rounded-xl bg-white p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                {collaborators.map((partner, index) => (
+                  <div key={`${partner.name}-${index}-duplicate`} className="group relative flex h-24 w-48 items-center justify-center rounded-xl bg-white p-4 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-50 to-green-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <Image src={logo.src} alt={logo.name} width={160} height={80} className="relative z-10 object-contain transition-transform duration-300 group-hover:scale-110" />
+                    <Image src={partner.src} alt={partner.name} width={160} height={80} className="relative z-10 object-contain transition-transform duration-300 group-hover:scale-110" />
+                    <span className="absolute bottom-2 text-xs font-medium text-gray-500">{partner.name}</span>
                   </div>
                 ))}
               </div>
@@ -74,4 +82,4 @@ const Sponsors = () => {
   );
 };
 
-export default Sponsors;
+export default Collaborators;

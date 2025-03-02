@@ -111,9 +111,7 @@ const NavLinks = () => (
     <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
       About
     </Link>
-    <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors">
-      Pricing
-    </Link>
+
     <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
       Contact
     </Link>
@@ -128,9 +126,7 @@ const MobileNavLinks = () => (
     <Link href="/about" className="w-full text-lg font-medium text-gray-600 hover:text-gray-900 transition-colors">
       About
     </Link>
-    <Link href="/pricing" className="w-full text-lg font-medium text-gray-600 hover:text-gray-900 transition-colors">
-      Pricing
-    </Link>
+
     <Link href="/contact" className="w-full text-lg font-medium text-gray-600 hover:text-gray-900 transition-colors">
       Contact
     </Link>

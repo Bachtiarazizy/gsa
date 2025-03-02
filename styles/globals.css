@@ -92,7 +92,7 @@
 }
 
 .animate-marquee {
-  animation: marquee 30s linear infinite;
+  animation: marquee 10s linear infinite;
 }
 
 .animate-marquee:hover {
@@ -109,5 +109,5 @@
 }
 
 .animate-marquee-logo {
-  animation: marquee-logo 40s linear infinite;
+  animation: marquee-logo 10s linear infinite;
 }

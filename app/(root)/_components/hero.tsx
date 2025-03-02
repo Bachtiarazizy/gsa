@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 const Hero = () => {
   return (
@@ -21,10 +22,26 @@ const Hero = () => {
           </p>
 
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-            <Link href="#" className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl">
-              Get Started
-            </Link>
-            <Link href="#" className="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-gray-900 shadow-lg transition-all duration-300 hover:shadow-xl">
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+                    Get Started
+                  </button>
+                </SignInButton>
+              </SignedOut>
+
+              <SignedIn>
+                <Link
+                  href="/student/dashboard"
+                  className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-green-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl"
+                >
+                  Dashbaord
+                </Link>
+              </SignedIn>
+            </>
+
+            <Link href="/about" className="inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-lg font-semibold text-gray-900 shadow-lg transition-all duration-300 hover:shadow-xl">
               Learn More
             </Link>
           </div>

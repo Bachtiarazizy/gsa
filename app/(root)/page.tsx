@@ -10,8 +10,9 @@ import Faqs from "./_components/faqs";
 import Testimonials from "./_components/testimonials";
 import Subcribe from "./_components/subcribe";
 import { Metadata } from "next";
-import Sponsors from "./_components/sponsor";
+import Collaborators from "./_components/colaborator";
 import ScrollUpButton from "./_components/animation/scroll=up-button";
+import OurPrograms from "./_components/our-programs";
 
 export const metadata: Metadata = {
   title: "Home | Global Skills Academy",
@@ -23,7 +24,8 @@ const Home = () => {
     <>
       <main className="relative overflow-hidden">
         <Hero />
-        <Sponsors />
+        <Collaborators />
+        <OurPrograms />
         <Promo />
         <FeatureOne />
         <FeatureTwo />
