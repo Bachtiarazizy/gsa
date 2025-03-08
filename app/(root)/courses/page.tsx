@@ -52,18 +52,6 @@ const PageSkeleton = () => (
 );
 
 export default async function CoursePage({ searchParams }: CoursePageProps) {
-  const { userId } = await auth();
-
-  if (!userId) {
-    return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">Please sign in to view courses</h1>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white">
       <Suspense fallback={<PageSkeleton />}>
@@ -73,15 +61,15 @@ export default async function CoursePage({ searchParams }: CoursePageProps) {
   );
 }
 
-const CoursePageContent = async ({ 
-  userId, 
-  searchParams 
-}: { 
-  userId: string; 
-  searchParams: { 
-    title?: string; 
-    categoryId?: string; 
-  } 
+const CoursePageContent = async ({
+  userId,
+  searchParams,
+}: {
+  userId: string;
+  searchParams: {
+    title?: string;
+    categoryId?: string;
+  };
 }) => {
   // Fetch categories and courses from the database
   const categories = await prisma.category.findMany({
@@ -146,7 +134,7 @@ const CoursePageContent = async ({
               </span>
             </h1>
             <p className="mt-6 text-xl text-gray-600">Elevate your skills with our expert-led, hands-on technology courses.</p>
-            
+
             <div className="mt-10 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
               <a
                 href="#courses"
@@ -171,10 +159,7 @@ const CoursePageContent = async ({
                 key={category.id}
                 href={`?categoryId=${category.id}`}
                 className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors
-                  ${searchParams.categoryId === category.id 
-                    ? "bg-blue-600 text-white" 
-                    : "bg-white/20 text-gray-800 hover:bg-white/30"
-                  }`}
+                  ${searchParams.categoryId === category.id ? "bg-blue-600 text-white" : "bg-white/20 text-gray-800 hover:bg-white/30"}`}
               >
                 {category.name}
               </a>
@@ -195,30 +180,18 @@ const CoursePageContent = async ({
             {featuredCourses.map((course) => (
               <div key={course.id} className="group relative overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
                 <div className="h-48 overflow-hidden">
-                  <Image 
-                    src={course.imageUrl || "/api/placeholder/400/300"} 
-                    alt={course.title} 
-                    width={400} 
-                    height={300} 
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" 
-                  />
+                  <Image src={course.imageUrl || "/api/placeholder/400/300"} alt={course.title} width={400} height={300} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
                 </div>
 
                 <div className="p-6">
                   <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                      {course.category?.name || "General"}
-                    </span>
-                    {course.isCompleted && (
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                        Completed
-                      </span>
-                    )}
+                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{course.category?.name || "General"}</span>
+                    {course.isCompleted && <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Completed</span>}
                   </div>
-                  
+
                   <h3 className="mb-2 text-xl font-bold text-gray-900">{course.title}</h3>
                   <p className="text-gray-600 mb-4">{course.description || "Learn valuable skills with this comprehensive course."}</p>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
@@ -228,7 +201,7 @@ const CoursePageContent = async ({
                       </div>
                       <span className="text-sm text-gray-600">{course.owner?.name || "Instructor"}</span>
                     </div>
-                    
+
                     <a href={`/courses/${course.id}`} className="inline-flex items-center text-sm font-medium text-blue-600 transition-colors group-hover:text-green-600">
                       View Course
                       <svg className="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -270,18 +243,12 @@ const CoursePageContent = async ({
             {categories.map((category) => (
               <div key={category.id} className="group relative overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60" />
-                <Image 
-                  src="/api/placeholder/400/300" 
-                  alt={category.name} 
-                  width={400} 
-                  height={300} 
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" 
-                />
+                <Image src="/api/placeholder/400/300" alt={category.name} width={400} height={300} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
 
                 <div className="absolute bottom-0 left-0 w-full p-6 text-white">
                   <h3 className="mb-1 text-xl font-bold">{category.name}</h3>
                   <p className="text-sm">{category._count?.courses || 0} courses</p>
-                  
+
                   <div className="mt-4">
                     <a href={`/search?categoryId=${category.id}`} className="inline-flex items-center text-sm font-medium text-white transition-all group-hover:text-blue-200">
                       Browse Category
@@ -358,16 +325,10 @@ const CoursePageContent = async ({
               <p className="mt-4 text-lg">Join thousands of students who have transformed their careers with our courses.</p>
 
               <div className="mt-8 flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-                <a
-                  href="/search"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-base font-medium text-blue-600 shadow-lg transition-all hover:bg-gray-100"
-                >
+                <a href="/search" className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-base font-medium text-blue-600 shadow-lg transition-all hover:bg-gray-100">
                   Browse All Courses
                 </a>
-                <a
-                  href="#"
-                  className="inline-flex items-center justify-center rounded-full border-2 border-white bg-transparent px-8 py-3 text-base font-medium text-white transition-all hover:bg-white/10"
-                >
+                <a href="#" className="inline-flex items-center justify-center rounded-full border-2 border-white bg-transparent px-8 py-3 text-base font-medium text-white transition-all hover:bg-white/10">
                   Get Free Trial
                 </a>
               </div>
