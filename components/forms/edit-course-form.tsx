@@ -47,7 +47,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(course.attachmentUrl);
   const [attachmentOriginalName, setAttachmentOriginalName] = useState<string | null>(course.attachmentOriginalName);
   const [duration, setDuration] = useState<string>(course.duration || "");
-  const [description, setDescription] = useState<string>(course.description || ""); // Add state for description
+  const [description, setDescription] = useState<string>(course.description || "");
 
   async function onSubmit(formData: FormData) {
     try {
@@ -98,7 +98,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
 
       const courseData: Partial<UpdateCourseInput> = {
         title: formData.get("title") as string,
-        description: description || null, // Use the description state
+        description: description || null,
         duration: duration || null,
         price: numericPrice,
         categoryId,
@@ -150,9 +150,8 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          {/* Replace the Textarea with the Editor component */}
           <div className="min-h-[200px]">
-            <Editor value={description} onChange={setDescription} />
+            <Editor value={description} onChange={setDescription} placeholder="Enter a detailed course description..." />
           </div>
         </div>
 

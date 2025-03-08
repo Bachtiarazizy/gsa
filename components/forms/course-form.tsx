@@ -141,9 +141,9 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          {/* Replace the Textarea with the Editor component */}
+          {/* Using the TipTap Editor component */}
           <div className="min-h-[200px]">
-            <Editor value={description} onChange={setDescription} />
+            <Editor value={description} onChange={setDescription} placeholder="Enter a detailed course description..." />
           </div>
         </div>
 

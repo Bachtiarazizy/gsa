@@ -103,9 +103,9 @@ export default function ChapterForm({ courseId }: ChapterFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          {/* Replace Textarea with the Editor component */}
+          {/* Using the TipTap Editor component */}
           <div className="min-h-[200px]">
-            <Editor value={description} onChange={setDescription} />
+            <Editor value={description} onChange={setDescription} placeholder="Add a detailed description for this chapter..." />
           </div>
         </div>
 
