@@ -28,6 +28,7 @@ model Course {
   price           Float     @default(0)
   isPublished     Boolean   @default(false)
   categoryId      String
+  requiresResearchPaper Boolean @default(false)  // New field to indicate if course requires a research paper
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -35,6 +36,7 @@ model Course {
   chapters    Chapter[]
   enrollments CourseEnrollment[]
   discussions Discussion[]  
+  researchPapers ResearchPaper[]  // New relation to research papers
 
   @@index([userId])
   @@index([categoryId])
@@ -156,6 +158,7 @@ model CourseEnrollment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   role        Role      @default(STUDENT)
+  completed   Boolean   @default(false)  // New field to track overall course completion
 
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   studentProfile  StudentProfile @relation(fields: [studentProfileId], references: [id])
@@ -177,6 +180,7 @@ model StudentProfile {
   updatedAt     DateTime @updatedAt
 
   enrollments   CourseEnrollment[]
+  researchPapers ResearchPaper[]  // New relation to research papers
 
   @@index([userId])
 }
@@ -212,7 +216,78 @@ model AssessmentResult {
   @@index([assessmentId])
 }
 
+// New model for research papers
+model ResearchPaper {
+  id             String   @id @default(cuid())
+  title          String
+  abstract       String   @db.Text
+  content        String   @db.Text
+  fileUrl        String?  // For uploaded PDF or document file
+  status         PaperStatus @default(DRAFT)
+  feedback       String?  @db.Text  // Instructor feedback
+  grade          Float?   // Optional grade
+  userId         String   // Clerk user ID of student
+  courseId       String   // Associated course
+  studentProfileId String
+  submittedAt    DateTime? // When paper was submitted for review
+  gradedAt       DateTime? // When paper was graded
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  course         Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  studentProfile StudentProfile @relation(fields: [studentProfileId], references: [id])
+  citations      Citation[]
+  revisions      PaperRevision[]
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([studentProfileId])
+}
+
+// Model for paper revisions history
+model PaperRevision {
+  id             String   @id @default(cuid())
+  title          String
+  abstract       String   @db.Text
+  content        String   @db.Text
+  fileUrl        String?
+  versionNumber  Int
+  paperId        String
+  createdAt      DateTime @default(now())
+
+  paper          ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@index([paperId])
+}
+
+// Model for research paper citations
+model Citation {
+  id             String   @id @default(cuid())
+  title          String
+  authors        String
+  publicationYear Int?
+  journal        String?
+  url            String?
+  doi            String?  // Digital Object Identifier
+  paperId        String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  paper          ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@index([paperId])
+}
+
 enum Role {
   STUDENT
   ADMIN
+}
+
+enum PaperStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  NEEDS_REVISION
+  GRADED
+  PUBLISHED
 }

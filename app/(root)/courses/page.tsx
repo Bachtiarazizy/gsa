@@ -1,11 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import Image from "next/image";
 import { getCourses } from "@/lib/actions/course";
 import prisma from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface CoursePageProps {
   searchParams: {
@@ -54,9 +53,7 @@ const PageSkeleton = () => (
 export default async function CoursePage({ searchParams }: CoursePageProps) {
   return (
     <div className="bg-white">
-      <Suspense fallback={<PageSkeleton />}>
-        <CoursePageContent userId={userId} searchParams={searchParams} />
-      </Suspense>
+      <Suspense fallback={<PageSkeleton />}></Suspense>
     </div>
   );
 }
@@ -169,100 +166,8 @@ const CoursePageContent = async ({
       </section>
 
       {/* Featured Courses Section */}
-      <section id="courses" className="py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Featured Courses</h2>
-            <p className="mt-4 text-lg text-gray-600">Start your learning journey with our most popular programs.</p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredCourses.map((course) => (
-              <div key={course.id} className="group relative overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
-                <div className="h-48 overflow-hidden">
-                  <Image src={course.imageUrl || "/api/placeholder/400/300"} alt={course.title} width={400} height={300} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                </div>
-
-                <div className="p-6">
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">{course.category?.name || "General"}</span>
-                    {course.isCompleted && <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Completed</span>}
-                  </div>
-
-                  <h3 className="mb-2 text-xl font-bold text-gray-900">{course.title}</h3>
-                  <p className="text-gray-600 mb-4">{course.description || "Learn valuable skills with this comprehensive course."}</p>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-gray-600">{course.owner?.name || "Instructor"}</span>
-                    </div>
-
-                    <a href={`/courses/${course.id}`} className="inline-flex items-center text-sm font-medium text-blue-600 transition-colors group-hover:text-green-600">
-                      View Course
-                      <svg className="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <a
-              href="/search"
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-green-600 px-8 py-3 text-base font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-green-700"
-            >
-              View All Courses
-            </a>
-          </div>
-        </div>
-      </section>
 
       {/* Course Categories Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white py-16 lg:py-24">
-        {/* Decorative backgrounds */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute left-1/3 top-1/2 h-64 w-64 rounded-full bg-blue-100/30 blur-3xl" />
-          <div className="absolute right-1/3 bottom-1/3 h-64 w-64 rounded-full bg-green-100/30 blur-3xl" />
-        </div>
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Explore by Category</h2>
-            <p className="mt-4 text-lg text-gray-600">Find the perfect course in your area of interest.</p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category) => (
-              <div key={category.id} className="group relative overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60" />
-                <Image src="/api/placeholder/400/300" alt={category.name} width={400} height={300} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
-
-                <div className="absolute bottom-0 left-0 w-full p-6 text-white">
-                  <h3 className="mb-1 text-xl font-bold">{category.name}</h3>
-                  <p className="text-sm">{category._count?.courses || 0} courses</p>
-
-                  <div className="mt-4">
-                    <a href={`/search?categoryId=${category.id}`} className="inline-flex items-center text-sm font-medium text-white transition-all group-hover:text-blue-200">
-                      Browse Category
-                      <svg className="ml-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white py-16 lg:py-24">
@@ -295,7 +200,7 @@ const CoursePageContent = async ({
                     </div>
                   </div>
 
-                  <p className="mb-6 italic text-gray-600">"{testimonial.comment}"</p>
+                  <p className="mb-6 italic text-gray-600">&quot;{testimonial.comment}&ldquo;</p>
 
                   <div className="flex items-center">
                     <Image src={testimonial.image} alt={testimonial.name} width={64} height={64} className="h-10 w-10 rounded-full object-cover" />

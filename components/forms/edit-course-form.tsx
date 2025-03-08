@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { UpdateCourseInput } from "@/lib/zodSchema";
+import RichTextEditor from "@/app/(dashboard)/admin/courses/_components/text-editor";
 
 interface Category {
   id: string;
@@ -47,6 +47,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(course.attachmentUrl);
   const [attachmentOriginalName, setAttachmentOriginalName] = useState<string | null>(course.attachmentOriginalName);
   const [duration, setDuration] = useState<string>(course.duration || "");
+  const [description, setDescription] = useState<string>(course.description || "");
 
   async function onSubmit(formData: FormData) {
     try {
@@ -97,7 +98,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
 
       const courseData: Partial<UpdateCourseInput> = {
         title: formData.get("title") as string,
-        description: (formData.get("description") as string) || null,
+        description: description || null,
         duration: duration || null,
         price: numericPrice,
         categoryId,
@@ -149,7 +150,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" placeholder="Enter course description" disabled={isLoading} defaultValue={course.description || ""} />
+          <RichTextEditor value={description} onChange={setDescription} placeholder="Enter course description..." />
         </div>
 
         <div className="space-y-2">

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { updateChapterStatus } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
+import RichTextEditor from "@/app/(dashboard)/admin/courses/_components/text-editor";
 
 interface EditChapterFormProps {
   initialData: {
@@ -41,6 +41,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(initialData.videoUrl);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(initialData.attachmentUrl);
   const [attachmentName, setAttachmentName] = useState<string | null>(initialData.attachmentOriginalName);
+  const [description, setDescription] = useState<string>(initialData.description || "");
   const router = useRouter();
   const { toast } = useToast();
 
@@ -61,6 +62,9 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
         formData.set("attachmentUrl", attachmentUrl);
         formData.set("attachmentOriginalName", attachmentName || "");
       }
+
+      // Add the rich text description
+      formData.set("description", description);
 
       const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}`, {
         method: "PATCH",
@@ -141,7 +145,8 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" defaultValue={initialData.description || ""} disabled={isLoading} />
+          <RichTextEditor value={description} onChange={setDescription} placeholder="Write a detailed description of this chapter..." />
+          <input type="hidden" name="description" value={description} />
         </div>
 
         <div className="space-y-2">

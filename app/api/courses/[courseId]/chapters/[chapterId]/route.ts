@@ -26,9 +26,10 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
     }
 
     // Validate using the schema (excluding position and isPublished)
+    // Handle HTML content from rich text editor
     const validatedFields = createChapterSchema.parse({
       title: values.title,
-      description: values.description,
+      description: values.description || null, // Handle empty strings correctly
       videoUrl: values.videoUrl,
       attachmentUrl: values.attachmentUrl,
       attachmentOriginalName: values.attachmentOriginalName,
@@ -58,7 +59,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       return new NextResponse("Chapter not found", { status: 404 });
     }
 
-    // Update the chapter
+    // Update the chapter with rich text content
     const updatedChapter = await prisma.chapter.update({
       where: {
         id: params.chapterId,
@@ -66,7 +67,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       },
       data: {
         title: validatedFields.title,
-        description: validatedFields.description,
+        description: validatedFields.description, // Store HTML content
         videoUrl: validatedFields.videoUrl,
         position: values.position,
         isPublished: values.isPublished,
@@ -78,6 +79,9 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
     return NextResponse.json(updatedChapter);
   } catch (error) {
     console.error("[CHAPTERS_UPDATE]", error);
+    if (error instanceof Error) {
+      return new NextResponse(error.message, { status: 400 });
+    }
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

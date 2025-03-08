@@ -13,7 +13,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
     const json = await req.json();
     const data = {
       title: json.title,
-      description: json.description,
+      description: json.description, // This will now contain HTML content from the rich text editor
       duration: json.duration,
       imageUrl: json.imageUrl,
       attachmentUrl: json.attachmentUrl,
@@ -22,6 +22,8 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       categoryId: json.categoryId,
     };
 
+    // You may need to update your Zod schema to accommodate HTML content
+    // If your existing schema already accepts string for description, it should work fine
     const validatedData = updateCourseSchema.parse(data);
 
     // Verify course exists and belongs to user
