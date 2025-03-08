@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { CreateCourseInput } from "@/lib/zodSchema";
+import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor";
 
 interface Category {
   id: string;
@@ -35,6 +35,7 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
   const [attachmentOriginalName, setAttachmentOriginalName] = useState<string | null>(null);
   const [duration, setDuration] = useState<string>("");
+  const [description, setDescription] = useState<string>(""); // Add state for description
 
   async function onSubmit(formData: FormData) {
     try {
@@ -85,7 +86,7 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
 
       const courseData: Partial<CreateCourseInput> = {
         title: formData.get("title") as string,
-        description: (formData.get("description") as string) || null,
+        description: description || null, // Use the description state
         duration: duration || null,
         price: numericPrice,
         categoryId,
@@ -140,7 +141,10 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" placeholder="Enter course description" disabled={isLoading} />
+          {/* Replace the Textarea with the Editor component */}
+          <div className="min-h-[200px]">
+            <Editor value={description} onChange={setDescription} />
+          </div>
         </div>
 
         <div className="space-y-2">

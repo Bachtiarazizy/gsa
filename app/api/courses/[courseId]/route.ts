@@ -1,3 +1,5 @@
+// /api/courses/[courseId]/route.ts
+
 import prisma from "@/lib/db";
 import { updateCourseSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -22,8 +24,6 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       categoryId: json.categoryId,
     };
 
-    // You may need to update your Zod schema to accommodate HTML content
-    // If your existing schema already accepts string for description, it should work fine
     const validatedData = updateCourseSchema.parse(data);
 
     // Verify course exists and belongs to user

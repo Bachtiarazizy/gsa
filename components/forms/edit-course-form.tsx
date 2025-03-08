@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { UpdateCourseInput } from "@/lib/zodSchema";
-import RichTextEditor from "@/app/(dashboard)/admin/courses/_components/text-editor";
+import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor";
 
 interface Category {
   id: string;
@@ -47,7 +47,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(course.attachmentUrl);
   const [attachmentOriginalName, setAttachmentOriginalName] = useState<string | null>(course.attachmentOriginalName);
   const [duration, setDuration] = useState<string>(course.duration || "");
-  const [description, setDescription] = useState<string>(course.description || "");
+  const [description, setDescription] = useState<string>(course.description || ""); // Add state for description
 
   async function onSubmit(formData: FormData) {
     try {
@@ -98,7 +98,7 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
 
       const courseData: Partial<UpdateCourseInput> = {
         title: formData.get("title") as string,
-        description: description || null,
+        description: description || null, // Use the description state
         duration: duration || null,
         price: numericPrice,
         categoryId,
@@ -150,7 +150,10 @@ export default function EditCourseForm({ course, categories }: EditCourseFormPro
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <RichTextEditor value={description} onChange={setDescription} placeholder="Enter course description..." />
+          {/* Replace the Textarea with the Editor component */}
+          <div className="min-h-[200px]">
+            <Editor value={description} onChange={setDescription} />
+          </div>
         </div>
 
         <div className="space-y-2">

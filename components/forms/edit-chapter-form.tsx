@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -11,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { updateChapterStatus } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
-import RichTextEditor from "@/app/(dashboard)/admin/courses/_components/text-editor";
+import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor"; // Adjust the import path as needed
 
 interface EditChapterFormProps {
   initialData: {
@@ -41,7 +42,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(initialData.videoUrl);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(initialData.attachmentUrl);
   const [attachmentName, setAttachmentName] = useState<string | null>(initialData.attachmentOriginalName);
-  const [description, setDescription] = useState<string>(initialData.description || "");
+  const [description, setDescription] = useState<string>(initialData.description || ""); // State for rich text editor
   const router = useRouter();
   const { toast } = useToast();
 
@@ -63,7 +64,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
         formData.set("attachmentOriginalName", attachmentName || "");
       }
 
-      // Add the rich text description
+      // Add the rich text description to the form data
       formData.set("description", description);
 
       const response = await fetch(`/api/courses/${initialData.courseId}/chapters/${initialData.id}`, {
@@ -145,8 +146,10 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <RichTextEditor value={description} onChange={setDescription} placeholder="Write a detailed description of this chapter..." />
-          <input type="hidden" name="description" value={description} />
+          {/* Replace Textarea with Editor component */}
+          <div className="min-h-[200px]">
+            <Editor value={description} onChange={setDescription} disabled={isLoading} />
+          </div>
         </div>
 
         <div className="space-y-2">

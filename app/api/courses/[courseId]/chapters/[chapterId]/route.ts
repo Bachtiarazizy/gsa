@@ -1,3 +1,5 @@
+// /api/courses/[courseId]/chapters/[chapterId]/route.ts
+
 import prisma from "@/lib/db";
 import { createChapterSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -11,9 +13,13 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
     }
 
     const formData = await req.formData();
+
+    // Get the rich text editor content directly
+    const description = formData.get("description") as string;
+
     const values = {
       title: formData.get("title") as string,
-      description: formData.get("description") as string,
+      description: description, // This will contain HTML from the editor
       videoUrl: formData.get("videoUrl") as string,
       position: Number(formData.get("position")),
       isPublished: formData.get("isPublished") === "true",
@@ -26,11 +32,14 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
     }
 
     // Validate using the schema (excluding position and isPublished)
-    // Handle HTML content from rich text editor
+    // We need to ensure the schema allows HTML content
     const validatedFields = createChapterSchema.parse({
       title: values.title,
       description: values.description || null, // Handle empty strings correctly
       videoUrl: values.videoUrl,
+      courseId: params.courseId,
+      position: values.position,
+      isPublished: values.isPublished,
       attachmentUrl: values.attachmentUrl,
       attachmentOriginalName: values.attachmentOriginalName,
     });
@@ -67,7 +76,7 @@ export async function PATCH(req: Request, { params }: { params: { courseId: stri
       },
       data: {
         title: validatedFields.title,
-        description: validatedFields.description, // Store HTML content
+        description: validatedFields.description, // Store HTML content from the editor
         videoUrl: validatedFields.videoUrl,
         position: values.position,
         isPublished: values.isPublished,

@@ -1,3 +1,5 @@
+// /api/courses/[courseId]/chapters/route.ts
+
 import prisma from "@/lib/db";
 import { createChapterSchema } from "@/lib/zodSchema";
 import { auth } from "@clerk/nextjs/server";
@@ -21,9 +23,12 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
       console.error("Error parsing attachments:", e);
     }
 
+    // Get the description from the rich text editor (HTML content)
+    const description = formData.get("description") as string;
+
     const values = {
       title: formData.get("title") as string,
-      description: (formData.get("description") as string) || null,
+      description: description || null, // Store HTML content from the editor
       videoUrl: formData.get("videoUrl") as string,
       position: parseInt(formData.get("position") as string) || 0,
       courseId: params.courseId,
@@ -63,7 +68,7 @@ export async function POST(req: Request, { params }: { params: { courseId: strin
     const chapter = await prisma.chapter.create({
       data: {
         title: validatedData.title,
-        description: validatedData.description,
+        description: validatedData.description, // Store HTML content
         videoUrl: validatedData.videoUrl,
         position: validatedData.position,
         courseId: validatedData.courseId,

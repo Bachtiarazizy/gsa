@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { useToast } from "@/hooks/use-toast";
+import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor";
 
 interface Attachment {
   id: string;
@@ -31,6 +32,7 @@ export default function ChapterForm({ courseId }: ChapterFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [description, setDescription] = useState<string>(""); // State for rich text editor
   const router = useRouter();
   const { toast } = useToast();
 
@@ -44,6 +46,7 @@ export default function ChapterForm({ courseId }: ChapterFormProps) {
       }
 
       formData.set("videoUrl", videoUrl);
+      formData.set("description", description); // Use the description from the rich text editor
       formData.append("attachments", JSON.stringify(attachments));
       formData.append("courseId", courseId);
 
@@ -100,7 +103,10 @@ export default function ChapterForm({ courseId }: ChapterFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" disabled={isLoading} placeholder="Enter chapter description (optional)" />
+          {/* Replace Textarea with the Editor component */}
+          <div className="min-h-[200px]">
+            <Editor value={description} onChange={setDescription} disabled={isLoading} />
+          </div>
         </div>
 
         <div className="space-y-2">
