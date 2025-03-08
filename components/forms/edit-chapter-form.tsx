@@ -148,7 +148,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
           <Label htmlFor="description">Description</Label>
           {/* Replace Textarea with Editor component */}
           <div className="min-h-[200px]">
-            <Editor value={description} onChange={setDescription} disabled={isLoading} />
+            <Editor value={description} onChange={setDescription} />
           </div>
         </div>
 

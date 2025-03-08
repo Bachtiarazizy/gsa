@@ -9,20 +9,14 @@ import "react-quill/dist/quill.snow.css";
 interface EditorProps {
   onChange: (value: string) => void;
   value: string;
-  disabled?: boolean; // Add the disabled prop as optional
 }
 
-export const Editor = ({ onChange, value, disabled = false }: EditorProps) => {
+export const Editor = ({ onChange, value }: EditorProps) => {
   const ReactQuill = useMemo(() => dynamic(() => import("react-quill"), { ssr: false }), []);
 
   return (
     <div className="bg-secondary">
-      <ReactQuill
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        readOnly={disabled} // Use the disabled prop to set readOnly
-      />
+      <ReactQuill theme="snow" value={value} onChange={onChange} />
     </div>
   );
 };
