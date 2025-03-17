@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Medal, Trophy, Award } from "lucide-react";
+import { Medal, Trophy, Award, BookOpen } from "lucide-react";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -20,7 +20,7 @@ interface LeaderboardEntry {
 
 interface UserStats {
   rank: number;
-  stats: LeaderboardEntry;
+  stats: LeaderboardEntry | null;
 }
 
 const RankIcon = ({ rank }: { rank: number }) => {
@@ -48,13 +48,14 @@ const StudentLeaderboardPage = () => {
         // Sort leaderboard by points
         const sortedLeaderboard = leaderboardData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.points - a.points);
 
-        // Find user's rank
-        const userRank = sortedLeaderboard.findIndex((entry: LeaderboardEntry) => entry.userId === userId) + 1;
+        // Find user's stats
+        const userEntry = sortedLeaderboard.find((entry: LeaderboardEntry) => entry.userId === userId);
+        const userRank = userEntry ? sortedLeaderboard.findIndex((entry: LeaderboardEntry) => entry.userId === userId) + 1 : 0;
 
         setLeaderboard(sortedLeaderboard);
         setUserStats({
           rank: userRank,
-          stats: sortedLeaderboard.find((entry: LeaderboardEntry) => entry.userId === userId)!,
+          stats: userEntry || null,
         });
       } catch (err) {
         setError("Failed to load leaderboard. Please try again later.");
@@ -100,21 +101,34 @@ const StudentLeaderboardPage = () => {
     <div className="max-w-5xl mx-auto flex-1 space-y-6 p-4 md:p-6">
       <h1 className="text-2xl font-bold mb-6">Student Leaderboard</h1>
 
-      {userStats && (
-        <Card className="mb-6 bg-primary/5">
-          <CardHeader>
-            <CardTitle>Your Ranking</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <RankIcon rank={userStats.rank} />
-              <span className="font-semibold">#{userStats.rank} Place</span>
-              {userStats.rank <= 3 && <Award className="h-5 w-5 text-primary" />}
-              <span className="ml-auto font-semibold">{userStats.stats.points} Points</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {userStats &&
+        (userStats.stats ? (
+          <Card className="mb-6 bg-primary/5">
+            <CardHeader>
+              <CardTitle>Your Ranking</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <RankIcon rank={userStats.rank} />
+                <span className="font-semibold">#{userStats.rank} Place</span>
+                {userStats.rank <= 3 && <Award className="h-5 w-5 text-primary" />}
+                <span className="ml-auto font-semibold">{userStats.stats.points} Points</span>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-6 bg-primary/5">
+            <CardHeader>
+              <CardTitle>Your Ranking</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <BookOpen className="h-6 w-6 text-muted-foreground" />
+                <span className="text-muted-foreground">You don&apos;t have any completed courses or points yet.</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
 
       <div className="space-y-4">
         {leaderboard.map((entry, index) => (

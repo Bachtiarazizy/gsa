@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { GraduationCap, Menu, X } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 const Navbar = () => {
@@ -23,8 +23,15 @@ const Navbar = () => {
         {/* Main navbar container */}
         <div className="relative flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 z-10">
-            <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-primary bg-clip-text text-transparent ">GlobalSkills</span>
+
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="p-2.5 rounded-xl transition-all duration-300 bg-primary text-white shadow-sm">
+              <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-primary bg-clip-text text-transparent ">GlobalSkills</span>
+              <p className="text-sm font-medium tracking-wider uppercase transition-colors duration-300 text-primary/70">Academy</p>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
