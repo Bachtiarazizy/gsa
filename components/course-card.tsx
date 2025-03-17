@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Users } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
 
 interface CourseCardProps {
   id: string;
@@ -42,9 +43,7 @@ const CourseCard = ({ id, title, imageUrl, description, enrollmentCount, price, 
           <h3 className="font-semibold text-lg mt-2 line-clamp-1">{title}</h3>
         </CardHeader>
 
-        <CardContent>
-          <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
-        </CardContent>
+        <CardContent>{description ? <CompactRichTextPreview content={description} className="text-sm text-muted-foreground" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}</CardContent>
       </Card>
     </Link>
   );

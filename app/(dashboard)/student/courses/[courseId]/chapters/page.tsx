@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCourseWithChapters } from "@/lib/actions/chapter";
 import { Metadata } from "next";
+import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
 
 export const metadata: Metadata = {
   title: "Course Chapters | Global Skills Academy",
@@ -81,7 +82,7 @@ const ChapterCard = ({ chapter, index, isLocked }: { chapter: any; index: number
         </div>
         <div className="flex flex-col gap-1">
           <CardTitle className="text-lg">{chapter.title}</CardTitle>
-          {chapter.description && <p className="text-muted-foreground text-sm line-clamp-2">{chapter.description}</p>}
+          {chapter.description ? <CompactRichTextPreview content={chapter.description} className="text-sm text-muted-foreground line-clamp-2" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}
           {isLocked && <p className="text-sm text-red-500">Complete the previous chapter to unlock</p>}
         </div>
       </CardHeader>
@@ -129,7 +130,7 @@ async function CourseChaptersContent({ userId, courseId }: { userId: string; cou
 
           <div className="w-full">
             <h1 className="text-2xl font-bold mb-2">{course.title}</h1>
-            <p className="text-sm text-muted-foreground mb-4">{course.description}</p>
+            {course.description ? <CompactRichTextPreview content={course.description} className="text-sm text-muted-foreground line-clamp-1" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}
 
             <div className="p-4 bg-slate-100 rounded-lg">
               <div className="flex items-center gap-2 mb-4">

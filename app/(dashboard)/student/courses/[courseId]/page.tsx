@@ -10,6 +10,7 @@ import { getCourse } from "@/lib/actions/course";
 import { getEnrollmentStatus } from "@/lib/actions/enrollment";
 import EnrollButton from "@/components/enrolled-button";
 import { Metadata } from "next";
+import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
 
 export const metadata: Metadata = {
   title: "Course | Global Skills Academy",
@@ -141,7 +142,7 @@ async function CourseContent({ userId, courseId }: { userId: string; courseId: s
 
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">About this course</h2>
-            <p className="text-muted-foreground">{course.description || "No description available."}</p>
+            {course.description ? <CompactRichTextPreview content={course.description} className="text-sm text-muted-foreground line-clamp-1" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}
           </div>
 
           <Separator className="my-8" />

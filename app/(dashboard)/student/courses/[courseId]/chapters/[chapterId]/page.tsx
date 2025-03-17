@@ -3,7 +3,6 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getChapter } from "@/lib/actions/chapter";
 import { Banner } from "@/components/ui/banner";
-import { Preview } from "@/components/ui/preview";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VideoPlayer } from "@/app/(dashboard)/student/courses/_components/video-player";
 import Link from "next/link";
@@ -12,6 +11,7 @@ import NextChapterNavigation from "../../../_components/next-chapter-button";
 import { FileText } from "lucide-react";
 import ChapterAssessment from "../../../_components/chapter-assessment";
 import { Metadata } from "next";
+import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
 
 export const metadata: Metadata = {
   title: "Chapter | Global Skills Academy",
@@ -133,7 +133,7 @@ async function ChapterContent({ userId, courseId, chapterId }: { userId: string;
           {chapter.videoUrl && <VideoPlayer videoUrl={chapter.videoUrl} chapterId={chapterId} userId={userId} isCompleted={!!userProgress?.isCompleted} hasAssessment={!!chapter.assessment} />}
 
           <div className="flex flex-col gap-2 mt-8">
-            <Preview value={chapter.description || ""} />
+            {chapter.description ? <CompactRichTextPreview content={chapter.description} className="text-sm text-muted-foreground line-clamp-1" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}
           </div>
 
           {chapter.attachmentUrl && (

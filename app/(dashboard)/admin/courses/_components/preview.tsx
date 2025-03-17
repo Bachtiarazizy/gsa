@@ -1,26 +1,26 @@
-// preview.tsx
-
 "use client";
-import dynamic from "next/dynamic";
-import { useMemo } from "react";
-import "react-quill/dist/quill.bubble.css";
 
-interface PreviewProps {
-  value: string;
+import React from "react";
+import parse from "html-react-parser";
+import { cn } from "@/lib/utils";
+
+interface RichTextPreviewProps {
+  content: string;
+  className?: string;
+  compact?: boolean;
 }
 
-export const Preview = ({ value }: PreviewProps) => {
-  const ReactQuill = useMemo(() => dynamic(() => import("react-quill"), { ssr: false }), []);
-
+export const RichTextPreview: React.FC<RichTextPreviewProps> = ({ content, className, compact = false }) => {
   return (
-    <>
-      <style jsx global>{`
-        .ql-bubble .ql-editor {
-          padding: 0 !important;
-          margin: 0 !important;
-        }
-      `}</style>
-      <ReactQuill theme="bubble" value={value} readOnly />
-    </>
+    <div className={cn("rich-text-container", compact ? "line-clamp-2" : "", className)}>
+      <div className={cn("prose prose-sm max-w-none", compact && "prose-compact")}>{parse(content)}</div>
+    </div>
   );
 };
+
+// This component should be used for cards where you need a compact preview
+export const CompactRichTextPreview: React.FC<Omit<RichTextPreviewProps, "compact">> = (props) => {
+  return <RichTextPreview {...props} compact={true} />;
+};
+
+export default RichTextPreview;

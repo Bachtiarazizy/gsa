@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Video, FileEdit, ClipboardList } from "lucide-react";
 import { Metadata } from "next";
+import { CompactRichTextPreview } from "../../../_components/preview";
 
 export const metadata: Metadata = {
   title: "Chapter Details - Admin Dashboard",
@@ -76,7 +77,7 @@ export default async function ChapterDetailsPage({ params }: PageProps) {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-medium">Description</h3>
-              <p className="text-sm text-muted-foreground">{chapter.description || "No description provided"}</p>
+              {chapter.description ? <CompactRichTextPreview content={chapter.description} className="text-sm text-muted-foreground line-clamp-1" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}
             </div>
             <div>
               <h3 className="font-medium">Position</h3>

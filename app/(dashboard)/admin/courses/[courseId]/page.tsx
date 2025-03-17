@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BookOpen, FileEdit, GraduationCap, Users, Clock, ChevronRight, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Metadata } from "next";
+import { CompactRichTextPreview } from "../_components/preview";
 
 export const metadata: Metadata = {
   title: "Course Details - Admin Dashboard",
@@ -100,7 +101,7 @@ export default async function CourseDetailsPage({ params }: PageProps) {
           <CardContent className="space-y-4">
             <div>
               <h3 className="font-medium">Description</h3>
-              <p className="text-sm text-muted-foreground">{course.description || "No description provided"}</p>
+              {course.description ? <CompactRichTextPreview content={course.description} className="text-sm text-muted-foreground" /> : <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>}
             </div>
             <div className="flex gap-4">
               <div>
@@ -168,7 +169,11 @@ export default async function CourseDetailsPage({ params }: PageProps) {
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200">{chapter.position}</div>
                       <div>
                         <p className="font-medium">{chapter.title}</p>
-                        {chapter.description && <p className="text-sm text-muted-foreground line-clamp-1">{chapter.description}</p>}
+                        {chapter.description ? (
+                          <CompactRichTextPreview content={chapter.description} className="text-sm text-muted-foreground line-clamp-1" />
+                        ) : (
+                          <p className="text-sm text-muted-foreground line-clamp-2">No description available</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
