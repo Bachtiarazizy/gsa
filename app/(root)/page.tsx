@@ -1,8 +1,6 @@
-import Hero from "./_components/hero";
 import Promo from "./_components/promo";
 import FeatureOne from "./_components/feature-1";
 import FeatureTwo from "./_components/feature-2";
-import Courses from "./_components/courses";
 import Marquee from "./_components/marquee";
 import VideoPromo from "./_components/video-promo";
 import WhyUs from "./_components/why-us";
@@ -13,6 +11,7 @@ import { Metadata } from "next";
 import Collaborators from "./_components/colaborator";
 import ScrollUpButton from "./_components/animation/scroll=up-button";
 import OurPrograms from "./_components/our-programs";
+import Hero from "./_components/hero";
 
 export const metadata: Metadata = {
   title: "Home | Global Skills Academy",
@@ -34,7 +33,7 @@ const Home = () => {
         <div className="global-container overflow-hidden">
           <div className="h-[1px] w-full bg-[#363636]" />
         </div>
-        <Courses />
+        {/* <Courses /> */}
         <Marquee />
         <VideoPromo />
         <WhyUs />

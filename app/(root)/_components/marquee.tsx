@@ -4,8 +4,8 @@ const Marquee = () => {
   return (
     <div id="text-slide-section" className="relative overflow-hidden">
       {/* Gradient overlays for smooth edges */}
-      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-white to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-white to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-background to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-background to-transparent" />
 
       {/* Main marquee content */}
       <div className="bg-gradient-to-r from-green-600 to-blue-600 py-6">

@@ -41,9 +41,9 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white py-24 lg:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-b from-background to-secondary py-24 lg:py-32">
         {/* Decorative backgrounds */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-blue-100/30 blur-3xl" />
@@ -52,7 +52,7 @@ const AboutPage = () => {
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="font-heading text-4xl font-bold leading-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            <h1 className="font-heading text-4xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl">
               About{" "}
               <span className="relative whitespace-nowrap">
                 <span className="relative z-10 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">Our Mission</span>
@@ -61,7 +61,7 @@ const AboutPage = () => {
                 </svg>
               </span>
             </h1>
-            <p className="mt-6 text-xl text-gray-600">Dedicated to creating positive change through innovation, collaboration, and commitment to excellence.</p>
+            <p className="mt-6 text-xl text-muted-foreground">Dedicated to creating positive change through innovation, collaboration, and commitment to excellence.</p>
           </div>
         </div>
       </section>
@@ -70,8 +70,8 @@ const AboutPage = () => {
       <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-center text-3xl font-bold text-gray-900 sm:text-4xl">Our Story</h2>
-            <div className="mt-10 space-y-6 text-lg text-gray-600">
+            <h2 className="text-center text-3xl font-bold text-foreground sm:text-4xl">Our Story</h2>
+            <div className="mt-10 space-y-6 text-lg text-muted-foreground">
               <p>
                 Founded in 2012, our organization began with a simple yet powerful vision: to bridge the gap between cutting-edge research and real-world applications. What started as a small team of dedicated professionals has grown into a
                 global community of innovators, researchers, and change-makers.
@@ -90,7 +90,7 @@ const AboutPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-green-50 py-16 lg:py-24">
+      {/* <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-green-50 py-16 lg:py-24">
         <div className="absolute inset-0 -z-10">
           <div className="absolute left-1/3 top-1/2 h-64 w-64 rounded-full bg-blue-100/50 blur-3xl" />
           <div className="absolute right-1/3 bottom-1/3 h-64 w-64 rounded-full bg-green-100/50 blur-3xl" />
@@ -111,10 +111,10 @@ const AboutPage = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Team Section */}
-      <section className="py-16 lg:py-24">
+      {/* <section className="py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Our Leadership Team</h2>
@@ -139,10 +139,10 @@ const AboutPage = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Values Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-white py-16 lg:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-b from-background to-secondary py-16 lg:py-24">
         {/* Decorative backgrounds */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute left-1/4 top-1/2 h-64 w-64 rounded-full bg-blue-100/30 blur-3xl" />
@@ -151,8 +151,8 @@ const AboutPage = () => {
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Our Core Values</h2>
-            <p className="mt-4 text-lg text-gray-600">The principles that guide our work and define our culture</p>
+            <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Our Core Values</h2>
+            <p className="mt-4 text-lg text-muted-foreground">The principles that guide our work and define our culture</p>
           </div>
 
           <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -164,16 +164,16 @@ const AboutPage = () => {
               { title: "Inclusivity", description: "We value diverse perspectives and ensure our work benefits all communities." },
               { title: "Sustainability", description: "We develop solutions that create positive long-term outcomes for people and planet." },
             ].map((value, index) => (
-              <div key={index} className="group relative rounded-xl bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-50 to-green-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div key={index} className="group relative rounded-xl bg-secondary p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/50 dark:to-green-950/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                 <div className="relative z-10">
                   <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                     <span className="text-xl font-bold text-blue-600">{index + 1}</span>
                   </div>
 
-                  <h3 className="mb-3 text-xl font-bold text-gray-900">{value.title}</h3>
-                  <p className="text-gray-600">{value.description}</p>
+                  <h3 className="mb-3 text-xl font-bold text-muted-foreground">{value.title}</h3>
+                  <p className="text-muted-foreground">{value.description}</p>
                 </div>
               </div>
             ))}
