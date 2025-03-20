@@ -1,16 +1,20 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { BookOpen, Clock, Users } from "lucide-react";
+import { BookOpen, Clock, Users, FlaskConical } from "lucide-react";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { getCourse } from "@/lib/actions/course";
 import { getEnrollmentStatus } from "@/lib/actions/enrollment";
-import EnrollButton from "@/app/(dashboard)/_components/enrolled-button";
+import EnrollButton from "@/components/enrolled-button";
 import { Metadata } from "next";
 import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
+import Link from "next/link";
+import prisma from "@/lib/db";
+import { useToast } from "@/components/ui/use-toast";
 
 export const metadata: Metadata = {
   title: "Course | Global Skills Academy",
@@ -86,6 +90,43 @@ interface CoursePageProps {
   };
 }
 
+// Client component for the Research button with toast functionality
+function ResearchButton({ courseId, hasCompletedAllChapters }: { courseId: string; hasCompletedAllChapters: boolean }) {
+  const { toast } = useToast();
+
+  const handleResearchClick = (e: React.MouseEvent) => {
+    if (!hasCompletedAllChapters) {
+      e.preventDefault();
+      toast({
+        title: "Action required",
+        description: "You need to complete all chapters first before accessing the research page.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <Link href={hasCompletedAllChapters ? `/student/courses/${courseId}/research-page` : "#"} onClick={handleResearchClick} className={!hasCompletedAllChapters ? "pointer-events-auto" : ""}>
+      <Button variant="outline" className={`w-full flex items-center gap-x-2 ${!hasCompletedAllChapters ? "opacity-70" : ""}`}>
+        <FlaskConical size={16} />
+        <span>Go to Research Page</span>
+      </Button>
+    </Link>
+  );
+}
+
+// Client component wrapper
+
+function ClientCourseButtons({ courseId, enrollmentStatus, hasCompletedAllChapters }: { courseId: string; enrollmentStatus: { isEnrolled: boolean }; hasCompletedAllChapters: boolean }) {
+  return (
+    <div className="space-y-4">
+      <EnrollButton courseId={courseId} enrollmentStatus={enrollmentStatus} />
+      <ResearchButton courseId={courseId} hasCompletedAllChapters={hasCompletedAllChapters} />
+    </div>
+  );
+}
+
+// Server component
 async function CourseContent({ userId, courseId }: { userId: string; courseId: string }) {
   const [enrollmentStatus, course] = await Promise.all([
     getEnrollmentStatus(userId, courseId),
@@ -98,6 +139,29 @@ async function CourseContent({ userId, courseId }: { userId: string; courseId: s
   if (!course) {
     return redirect("/");
   }
+
+  // Check if all chapters are completed
+  const allChaptersProgress = await prisma.chapterProgress.findMany({
+    where: {
+      userId,
+      chapter: {
+        courseId: courseId,
+      },
+    },
+    include: {
+      chapter: true,
+    },
+  });
+
+  const publishedChapters = await prisma.chapter.count({
+    where: {
+      courseId,
+      isPublished: true,
+    },
+  });
+
+  const completedChapters = allChaptersProgress.filter((progress) => progress.isCompleted).length;
+  const hasCompletedAllChapters = completedChapters === publishedChapters && publishedChapters > 0;
 
   const { isEnrolled } = enrollmentStatus;
 
@@ -134,7 +198,7 @@ async function CourseContent({ userId, courseId }: { userId: string; courseId: s
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <EnrollButton courseId={courseId} enrollmentStatus={{ isEnrolled }} />
+                  <ClientCourseButtons courseId={courseId} enrollmentStatus={{ isEnrolled }} hasCompletedAllChapters={hasCompletedAllChapters} />
                 </CardContent>
               </Card>
             </div>

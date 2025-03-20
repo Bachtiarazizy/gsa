@@ -12,6 +12,8 @@ import { FileText } from "lucide-react";
 import ChapterAssessment from "../../../_components/chapter-assessment";
 import { Metadata } from "next";
 import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
+import { Button } from "@/components/ui/button";
+import prisma from "@/lib/prisma/db";
 
 export const metadata: Metadata = {
   title: "Chapter | Global Skills Academy",
@@ -116,9 +118,102 @@ async function ChapterContent({ userId, courseId, chapterId }: { userId: string;
     return redirect(`/student/courses/${courseId}`);
   }
 
+  // Check if all chapters are completed (for this, we need to query the database)
+  // This would ideally be included in the getChapter function, but we're adding it here
+  const allChaptersProgress = await prisma.chapterProgress.findMany({
+    where: {
+      userId,
+      chapter: {
+        courseId: courseId,
+      },
+    },
+    include: {
+      chapter: true,
+    },
+  });
+
+  const publishedChapters = await prisma.chapter.count({
+    where: {
+      courseId,
+      isPublished: true,
+    },
+  });
+
+  const completedChapters = allChaptersProgress.filter((progress) => progress.isCompleted).length;
+  const allChaptersCompleted = completedChapters === publishedChapters && completedChapters > 0;
+
+  // Check if this is the last chapter
+  const isLastChapter = !nextChapter;
+  const isCourseCompleted = userProgress?.isCompleted && isLastChapter && allChaptersCompleted;
+
+  // Check if research paper exists
+  const existingResearchPaper = await prisma.researchPaper.findFirst({
+    where: {
+      userId,
+      courseId,
+    },
+  });
+
+  // Flag to check if course requires research paper
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const requiresResearchPaper = (course as any).requiresResearchPaper || false;
+
+  const handleCourseCompletion = async () => {
+    "use server";
+
+    // Get the student profile ID
+    const studentProfile = await prisma.studentProfile.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (!studentProfile) {
+      throw new Error("Student profile not found");
+    }
+
+    // Mark the course enrollment as completed
+    await prisma.courseEnrollment.updateMany({
+      where: {
+        userId,
+        courseId,
+      },
+      data: {
+        completed: true,
+      },
+    });
+
+    // If the course requires a research paper, create a draft research paper
+    if (requiresResearchPaper && !existingResearchPaper) {
+      await prisma.researchPaper.create({
+        data: {
+          userId,
+          courseId,
+          studentProfileId: studentProfile.id,
+          title: `Research Paper for ${course.title}`,
+          abstract: "",
+          content: "",
+          status: "DRAFT",
+        },
+      });
+    }
+
+    return redirect(`/student/courses/${courseId}/research-paper`);
+  };
+
   return (
     <div className="min-h-full">
-      {userProgress?.isCompleted && <Banner variant="success" label="You already completed this chapter." />}
+      {userProgress?.isCompleted && !isLastChapter && <Banner variant="success" label="You already completed this chapter." />}
+
+      {isCourseCompleted && requiresResearchPaper && !existingResearchPaper && (
+        <Banner variant="success" label="Congratulations! You have completed all chapters in this course. Submit a research paper to finalize your course completion." />
+      )}
+
+      {isCourseCompleted && requiresResearchPaper && existingResearchPaper && (
+        <Banner variant="success" label={`Congratulations! You have completed all chapters in this course. Your research paper is in ${existingResearchPaper.status.toLowerCase()} status.`} />
+      )}
+
+      {isCourseCompleted && !requiresResearchPaper && <Banner variant="success" label="Congratulations! You have successfully completed this course." />}
 
       <div className="flex flex-col max-w-5xl mx-auto pb-20">
         <div className="p-4">
@@ -128,6 +223,20 @@ async function ChapterContent({ userId, courseId, chapterId }: { userId: string;
               <div className="text-sm text-muted-foreground mb-4">{course.title}</div>
             </div>
             {nextChapter && userProgress?.isCompleted && <NextChapterNavigation courseId={courseId} nextChapterId={nextChapter.id} />}
+            {isCourseCompleted && requiresResearchPaper && (
+              <form action={handleCourseCompletion}>
+                <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+                  {existingResearchPaper ? "Continue Research Paper" : "Start Research Paper"}
+                </Button>
+              </form>
+            )}
+            {isCourseCompleted && !requiresResearchPaper && (
+              <form action={handleCourseCompletion}>
+                <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+                  Complete Course
+                </Button>
+              </form>
+            )}
           </div>
 
           {chapter.videoUrl && <VideoPlayer videoUrl={chapter.videoUrl} chapterId={chapterId} userId={userId} isCompleted={!!userProgress?.isCompleted} hasAssessment={!!chapter.assessment} />}
