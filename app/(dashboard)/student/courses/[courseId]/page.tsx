@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCourse } from "@/lib/actions/course";
 import { getEnrollmentStatus } from "@/lib/actions/enrollment";
-import EnrollButton from "@/components/enrolled-button";
+import EnrollButton from "@/app/(dashboard)/_components/enrolled-button";
 import { Metadata } from "next";
 import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
 

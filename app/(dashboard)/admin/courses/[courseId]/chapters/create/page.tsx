@@ -1,11 +1,10 @@
-// app/(admin)/courses/[courseId]/chapters/create/page.tsx
 import { Metadata } from "next";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import CreateChapterForm from "@/components/forms/chapter-form";
 
 interface CreateChapterPageProps {

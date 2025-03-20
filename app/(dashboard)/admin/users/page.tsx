@@ -4,7 +4,7 @@ import { Users, GraduationCap, UserCheck, Clock } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { Metadata } from "next";
 import { Skeleton } from "@/components/ui/skeleton";
 

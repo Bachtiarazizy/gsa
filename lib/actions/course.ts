@@ -2,9 +2,9 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { createCourseSchema } from "../zodSchema";
+import { createCourseSchema } from "../zod-schema/zodSchema";
 import { z } from "zod";
-import prisma from "../db";
+import prisma from "../prisma/db";
 
 export async function getAllCourses() {
   const { userId } = await auth();

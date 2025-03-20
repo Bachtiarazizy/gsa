@@ -17,7 +17,6 @@ type ToasterToast = ToastProps & {
 
 type Toast = Omit<ToasterToast, "id">;
 
-// Use const assertion to preserve literal types
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",

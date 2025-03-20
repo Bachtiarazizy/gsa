@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { updateChapterStatus } from "@/lib/actions/chapter";
 import { useToast } from "@/hooks/use-toast";
-import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor"; // Adjust the import path as needed
+import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor";
 
 interface EditChapterFormProps {
   initialData: {
@@ -42,7 +42,7 @@ export default function EditChapterForm({ initialData }: EditChapterFormProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(initialData.videoUrl);
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(initialData.attachmentUrl);
   const [attachmentName, setAttachmentName] = useState<string | null>(initialData.attachmentOriginalName);
-  const [description, setDescription] = useState<string>(initialData.description || ""); // State for rich text editor
+  const [description, setDescription] = useState<string>(initialData.description || "");
   const router = useRouter();
   const { toast } = useToast();
 

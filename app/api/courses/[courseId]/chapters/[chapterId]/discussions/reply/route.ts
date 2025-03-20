@@ -1,4 +1,4 @@
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 
 // In /api/courses/[courseId]/chapters/[chapterId]/discussions/reply/index.ts

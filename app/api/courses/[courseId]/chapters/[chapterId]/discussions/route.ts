@@ -1,5 +1,5 @@
 // app/api/courses/[courseId]/chapters/[chapterId]/discussions/route.ts
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request, { params }: { params: { courseId: string; chapterId: string } }) {

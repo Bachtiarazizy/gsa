@@ -1,8 +1,8 @@
-import Categories from "@/components/categories";
-import CourseList from "@/components/course-list";
-import SearchInput from "@/components/search-input";
+import Categories from "@/app/(dashboard)/_components/categories";
+import CourseList from "@/app/(dashboard)/_components/course-list";
+import SearchInput from "@/app/(dashboard)/_components/search-input";
 import { getCourses } from "@/lib/actions/course";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";

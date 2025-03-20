@@ -5,7 +5,7 @@ import { ArrowLeft, UserCog } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import StudentProfileEditForm from "@/components/forms/edit-student-data-form";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { Metadata } from "next";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";

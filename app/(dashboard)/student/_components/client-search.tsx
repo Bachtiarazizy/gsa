@@ -1,6 +1,6 @@
 "use client";
 
-import SearchInput from "@/components/search-input";
+import SearchInput from "@/app/(dashboard)/_components/search-input";
 import { Suspense } from "react";
 
 export const SearchWrapper = () => {

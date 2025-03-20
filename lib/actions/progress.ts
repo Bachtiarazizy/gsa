@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import prisma from "../db";
+import prisma from "../prisma/db";
 
 export async function updateChapterProgress(chapterId: string, isCompleted: boolean) {
   try {

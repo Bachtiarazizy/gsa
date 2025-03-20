@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import EditAssessmentForm from "@/components/forms/edit-assessment-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

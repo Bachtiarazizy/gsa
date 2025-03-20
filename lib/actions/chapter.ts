@@ -3,8 +3,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import prisma from "../db";
-import { GetChapterResponse } from "../chapter-types";
+import prisma from "../prisma/db";
+import { GetChapterResponse } from "../types/chapter-types";
 
 export async function updateChapterStatus(chapterId: string, courseId: string, isPublished: boolean) {
   const { userId } = await auth();

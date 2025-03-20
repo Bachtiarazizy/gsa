@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import CourseTable from "@/components/course-table";
+import CourseTable from "@/app/(dashboard)/_components/course-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteCourse, getAllCourses, toggleCoursePublish } from "@/lib/actions/course";
@@ -20,18 +20,18 @@ function TableSkeleton() {
           <CardTitle className="text-xl">
             <Skeleton className="h-6 w-32" />
           </CardTitle>
-          <Skeleton className="h-9 w-24" /> {/* For New Course button */}
+          <Skeleton className="h-9 w-24" />
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Table Header */}
           <div className="grid grid-cols-5 gap-4 py-3 border-b">
-            <Skeleton className="h-4 w-24" /> {/* Course */}
-            <Skeleton className="h-4 w-16" /> {/* Price */}
-            <Skeleton className="h-4 w-20" /> {/* Status */}
-            <Skeleton className="h-4 w-24" /> {/* Created */}
-            <Skeleton className="h-4 w-16" /> {/* Actions */}
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
           </div>
 
           {/* Table Rows */}

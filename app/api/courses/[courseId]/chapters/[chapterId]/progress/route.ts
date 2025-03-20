@@ -1,6 +1,6 @@
 // app/api/courses/[courseId]/chapters/[chapterId]/progress/route.ts
-import prisma from "@/lib/db";
-import { createChapterProgressSchema } from "@/lib/zodSchema";
+import prisma from "@/lib/prisma/db";
+import { createChapterProgressSchema } from "@/lib/zod-schema/zodSchema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 

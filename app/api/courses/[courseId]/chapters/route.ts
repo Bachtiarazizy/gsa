@@ -1,7 +1,7 @@
 // /api/courses/[courseId]/chapters/route.ts
 
-import prisma from "@/lib/db";
-import { createChapterSchema } from "@/lib/zodSchema";
+import prisma from "@/lib/prisma/db";
+import { createChapterSchema } from "@/lib/zod-schema/zodSchema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";

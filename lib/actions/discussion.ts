@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import prisma from "../db";
+import prisma from "../prisma/db";
 
 export async function createDiscussion(formData: FormData) {
   const { userId } = await auth();

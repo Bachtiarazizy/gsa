@@ -1,14 +1,14 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import prisma from "@/lib/db";
 import { LayoutDashboard, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import EditCourseForm from "@/components/forms/edit-course-form";
 import { auth } from "@clerk/nextjs/server";
-import { Course, Category } from "@/lib/zodSchema";
 import PublishButton from "../../_components/publish-button";
 import DeleteButton from "../../_components/delete-button";
+import prisma from "@/lib/prisma/db";
+import { Category, Course } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Edit Course - Admin Dashboard",

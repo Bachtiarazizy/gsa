@@ -11,7 +11,7 @@ import { UploadDropzone } from "@/lib/uploadthing";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
-import { CreateCourseInput } from "@/lib/zodSchema";
+import { CreateCourseInput } from "@/lib/zod-schema/zodSchema";
 import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor";
 
 interface Category {
@@ -35,7 +35,7 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
   const [attachmentUrl, setAttachmentUrl] = useState<string | null>(null);
   const [attachmentOriginalName, setAttachmentOriginalName] = useState<string | null>(null);
   const [duration, setDuration] = useState<string>("");
-  const [description, setDescription] = useState<string>(""); // Add state for description
+  const [description, setDescription] = useState<string>("");
 
   async function onSubmit(formData: FormData) {
     try {
@@ -86,7 +86,7 @@ export default function CreateCourseForm({ categories }: CreateCourseFormProps) 
 
       const courseData: Partial<CreateCourseInput> = {
         title: formData.get("title") as string,
-        description: description || null, // Use the description state
+        description: description || null,
         duration: duration || null,
         price: numericPrice,
         categoryId,

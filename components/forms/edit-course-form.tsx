@@ -11,7 +11,7 @@ import { UploadDropzone } from "@/lib/uploadthing";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
-import { UpdateCourseInput } from "@/lib/zodSchema";
+import { UpdateCourseInput } from "@/lib/zod-schema/zodSchema";
 import { Editor } from "@/app/(dashboard)/admin/courses/_components/editor";
 
 interface Category {

@@ -1,4 +1,4 @@
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { revalidatePath } from "next/cache";
 
 export const enrollInCourse = async (userId: string, courseId: string) => {

@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import prisma from "../db";
+import prisma from "../prisma/db";
 import { auth } from "@clerk/nextjs/server";
-import { createQuestionSchema } from "../zodSchema";
+import { createQuestionSchema } from "../zod-schema/zodSchema";
 
 export async function createAssessment(chapterId: string) {
   try {

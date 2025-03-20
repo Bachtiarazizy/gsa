@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreateCourseForm from "@/components/forms/course-form";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 
 export const metadata: Metadata = {
   title: "Create a New Course",

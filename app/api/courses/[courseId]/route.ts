@@ -1,7 +1,7 @@
 // /api/courses/[courseId]/route.ts
 
-import prisma from "@/lib/db";
-import { updateCourseSchema } from "@/lib/zodSchema";
+import prisma from "@/lib/prisma/db";
+import { updateCourseSchema } from "@/lib/zod-schema/zodSchema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 

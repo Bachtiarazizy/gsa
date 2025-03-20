@@ -1,7 +1,7 @@
 // app/api/discussions/route.ts
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import prisma from "@/lib/db";
+import prisma from "@/lib/prisma/db";
 import { StudentProfile } from "@prisma/client";
 
 // Define types for the query results
