@@ -1,20 +1,18 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { BookOpen, Clock, Users, FlaskConical } from "lucide-react";
+import { BookOpen, Clock, Users } from "lucide-react";
 import Image from "next/image";
 import { auth } from "@clerk/nextjs/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { getCourse } from "@/lib/actions/course";
 import { getEnrollmentStatus } from "@/lib/actions/enrollment";
 import { Metadata } from "next";
 import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
-import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
 import EnrollButton from "@/app/(dashboard)/_components/enrolled-button";
 import prisma from "@/lib/prisma/db";
+import ResearchButton from "../_components/research-button";
 
 export const metadata: Metadata = {
   title: "Course | Global Skills Academy",
@@ -91,32 +89,6 @@ interface CoursePageProps {
 }
 
 // Client component for the Research button with toast functionality
-function ResearchButton({ courseId, hasCompletedAllChapters }: { courseId: string; hasCompletedAllChapters: boolean }) {
-  const { toast } = useToast();
-
-  const handleResearchClick = (e: React.MouseEvent) => {
-    if (!hasCompletedAllChapters) {
-      e.preventDefault();
-      toast({
-        title: "Action required",
-        description: "You need to complete all chapters first before accessing the research page.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  return (
-    <Link href={hasCompletedAllChapters ? `/student/courses/${courseId}/research-page` : "#"} onClick={handleResearchClick} className={!hasCompletedAllChapters ? "pointer-events-auto" : ""}>
-      <Button variant="outline" className={`w-full flex items-center gap-x-2 ${!hasCompletedAllChapters ? "opacity-70" : ""}`}>
-        <FlaskConical size={16} />
-        <span>Go to Research Page</span>
-      </Button>
-    </Link>
-  );
-}
-
-// Client component wrapper
-
 function ClientCourseButtons({ courseId, enrollmentStatus, hasCompletedAllChapters }: { courseId: string; enrollmentStatus: { isEnrolled: boolean }; hasCompletedAllChapters: boolean }) {
   return (
     <div className="space-y-4">
@@ -125,7 +97,6 @@ function ClientCourseButtons({ courseId, enrollmentStatus, hasCompletedAllChapte
     </div>
   );
 }
-
 // Server component
 async function CourseContent({ userId, courseId }: { userId: string; courseId: string }) {
   const [enrollmentStatus, course] = await Promise.all([
