@@ -9,12 +9,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getCourse } from "@/lib/actions/course";
 import { getEnrollmentStatus } from "@/lib/actions/enrollment";
-import EnrollButton from "@/components/enrolled-button";
 import { Metadata } from "next";
 import { CompactRichTextPreview } from "@/app/(dashboard)/admin/courses/_components/preview";
 import Link from "next/link";
-import prisma from "@/lib/db";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import EnrollButton from "@/app/(dashboard)/_components/enrolled-button";
+import prisma from "@/lib/prisma/db";
 
 export const metadata: Metadata = {
   title: "Course | Global Skills Academy",
