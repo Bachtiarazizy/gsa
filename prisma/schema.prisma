@@ -222,7 +222,8 @@ model ResearchPaper {
   title          String
   abstract       String   @db.Text
   content        String   @db.Text
-  fileUrl        String?  // For uploaded PDF or document file
+  fileUrl        String?  // For uploaded PDF or document 
+  fileOriginalName String?
   status         PaperStatus @default(DRAFT)
   feedback       String?  @db.Text  // Instructor feedback
   grade          Float?   // Optional grade
