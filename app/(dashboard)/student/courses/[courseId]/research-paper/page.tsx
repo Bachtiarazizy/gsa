@@ -46,10 +46,6 @@ const ResearchPaperPage = async ({ params }: ResearchPaperPageProps) => {
     return redirect("/student/courses");
   }
 
-  if (!course.requiresResearchPaper) {
-    return redirect(`/student/courses/${params.courseId}`);
-  }
-
   // Check if user has a research paper for this course
   const researchPaper = await prisma.researchPaper.findFirst({
     where: {
