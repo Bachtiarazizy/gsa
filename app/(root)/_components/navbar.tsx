@@ -112,9 +112,6 @@ const Navbar = () => {
 
 const NavLinks = () => (
   <div className="flex items-center gap-8">
-    <Link href="/courses" className="text-muted-foreground hover:text-foreground">
-      Courses
-    </Link>
     <Link href="/about" className="text-muted-foreground hover:text-foreground">
       About
     </Link>
@@ -126,9 +123,6 @@ const NavLinks = () => (
 
 const MobileNavLinks = () => (
   <>
-    <Link href="/courses" className="w-full text-lg font-medium text-muted-foreground hover:text-foreground">
-      Courses
-    </Link>
     <Link href="/about" className="w-full text-lg font-medium text-muted-foreground hover:text-foreground">
       About
     </Link>
