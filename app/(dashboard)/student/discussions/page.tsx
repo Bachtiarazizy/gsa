@@ -6,8 +6,8 @@ import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Discussion } from "@/lib/types";
 import ClientDiscussions from "../courses/_components/client-discussion";
+import { Discussion } from "@/lib/zod-schema/zodSchema";
 
 const StudentDiscussionsPage = () => {
   const { userId, isLoaded, isSignedIn } = useAuth();

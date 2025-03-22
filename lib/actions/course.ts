@@ -430,11 +430,52 @@ export const getCourses = async ({ title, categoryId }: GetCoursesParams) => {
   }
 };
 
+interface GetCoursesParam {
+  title?: string;
+  categoryId?: string;
+}
+export const getCoursePage = async ({ title, categoryId }: GetCoursesParam) => {
+  try {
+    const courses = await prisma.course.findMany({
+      where: {
+        isPublished: true,
+        ...(title && {
+          title: {
+            contains: title,
+            mode: "insensitive",
+          },
+        }),
+        ...(categoryId && { categoryId }),
+      },
+      include: {
+        category: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return courses.map((course) => ({
+      id: course.id,
+      title: course.title,
+      imageUrl: course.imageUrl,
+      description: course.description,
+      enrollmentCount: course.enrollmentCount,
+      price: course.price,
+      category: course.category.name, // Map category object to category name string
+    }));
+  } catch (error) {
+    console.error("[GET_COURSES]", error);
+    return [];
+  }
+};
+
 interface GetCourseProps {
   userId: string;
   courseId: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getCourse = async ({ userId, courseId }: GetCourseProps) => {
   try {
     const course = await prisma.course.findUnique({
